@@ -1,2 +1,4 @@
 jinja2
 simplejson
+pandas
+numpy
