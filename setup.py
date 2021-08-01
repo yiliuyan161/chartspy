@@ -23,7 +23,7 @@ def get_install_requires():
 
 setup(
     name="echartspy",
-    version="0.0.1",
+    version="1.0.0",
     description="echarts python wrapper",
     packages=find_packages(exclude=("tests", "tests.*")),
     author="yiliuyan",
