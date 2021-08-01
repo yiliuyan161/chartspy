@@ -42,6 +42,45 @@ BASE_GRID_OPTIONS = {
 }
 
 
+def __df2tree(df, category_cols=[], value_col="") -> list:
+    cols = category_cols
+    df_data = df[category_cols + [value_col]]
+    tmp_dict = {}
+    # 从最底层2个类别列开始处理，依次往左处理
+    for i in range(len(cols) - 1, 0, -1):
+        # c1,c0,v0
+        parent_idx = i - 1
+        child_idx = i
+        df_unit = df_data[[cols[parent_idx], cols[child_idx], value_col]]
+        # c1:set(c0)
+        parent_child_map = df_unit.groupby(cols[parent_idx]).apply(
+            lambda dx: list(dx[cols[child_idx]].unique())).to_dict()
+        # c1:sum(v0)
+        parent_sum_value_dict = df_unit[[cols[parent_idx], value_col]].groupby(cols[parent_idx]).sum()[
+            value_col].to_dict()
+        # 第一次迭代，拼装子结构放到父节点下
+        if i == len(cols) - 1:
+            child_sum_value_dict = df_unit[[cols[child_idx], value_col]].groupby(cols[child_idx]).sum()[
+                value_col].to_dict()
+            for parent in parent_child_map.keys():
+                children = []
+                for child in parent_child_map[parent]:
+                    value = child_sum_value_dict[child]
+                    children.append({'name': child, 'value': value})
+                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
+        else:
+            # 非首次迭代,从tmp_dict中取拼装好的子结构放到父节点下
+            for parent in parent_child_map.keys():
+                children = []
+                for child in parent_child_map[parent]:
+                    children.append(tmp_dict[child])
+                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
+    data = []
+    for cat in df_data[cols[0]].unique():
+        data.append(tmp_dict[cat])
+    return data
+
+
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, size: str = None,
             size_max: int = 10, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -174,9 +213,9 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
     :param name: name列名
     :param value: value列名
     :param rose_type: radius/area/None
-    :param title:
-    :param width:
-    :param height:
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
     df = data_frame[[name, value]].sort_values(name, ascending=True).copy()
@@ -224,7 +263,23 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
 def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
                 clo: str = 'close',
                 vol: str = 'volume', mas: list = [5, 10, 30], title: str = "",
-                width: str = "100%", height: str = "800px") -> Echarts:
+                width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
+    """
+    绘制K线
+    :param data_frame:
+    :param time: 时间列名
+    :param opn: open列名
+    :param high: high列名
+    :param low: low列名
+    :param clo: close列名
+    :param vol: volume列名
+    :param mas: 均线组
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :param left: 左侧padding宽度
+    :return:
+    """
     df = data_frame[[time, opn, high, low, clo, vol]].sort_values(time, ascending=True).copy()
     options = {
         'animation': False,
@@ -273,8 +328,8 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             'label': {'backgroundColor': '#777'}
         },
         'grid': [
-            {'left': '10%', 'right': '8%', 'height': '70%'},
-            {'left': '10%', 'right': '8%', 'top': '71%', 'height': '16%'}
+            {'left': left, 'right': '0%', 'height': '70%'},
+            {'left': left, 'right': '0%', 'top': '71%', 'height': '16%'}
         ],
         'xAxis': [
             {
@@ -365,4 +420,316 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         }
         options['series'].append(series_ma)
         options['legend']['data'].append(name)
+    return Echarts(options=options, width=width, height=height)
+
+
+def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True, title: str = "",
+          width: str = "100%", height: str = "500px") -> Echarts:
+    """
+
+    :param data_frame:
+    :param name: name列
+    :param indicators: indicators所有列名list
+    :param fill: 是否填充背景色
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    options = {
+        'title': {
+            'text': title
+        },
+        'legend': {
+            'data': []
+        },
+        'radar': {
+            'shape': 'circle',
+            'indicator': []
+        },
+        'series': [{
+            'name': title,
+            'type': 'radar',
+            'data': []
+        }]
+    }
+    df = data_frame[[name] + indicators].copy()
+    if fill:
+        options['series'][0]['areaStyle'] = {'opacity': 0.2}
+    indicator_max_dict = df[indicators].max().to_dict()
+    options['radar']['indicator'] = [{'name': key, "max": indicator_max_dict[key]} for key in indicator_max_dict.keys()]
+    for record in df.to_dict(orient='records'):
+        data = {
+            'value': [record[indicator] for indicator in indicators],
+            'name': record[name]
+        }
+        options['series'][0]['data'].append(data)
+        options['legend']['data'].append(record[name])
+    return Echarts(options=options, width=width, height=height)
+
+
+def heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
+            width: str = "100%", height: str = "500px") -> Echarts:
+    """
+    二维热力图
+    :param data_frame: 必填 DataFrame
+    :param x: 必填 x轴映射的列
+    :param y: 必填 y轴映射的列
+    :param value: 可选 分组列，不同颜色表示
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    df = data_frame[[x, y, value]].copy()
+    options = {
+        'title': {'text': title},
+        'tooltip': {'position': 'top'},
+        'grid': {
+            'height': '50%',
+            'top': '10%'
+        },
+        'xAxis': {
+            'type': 'category',
+            'data': sorted(df[x].tolist()),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'yAxis': {
+            'type': 'category',
+            'data': sorted(df[y].tolist()),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'visualMap': {
+            'min': 0,
+            'max': 10,
+            'calculable': True,
+            'orient': 'horizontal',
+            'left': 'center',
+            'bottom': '15%'
+        },
+        'series': [{
+            'name': 'Punch Card',
+            'type': 'heatmap',
+            'data': df[[x, y, value]].values.tolist(),
+            'label': {
+                'show': True
+            },
+            'emphasis': {
+                'itemStyle': {
+                    'shadowBlur': 10,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    }
+    return Echarts(options=options, width=width, height=height)
+
+
+def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = None,
+                     title: str = "",
+                     width: str = "100%", height: str = "300px") -> Echarts:
+    """
+
+    :param data_frame:
+    :param date: 日期列
+    :param value: 值列
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    df = data_frame[[date, value]].copy()
+    value_max = df[value].max()
+    value_min = df[value].min()
+    date_start = pd.to_datetime(df[date].min()).strftime("%Y-%m-%d")
+    date_end = pd.to_datetime(df[date].max()).strftime("%Y-%m-%d")
+    df[date] = pd.to_datetime(df[date]).dt.strftime("%Y-%m-%d")
+    options = {
+        'title': {
+            'top': 30,
+            'left': 'center',
+            'text': title
+        },
+        'tooltip': {'formatter': "{c}"},
+        'visualMap': {
+            'min': value_min,
+            'max': value_max,
+            'type': 'piecewise',
+            'orient': 'horizontal',
+            'left': 'center',
+            'top': 65,
+            'hoverLink': True
+        },
+        'calendar': {
+            'top': 120,
+            'left': 30,
+            'right': 30,
+            'cellSize': ['auto', 'auto'],
+            'range': [date_start, date_end],
+            'itemStyle': {
+                'borderWidth': 0.5
+            },
+            'dayLabel': {
+                'firstDay': 1
+            },
+            'monthLabel': {
+                'nameMap': 'cn'
+            },
+            'yearLabel': {'show': True}
+        },
+        'series': {
+            'type': 'heatmap',
+            'coordinateSystem': 'calendar',
+            'data': df[[date, value]].values.tolist()
+        }
+    }
+    return Echarts(options=options, width=width, height=height)
+
+
+def parallel(data_frame: pd.DataFrame, name: str = None, axis: list = [],
+             title: str = "",
+             width: str = "100%", height: str = "500px") -> Echarts:
+    """
+
+    :param data_frame:
+    :param name: name列
+    :param axis: 维度列list
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    df = data_frame[[name] + axis].copy()
+    options = {
+        'title': {'text': title},
+        'legend': {
+            'data': []
+        },
+        'parallelAxis': [],
+        'series': []
+    }
+    value_dict_list = df.to_dict(orient='records')
+    for i in range(0, len(axis)):
+        if "object" in str(df[axis[i]].dtype):
+            col = {'dim': i, 'name': axis[i], 'type': 'category', 'data': sorted(df[axis[i]].unique())}
+        else:
+            col = {'dim': i, 'name': axis[i], 'min': "dataMin", 'max': "dataMax"}
+        options['parallelAxis'].append(col)
+    for value_dict in value_dict_list:
+        series = {
+            'name': value_dict[name],
+            'type': 'parallel',
+            'lineStyle': {width: 3},
+            'data': [[value_dict[col] for col in axis]]
+        }
+        options['series'].append(series)
+        options['legend']['data'].append(value_dict[name])
+    return Echarts(options=options, width=width, height=height)
+
+
+def sankey(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
+           width: str = "100%", height: str = "500px") -> Echarts:
+    """
+
+    :param data_frame:
+    :param source: source列
+    :param target: target列
+    :param value: value列
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    df = data_frame[[source, target, value]].copy()
+    df.columns = ['source', 'target', 'value']
+    names = list(set(df[source].unique()).union(set(df[target].unique())))
+    options = {
+        'title': {
+            'text': title,
+            'left': 'center'
+        },
+        'series': [{
+            'type': 'sankey',
+            'data': [{'name': name} for name in names],
+            'links': df.to_dict(orient='records'),
+            'lineStyle': {
+                'color': 'source',
+                'curveness': 0.5
+            },
+            'label': {
+                'color': 'rgba(0,0,0,0.7)',
+                'fontFamily': 'Arial',
+                'fontSize': 10
+            }
+        }]
+    }
+    return Echarts(options=options, width=width, height=height)
+
+
+def theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None, title: str = "",
+                width: str = "100%", height: str = "500px") -> Echarts:
+    """
+
+    :param data_frame:
+    :param date: date列
+    :param value: value列
+    :param theme: theme列
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    df = data_frame[[date, value, theme]].copy()
+    options = {
+        'tooltip': {
+            'trigger': 'axis',
+            'axisPointer': {
+                'type': 'line',
+                'lineStyle': {
+                    'color': 'rgba(0,0,0,0.2)',
+                    'width': 1,
+                    'type': 'solid'
+                }
+            }
+        },
+        'legend': {
+            'data': list(df[theme].unique())
+        },
+        'singleAxis': {
+            'top': 50,
+            'bottom': 50,
+            'axisTick': {},
+            'axisLabel': {},
+            'type': 'time',
+            'axisPointer': {
+                'animation': True,
+                'label': {
+                    'show': True
+                }
+            },
+            'splitLine': {
+                'show': True,
+                'lineStyle': {
+                    'type': 'dashed',
+                    'opacity': 0.2
+                }
+            }
+        },
+        'series': [
+            {
+                'type': 'themeRiver',
+                'emphasis': {
+                    'itemStyle': {
+                        'shadowBlur': 20,
+                        'shadowColor': 'rgba(0, 0, 0, 0.8)'
+                    }
+                },
+                'data': df.values.tolist()
+            }
+        ]
+    }
     return Echarts(options=options, width=width, height=height)
