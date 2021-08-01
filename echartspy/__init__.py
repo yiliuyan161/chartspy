@@ -27,12 +27,12 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
   });
 </script>
 <style>
- .echarts_container {
+  #{{plot.plot_id}} {
     width:{{plot.width}};
     height:{{plot.height}};
  }
 </style>
-<div id="{{ plot.plot_id }}" class="echarts_container"></div>
+<div id="{{ plot.plot_id }}"></div>
 <script>
   require(['echarts'], function (echarts) {
     var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
@@ -50,14 +50,14 @@ JUPYTER_LAB_TEMPLATE = """
   <meta charset="UTF-8">
   <title></title>
   <style>
- .echarts_container {
+ #{{plot.plot_id}} {
     width:{{plot.width}};
     height:{{plot.height}};
  }
 </style>
 </head>
 <body>
-  <div id="{{ plot.plot_id }}" class='echarts_container'></div>
+  <div id="{{ plot.plot_id }}"></div>
   <script>
     // load javascript
     new Promise(function(resolve, reject) {
@@ -84,15 +84,15 @@ HTML_TEMPLATE = """
   <meta charset="UTF-8">
   <title></title>
     <style>
-     .echarts_container {
-        width:{{plot.width}};
-        height:{{plot.height}};
-     }
+      #{{plot.plot_id}} {
+            width:{{plot.width}};
+            height:{{plot.height}};
+         }
     </style>
    <script type="text/javascript" src="{{ plot.js_url }}"></script>
 </head>
 <body>
-  <div id="{{ plot.plot_id }}" class="echarts_container"></div>
+  <div id="{{ plot.plot_id }}" ></div>
   <script>
     var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
     {{plot.extra_js}}

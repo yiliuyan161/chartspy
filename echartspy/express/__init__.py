@@ -223,8 +223,8 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
 
 def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
                 clo: str = 'close',
-                vol: str = 'vol', mas: list = [5, 10, 30], title: str = "",
-                width: str = "100%", height: str = "500px") -> Echarts:
+                vol: str = 'volume', mas: list = [5, 10, 30], title: str = "",
+                width: str = "100%", height: str = "800px") -> Echarts:
     df = data_frame[[time, opn, high, low, clo, vol]].sort_values(time, ascending=True).copy()
     options = {
         'animation': False,
@@ -235,31 +235,33 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             'borderWidth': 1,
             'borderColor': '#ccc',
             'padding': 10,
-            'formatter': Js("""function(params){
-                    var dt = params[0]['axisValue']
-                    var labels=[],
-                    labels.append('时间: ' + dt + '<br/>)
+            'formatter': Js("""
+                function(params){
+                    var dt = params[0]['axisValue'];
+                    var labels = [];
+                    labels.push('时间: ' + dt + '<br/>');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
-                      else if (a.seriesName > b.seriesName ) {return 1;}else{return 0;}
-                    })
+                      else if (a.seriesName > b.seriesName ) {return 1;}
+                      else{ return 0;}
+                    });
                     for (var i=0;i<params.length;i++)
                     { 
                        var param= params[i];
-                       if(param.seriesType =="candlestick"){
-                         labels.append('open: ' + param.data[1] + '<br/>');
-                         labels.append('close: ' + param.data[2] + '<br/>');
-                         labels.append('low: ' + param.data[3] + '<br/>');
-                         labels.append('high: ' + param.data[4] + '<br/>');
+                       if(param.seriesType =='candlestick'){
+                         labels.push('open: ' + param.data[1] + '<br/>');
+                         labels.push('close: ' + param.data[2] + '<br/>');
+                         labels.push('low: ' + param.data[3] + '<br/>');
+                         labels.push('high: ' + param.data[4] + '<br/>');
                        }else{
-                         labels.append(param.seriesName+': ' + param.data + '<br/>');
+                         labels.push(param.seriesName+': ' + param.data + '<br/>');
                        }
                     }
                     return labels.join('');
                 }"""),
             'textStyle': {'color': '#000'},
             'position': Js("""
-                function (pos, params, el, elRect, size) {
+                function (pos, params, el, elRect, size){
                     var obj = {top: 10};
                     obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
                     return obj;
@@ -277,7 +279,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         'xAxis': [
             {
                 'type': 'category',
-                'data': df[time],
+                'data': df[time].tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'show': False},
@@ -294,7 +296,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             {
                 'type': 'category',
                 'gridIndex': 1,
-                'data': df[time],
+                'data': df[time].tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'onZero': False, 'show': True},
@@ -338,7 +340,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             {
                 'name': 'K线',
                 'type': 'candlestick',
-                'data': df[[opn, clo, high, low]],
+                'data': df[[opn, clo, high, low]].values.tolist(),
 
             },
             {
@@ -346,17 +348,17 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                 'type': 'bar',
                 'xAxisIndex': 1,
                 'yAxisIndex': 1,
-                'data': df[vol]
+                'data': df[vol].tolist()
             }
         ]
     }
     for ma_len in mas:
         name = "MA" + str(ma_len)
-        df[name] = df[clo].rolling(ma_len).mean()
+        df[name] = df[clo].rolling(ma_len).mean().round(2)
         series_ma = {
             'name': name,
             'type': 'line',
-            'data': df[name],
+            'data': df[name].tolist(),
             'smooth': True,
             'showSymbol': False,
             'lineStyle': {'opacity': 0.5}
