@@ -1,0 +1,31 @@
+site_name: echartspy
+site_url: https://echartspy.icopy.site/
+theme:
+  font: false
+  name: material
+  palette:
+    primary: black
+    accent: white
+  language: zh
+  features:
+    - navigation.top
+
+extra_css:
+  - stylesheets/extra.css
+plugins:
+  - search:
+      prebuild_index: true
+      lang: ja
+markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.details
+  - admonition
+  - toc:
+      toc_depth: 4
+      permalink: true
+
+
+
+
+
+
