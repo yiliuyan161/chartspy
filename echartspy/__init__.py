@@ -341,8 +341,7 @@ class Echarts(object):
         return Html("<p>{path}</p>".format(path=abs_path))
 
     def _ensure_js_options(self):
-        if self.js_options is None:
-            self.js_options = re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
+        self.js_options = re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
                                      simplejson.dumps(self.options, indent=2, default=_type_convert, ignore_nan=True))
 
     def render_html(self) -> str:

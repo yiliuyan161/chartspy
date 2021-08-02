@@ -2,48 +2,9 @@ import pandas as pd
 
 from echartspy import Echarts, Js, Tools
 
-BASE_GRID_OPTIONS = {
-    'animation': True,
-    'legend': {
-        'data': []
-    },
-    'tooltip': {
-        'trigger': 'item',
-        'backgroundColor': 'rgba(255, 255, 255, 0.8)'
-    },
-    'xAxis': {
-        'type': 'value',
-        'min': 'dataMin',
-        'max': 'dataMax'
-    },
-    'yAxis': {
-        'type': 'value',
-        'min': 'dataMin',
-        'max': 'dataMax',
-        'splitLine': {
-            'show': True
-        }
-    },
-    'dataZoom': [
-        {
-            'type': 'inside',
-            'xAxisIndex': 0,
-            'start': 1,
-            'end': 100
-        },
-        {
-            'type': 'inside',
-            'yAxisIndex': 0,
-            'start': 1,
-            'end': 100
-        }
-    ],
-    'series': []
-}
-
 
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, size: str = None,
-            size_max: int = 10, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
+            size_max: int = 30, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制scatter图
     :param data_frame: 必填 DataFrame
@@ -57,7 +18,40 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = {
+        'animation': True,
+        'legend': {
+            'data': []
+        },
+        'tooltip': {
+            'trigger': 'item',
+            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
+        },
+        'xAxis': {
+            'type': 'value',
+        },
+        'yAxis': {
+            'type': 'value',
+            'splitLine': {
+                'show': True
+            }
+        },
+        'dataZoom': [
+            {
+                'type': 'inside',
+                'xAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            },
+            {
+                'type': 'inside',
+                'yAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            }
+        ],
+        'series': []
+    }
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
@@ -113,7 +107,40 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = No
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = {
+        'animation': True,
+        'legend': {
+            'data': []
+        },
+        'tooltip': {
+            'trigger': 'item',
+            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
+        },
+        'xAxis': {
+            'type': 'value',
+        },
+        'yAxis': {
+            'type': 'value',
+            'splitLine': {
+                'show': True
+            }
+        },
+        'dataZoom': [
+            {
+                'type': 'inside',
+                'xAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            },
+            {
+                'type': 'inside',
+                'yAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            }
+        ],
+        'series': []
+    }
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
@@ -146,7 +173,40 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = Non
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = {
+        'animation': True,
+        'legend': {
+            'data': []
+        },
+        'tooltip': {
+            'trigger': 'item',
+            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
+        },
+        'xAxis': {
+            'type': 'value'
+        },
+        'yAxis': {
+            'type': 'value',
+            'splitLine': {
+                'show': True
+            }
+        },
+        'dataZoom': [
+            {
+                'type': 'inside',
+                'xAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            },
+            {
+                'type': 'inside',
+                'yAxisIndex': 0,
+                'start': 1,
+                'end': 100
+            }
+        ],
+        'series': []
+    }
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
@@ -155,13 +215,13 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = Non
         groups = df[group].unique()
         for group_value in groups:
             df_series = df[df[group] == group_value]
-            series = {'name': group_value, 'type': 'bar', 'data': df_series[[x, y]].values.tolist()}
+            series = {'name': group_value, 'type': 'bar', 'data': df_series[[x,y]].values.tolist()}
             if stacked:
                 series['stack'] = "all"
             options['legend']['data'].append(group_value)
             options['series'].append(series)
     else:
-        series = {'type': 'bar', 'data': df[[x, y]].values.tolist()}
+        series = {'type': 'bar', 'data': df[[x,y]].values.tolist()}
         options['series'].append(series)
     return Echarts(options=options, width=width, height=height)
 
@@ -184,7 +244,6 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
     options = {
         'title': {
             'text': title,
-            'left': 'center'
         },
         'tooltip': {
             'trigger': 'item',
