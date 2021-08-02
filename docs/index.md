@@ -51,7 +51,6 @@ options={
     }]
 }
 Echarts(options,height='600px',title='散点图测试').render_notebook()
-
 ```
 
 #### 半自动
