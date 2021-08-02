@@ -220,7 +220,8 @@ class Tools(object):
             return "'" + match_obj.group(1) + "':"
 
         # 词典key加单引号，true,false字面量替换
-        js_code = re.sub("([a-zA-Z0-9]+):", rep1, js_code)
+        js_code = re.sub(r"//[^\n]+\n", "", js_code)
+        js_code = re.sub(r"([a-zA-Z0-9]+):\s*[{'\"]", rep1, js_code)
         js_code = re.sub("true", "True", js_code)
         js_code = re.sub("false", "False", js_code)
         # 记录函数开始结束位置数组
@@ -297,7 +298,7 @@ class Echarts(object):
         self.js_options = js_options
         self.width = width
         self.height = height
-        self.plot_id = uuid.uuid4().hex
+        self.plot_id = "u"+uuid.uuid4().hex
         self.js_url = ECHARTS_JS_URL
         self.extra_js = extra_js
 
