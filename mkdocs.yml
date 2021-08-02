@@ -9,6 +9,8 @@ theme:
   language: zh
   features:
     - navigation.top
+  icon:
+    repo: fontawesome/brands/github-alt
 
 extra_css:
   - stylesheets/extra.css
@@ -23,6 +25,9 @@ markdown_extensions:
   - toc:
       toc_depth: 4
       permalink: true
+
+repo_url: https://github.com/yiliuyan161/echartspy
+repo_name: yiliuyan161/echartspy
 
 nav:
   - 使用说明: "index.md"

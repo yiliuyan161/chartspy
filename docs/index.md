@@ -18,11 +18,14 @@ ex.pie(df,name='水果',value='数量',rose_type='area',title="pie2",height='350
 
 ex.candlestick(df.reset_index(),left='5%',mas=[5,10,30],title='平安银行').render_notebook()
 ```
-![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
+!!! note ""
+    ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
 
-![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie2.png?raw=true)
+!!! note ""
+    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie2.png?raw=true)
 
-![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
+!!! note ""
+    ![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
 
 ### 高级模式
 
@@ -79,9 +82,11 @@ options=Tools.convert_js_to_dict(js_str,print_dict=False)
 Echarts(options,height='300px',width='300px').render_notebook()
 ```
 
-![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
+!!! note ""
+    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
 
-![自动转换](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
+!!! note ""
+    ![自动转换](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
 
 
 
