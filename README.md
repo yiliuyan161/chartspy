@@ -87,12 +87,12 @@ Echarts(options,height='300px',width='300px').render_notebook()
 ### 安装
 
 ```shell
-pip install git+https://gitee.com/yiliuyan161/echartspy.git
+pip install echartspy
 ```
 
 ### 升级 echartspy
 ```shell
-pip uninstall echartspy -y  && pip install git+https://gitee.com/yiliuyan161/echartspy.git
+pip uninstall echartspy -y  && pip install echartspy
 ```
 
 
