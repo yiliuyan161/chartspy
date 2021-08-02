@@ -24,6 +24,12 @@ markdown_extensions:
       toc_depth: 4
       permalink: true
 
+nav:
+  - ECHARTSPY: "index.md"
+  - 安装&升级: "安装.md"
+  - 代码说明: "代码说明.md"
+  - API使用示例: "示例.md"
+
 
 
 
