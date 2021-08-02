@@ -289,7 +289,6 @@ class Echarts(object):
                  height: str = "500px"):
         """
         :param options: python词典类型的echarts option
-        :param js_options: 转换后的字符串形式的 echarts option
         :param extra_js: 复杂图表需要声明定义额外js函数的，通过这个字段传递
         :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
         :param height: 输出div的高度 支持像素和百分比 比如800px/100%
