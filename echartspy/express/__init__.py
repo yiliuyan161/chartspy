@@ -57,7 +57,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.copy()
+    options = BASE_GRID_OPTIONS.deepcopy()
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
@@ -113,7 +113,7 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = No
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.copy()
+    options = BASE_GRID_OPTIONS.deepcopy()
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
@@ -146,7 +146,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = Non
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.copy()
+    options = BASE_GRID_OPTIONS.deepcopy()
     df = data_frame.sort_values(x, ascending=True).copy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
