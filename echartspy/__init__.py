@@ -208,10 +208,11 @@ class Tools(object):
         return data
 
     @staticmethod
-    def convert_js_to_dict(js_code: str) -> dict:
+    def convert_js_to_dict_str(js_code: str, print_dict: bool = True) -> str:
         """
         true、false替换，字段名单引号，函数变Js函数包裹
         :param js_code:
+        :param print_dict: 是否控制台打印
         :return: dict
         """
 
@@ -255,6 +256,7 @@ class Tools(object):
         parts.append(js_code[left_index:])
         dict_str = "".join(parts)
         print(dict_str)
+        return dict_str
 
 
 def _type_convert(o: object):
