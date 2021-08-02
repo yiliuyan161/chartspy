@@ -83,7 +83,8 @@ js_str="""
 options=Tools.convert_js_to_dict(js_str,print_dict=False)
 Echarts(options,height='300px',width='300px').render_notebook()
 ```
-![notebook环境输出](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true）
+
+![notebook环境输出](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
 
 
 ## 代码说明
