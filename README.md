@@ -2,10 +2,6 @@
 
 echarts库的 python 封装
 
-![效果展示1](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
-![效果展示2](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p2.png?raw=true)
-![效果展示3](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p3.png?raw=true)
-![效果展示4](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p4.png?raw=true)
 
 
 考虑升级维护以及使用者学习负担，本库不对echarts的模型和属性进行python的对等映射
@@ -210,3 +206,11 @@ Tools.wrap_template(
 """, **locals())
 ```
 
+
+
+## 效果展示
+
+![效果展示1](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
+![效果展示2](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p2.png?raw=true)
+![效果展示3](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p3.png?raw=true)
+![效果展示4](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p4.png?raw=true)
