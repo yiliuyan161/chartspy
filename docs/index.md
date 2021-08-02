@@ -4,9 +4,10 @@
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
 
-实现了 python配置<=>JavaScript配置 的双向互转
+* 实现了 python配置<=>JavaScript配置的**双向互转**
 
-同时借鉴plotly.express 封装了简单图表类型可视化函数方便使用
+* 同时借鉴**plotly.express** 封装了简单图表类型可视化函数
+
 
 
 ## 使用说明
@@ -60,7 +61,7 @@ Echarts(options,height='600px',title='散点图测试').render_notebook()
 
 半自动，从[echarts示例](https://echarts.apache.org/examples/zh/index.html) 拷贝js配置，自动生成对应的python配置
 
-convert_js_to_dict(js_str,**print_dict=True**) 会在控制台打印python 配置, 粘贴进行二次加工
+convert_js_to_dict(js_str,**print_dict=True**) 会在控制台打印python 配置, 方便拷贝粘贴后进行二次加工
 
 ```python
 from echartspy import Echarts,Tools,Js
