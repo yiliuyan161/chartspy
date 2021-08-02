@@ -1,6 +1,6 @@
 import pandas as pd
 
-from echartspy import Echarts, Js, wrap_template
+from echartspy import Echarts, Js,Tools
 
 BASE_GRID_OPTIONS = {
     'animation': True,
@@ -42,45 +42,6 @@ BASE_GRID_OPTIONS = {
 }
 
 
-def __df2tree(df, category_cols=[], value_col="") -> list:
-    cols = category_cols
-    df_data = df[category_cols + [value_col]]
-    tmp_dict = {}
-    # 从最底层2个类别列开始处理，依次往左处理
-    for i in range(len(cols) - 1, 0, -1):
-        # c1,c0,v0
-        parent_idx = i - 1
-        child_idx = i
-        df_unit = df_data[[cols[parent_idx], cols[child_idx], value_col]]
-        # c1:set(c0)
-        parent_child_map = df_unit.groupby(cols[parent_idx]).apply(
-            lambda dx: list(dx[cols[child_idx]].unique())).to_dict()
-        # c1:sum(v0)
-        parent_sum_value_dict = df_unit[[cols[parent_idx], value_col]].groupby(cols[parent_idx]).sum()[
-            value_col].to_dict()
-        # 第一次迭代，拼装子结构放到父节点下
-        if i == len(cols) - 1:
-            child_sum_value_dict = df_unit[[cols[child_idx], value_col]].groupby(cols[child_idx]).sum()[
-                value_col].to_dict()
-            for parent in parent_child_map.keys():
-                children = []
-                for child in parent_child_map[parent]:
-                    value = child_sum_value_dict[child]
-                    children.append({'name': child, 'value': value})
-                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
-        else:
-            # 非首次迭代,从tmp_dict中取拼装好的子结构放到父节点下
-            for parent in parent_child_map.keys():
-                children = []
-                for child in parent_child_map[parent]:
-                    children.append(tmp_dict[child])
-                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
-    data = []
-    for cat in df_data[cols[0]].unique():
-        data.append(tmp_dict[cat])
-    return data
-
-
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, size: str = None,
             size_max: int = 10, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -111,7 +72,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
             }
             if size is not None:
                 max_size_value = df[size].max()
-                series['symbolSize'] = Js(wrap_template("""
+                series['symbolSize'] = Js(Tools.wrap_template("""
                         function(val) {
                          return val[2]/{{max_size_value}}*{{size_max}};
                         }
@@ -127,7 +88,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
         }
         if size is not None:
             max_size_value = df[size].max()
-            series['symbolSize'] = Js(wrap_template("""
+            series['symbolSize'] = Js(Tools.wrap_template("""
                     function(val) {
                         return val[2]/{{max_size_value}}*{{size_max}};
                     }
