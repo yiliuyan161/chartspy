@@ -128,27 +128,35 @@ df = pd.DataFrame(
 ex.scatter(df,x='数量',y='价格',size='数量',group='水果',size_max=50,height='250px',title='scatter').render_notebook()
 ```
 
+![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
+
 ```python
 ex.line(df,x='水果',y='价格',title="line",height='250px').render_notebook()
 ```
+
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/line.png?raw=true)
 
 ```python
 ex.bar(df,x='水果',y='价格',group='类别',title="bar2",height='250px').render_notebook()
 ```
 
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/bar2.png?raw=true)
+
 ```python
 ex.pie(df,name='水果',value='数量',rose_type='area',title="pie2",height='350px').render_notebook()
 ```
 
-```python
-ex.line(df,x='水果',y='价格',title="line",height='250px').render_notebook()
-```
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie2.png?raw=true)
+
+
 
 ```python
 from stocksdk import *
 df=api.get_price("000001.XSHE") # 包含 time,open,high,low,close,volume 这些列
 ex.candlestick(df.reset_index(),left='5%',mas=[5,10,30],title='平安银行').render_notebook()
 ```
+
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
 
 #### Tools工具API使用
 
@@ -159,22 +167,28 @@ ex.candlestick(df.reset_index(),left='5%',mas=[5,10,30],title='平安银行').re
 from echartspy import Echarts,Tools
 js_str="""
 {
-    xAxis: {
-        type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    title: {
+        text: 'Male and female height and weight distribution',
+        subtext: 'Data from: Heinz 2003'
     },
-    yAxis: {
-        type: 'value'
+    grid: {
+        left: '3%',
+        right: '7%',
+        bottom: '7%',
+        containLabel: true
     },
-    series: [{
-        data: [820, 932, 901, 934, 1290, 1330, 1320],
-        type: 'line',
-        smooth: true
-    }]
+    tooltip: {
+        // trigger: 'axis',
+        showDelay: 0,
+    ......    
 }
 """
 options=Tools.convert_js_to_dict(js_str,print_dict=False)
+Echarts(options,height='600px').render_notebook()
 ```
+
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
+
 
 ##### DataFrame Series ndarray 转换成list类型
 
@@ -189,6 +203,12 @@ df = pd.DataFrame(
        '类别':['硬','硬','软','软']
     })
 list_data = Tools.convert_to_list(df)
+```
+
+输出:
+
+```python
+[['苹果', 3, 10, '硬'], ['梨', 2, 9, '硬'], ['草莓', 5, 8, '软'], ['香蕉', 4, 5, '软']]
 ```
 
 ##### 模板工具方法
@@ -209,9 +229,3 @@ Tools.wrap_template(
 
 
 
-## 效果展示
-
-![效果展示1](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
-![效果展示2](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p2.png?raw=true)
-![效果展示3](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p3.png?raw=true)
-![效果展示4](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p4.png?raw=true)
