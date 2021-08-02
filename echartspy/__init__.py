@@ -208,7 +208,7 @@ class Tools(object):
         return data
 
     @staticmethod
-    def convert_js_to_dict_str(js_code: str, print_dict: bool = True) -> str:
+    def convert_js_to_dict(js_code: str, print_dict: bool = True) -> dict:
         """
         true、false替换，字段名单引号，函数变Js函数包裹
         :param js_code:
