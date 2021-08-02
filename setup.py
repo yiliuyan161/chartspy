@@ -24,7 +24,9 @@ def get_install_requires():
 setup(
     name="echartspy",
     version="1.0.0",
+    url="https://echartspy.icopy.site/",
     description="echarts python wrapper",
+    keywords='echarts python ',
     packages=find_packages(exclude=("tests", "tests.*")),
     author="yiliuyan",
     author_email="yiliuyan161@126.com",
@@ -38,8 +40,8 @@ setup(
     platforms=["all"],
     classifiers=[
         'Programming Language :: Python',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: Unix',
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9'
