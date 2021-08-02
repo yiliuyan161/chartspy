@@ -217,11 +217,11 @@ class Tools(object):
         """
 
         def rep1(match_obj):
-            return "'" + match_obj.group(1) + "':"
+            return "'" + match_obj.group(1) + "':" + match_obj.group(2)
 
         # 词典key加单引号，true,false字面量替换
         js_code = re.sub(r"//[^\n]+\n", "", js_code)
-        js_code = re.sub(r"([a-zA-Z0-9]+):\s*[{'\"]", rep1, js_code)
+        js_code = re.sub(r"([a-zA-Z0-9]+):\s*([{'\"\[]|true|false|[\d\.]+|function)", rep1, js_code)
         js_code = re.sub("true", "True", js_code)
         js_code = re.sub("false", "False", js_code)
         # 记录函数开始结束位置数组
