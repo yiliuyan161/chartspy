@@ -1,6 +1,6 @@
 import pandas as pd
 
-from echartspy import Echarts, Js,Tools
+from echartspy import Echarts, Js, Tools
 
 BASE_GRID_OPTIONS = {
     'animation': True,

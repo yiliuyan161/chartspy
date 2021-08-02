@@ -285,7 +285,7 @@ class Echarts(object):
     echarts
     """
 
-    def __init__(self, options: dict = None, js_options: str = None, extra_js: str = "", width: str = "100%",
+    def __init__(self, options: dict = None, extra_js: str = "", width: str = "100%",
                  height: str = "500px"):
         """
         :param options: python词典类型的echarts option
@@ -295,7 +295,6 @@ class Echarts(object):
         :param height: 输出div的高度 支持像素和百分比 比如800px/100%
         """
         self.options = options
-        self.js_options = js_options
         self.width = width
         self.height = height
         self.plot_id = "u"+uuid.uuid4().hex
