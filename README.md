@@ -1,8 +1,14 @@
 # echartspy
 
-echarts图表 python环境输出库
+帮助用户在python环境使用echarts绘图
 
-不同于pyecharts，不对echarts 概念和接口进行python映射和二次抽象，保证一直能用最新版echarts
+[echartspy文档](https://echartspy.icopy.site)
+
+不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
+
+实现了 python配置<=>JavaScript配置 的双向互转
+
+同时借鉴plotly.express 封装了简单图表类型可视化函数
 
 
 ## 使用说明
