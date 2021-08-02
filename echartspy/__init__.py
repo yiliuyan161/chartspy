@@ -255,8 +255,9 @@ class Tools(object):
             left_index = seg[1] + 1
         parts.append(js_code[left_index:])
         dict_str = "".join(parts)
-        print(dict_str)
-        return dict_str
+        if print_dict:
+            print(dict_str)
+        return eval(dict_str)
 
 
 def _type_convert(o: object):
