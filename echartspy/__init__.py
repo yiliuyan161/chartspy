@@ -215,7 +215,7 @@ class Tools(object):
         :param print_dict: 是否控制台打印
         :return: dict
         """
-
+        js_code = js_code.strip()
         def rep1(match_obj):
             return "'" + match_obj.group(1) + "':" + match_obj.group(2)
 
