@@ -318,7 +318,6 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             'padding': 10,
             'formatter': Js("""
                 function(params){
-                    console.log(params);
                     var dt = params[0]['axisValue'];
                     var labels = [];
                     labels.push('时间: ' + dt + '<br/>');
@@ -331,12 +330,15 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                     { 
                        var param= params[i];
                        if(param.seriesType =='candlestick'){
-                         labels.push('open: ' + param.data[1] + '<br/>');
-                         labels.push('close: ' + param.data[2] + '<br/>');
-                         labels.push('low: ' + param.data[3] + '<br/>');
-                         labels.push('high: ' + param.data[4] + '<br/>');
+                         labels.push('open: ' + param.data[1].toFixed(2) + '<br/>');
+                         labels.push('close: ' + param.data[2].toFixed(2) + '<br/>');
+                         labels.push('low: ' + param.data[3].toFixed(2) + '<br/>');
+                         labels.push('high: ' + param.data[4].toFixed(2) + '<br/>');
                        }else{
-                         labels.push(param.seriesName+': ' + param.data + '<br/>');
+                         if (param.value instanceof Array && param.value.length>1){
+                            labels.push(param.seriesName+': ' + param.value[1] + '<br/>');
+                         }else if (typeof param.value =='number')
+                            labels.push(param.seriesName+': ' + param.value + '<br/>');
                        }
                     }
                     return labels.join('');

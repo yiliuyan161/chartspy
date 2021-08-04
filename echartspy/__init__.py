@@ -375,8 +375,23 @@ class Echarts(object):
 
     @staticmethod
     def convert_to_js_options(options):
-        return re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
-                      simplejson.dumps(options, indent=2, default=_type_convert, ignore_nan=True))
+        json_str = simplejson.dumps(options, indent=2, default=_type_convert, ignore_nan=True)
+        segs = []
+        function_start = 0
+        for i in range(22, len(json_str)):
+            if json_str[i - 22:i] == '"ECHARTS_BOUNDARY_MARK':
+                function_start = i - 22
+            elif json_str[i - 22:i] == 'ECHARTS_BOUNDARY_MARK"':
+                segs.append([function_start, i])
+        left_index = 0
+        parts = []
+        for seg in segs:
+            parts.append(json_str[left_index:seg[0]])
+            parts.append(json_str[seg[0]:(seg[1] + 1)].replace('\\"', '"'))
+            left_index = seg[1] + 1
+        parts.append(json_str[left_index:])
+        dict_str = "".join(parts)
+        return re.sub('"?ECHARTS_BOUNDARY_MARK"?', "", dict_str)
 
     def render_html(self) -> str:
         """
