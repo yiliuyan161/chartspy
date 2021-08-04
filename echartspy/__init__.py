@@ -299,27 +299,32 @@ class Echarts(object):
         :param height: 输出div的高度 支持像素和百分比 比如800px/100%
         """
         self.options = options
+        self.js_options = ""
         self.width = width
         self.height = height
         self.plot_id = "u" + uuid.uuid4().hex
         self.js_url = ECHARTS_JS_URL
         self.extra_js = extra_js
 
-    def overlap_series(self, other_chart_options: list = []):
+    def overlap_series(self, other_chart_options: list = [])->Echarts:
         """
         叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
         :param other_chart_options:要叠加的Echarts对象列表，或者options列表
         :return:
         """
+        this_options = copy.deepcopy(self.options)
+        if this_options["legend"]["data"] is None:
+            this_options["legend"]["data"] = []
+        if this_options["series"] is None:
+            this_options["series"] = []
+
         for chart_option in other_chart_options:
             if isinstance(chart_option, Echarts):
                 chart_option = chart_option.options
-            if self.options["legend"]["data"] is None:
-                self.options["legend"]["data"] = []
-            if self.options["series"] is None:
-                self.options["series"] = []
-            self.options["legend"]["data"].extend(chart_option["legend"]["data"])
-            self.options["series"].extend(chart_option["series"])
+            this_options["legend"]["data"].extend(chart_option["legend"]["data"])
+            this_options["series"].extend(chart_option["series"])
+
+        return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
     def print_options(self, drop_data=False):
         """
@@ -332,7 +337,7 @@ class Echarts(object):
             series_count = len(dict_options['series'])
             for i in range(0, series_count):
                 dict_options['series'][i]['data'] = []
-        Tools.convert_js_to_dict(self.convert_to_js_options(dict_options))
+        Tools.convert_js_to_dict(self.convert_to_js_options(dict_options), print_dict=True)
 
     def dump_options(self):
         """
@@ -360,7 +365,7 @@ class Echarts(object):
         html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
         return Html(html)
 
-    def render_file(self, path: str = "plot.html") -> str:
+    def render_file(self, path: str = "plot.html") -> Html:
         """
         输出html到文件
         :param path:
