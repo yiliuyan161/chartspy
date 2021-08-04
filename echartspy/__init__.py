@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+import copy
 import datetime
 import os
 import re
@@ -208,7 +209,7 @@ class Tools(object):
         return data
 
     @staticmethod
-    def convert_js_to_dict(js_code: str, print_dict: bool = True, drop_data: bool = False) -> dict:
+    def convert_js_to_dict(js_code: str, print_dict: bool = True) -> dict:
         """
         true、false替换，字段名单引号，函数变Js函数包裹
         :param js_code:
@@ -226,6 +227,7 @@ class Tools(object):
         js_code = re.sub(r"([a-zA-Z0-9]+):\s*([{'\"\[]|true|false|[\d\.]+|function)", rep1, js_code)
         js_code = re.sub("true", "True", js_code)
         js_code = re.sub("false", "False", js_code)
+        js_code = re.sub("null", "None", js_code)
         # 记录函数开始结束位置数组
         segs = []  # [start,end]
         function_start = 0
@@ -261,10 +263,6 @@ class Tools(object):
         if print_dict:
             print(dict_str)
         dict_options = eval(dict_str)
-        if drop_data:
-            series_count = len(dict_options['series'])
-            for i in range(0, series_count):
-                dict_options['series'][i]['data'] = []
         return dict_options
 
 
@@ -319,20 +317,25 @@ class Echarts(object):
             self.options["legend"]["data"] = self.options["legend"]["data"].extend(chart_option["legend"]["data"])
             self.options["series"] = self.options["series"].extend(chart_option["series"])
 
-    def print_options(self,drop_data=False):
+    def print_options(self, drop_data=False):
         """
         格式化打印options 方便二次修改
         :param drop_data: 是否过滤掉data，减小打印长度，方便粘贴
         :return:
         """
-        Tools.convert_js_to_dict(self.dump_options(),drop_data=drop_data)
+        dict_options = copy.deepcopy(self.options)
+        if drop_data:
+            series_count = len(dict_options['series'])
+            for i in range(0, series_count):
+                dict_options['series'][i]['data'] = []
+        Tools.convert_js_to_dict(self.convert_to_js_options(dict_options))
 
     def dump_options(self):
         """
          导出 js option字符串表示
         :return:
         """
-        self._ensure_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         return self.js_options
 
     def render_notebook(self) -> Html:
@@ -340,7 +343,7 @@ class Echarts(object):
         在jupyter notebook 环境输出
         :return:
         """
-        self._ensure_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -349,7 +352,7 @@ class Echarts(object):
         在jupyterlab 环境输出
         :return:
         """
-        self._ensure_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -359,23 +362,24 @@ class Echarts(object):
         :param path:
         :return: 文件路径
         """
-        self._ensure_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
         abs_path = os.path.abspath(path)
         return Html("<p>{path}</p>".format(path=abs_path))
 
-    def _ensure_js_options(self):
-        self.js_options = re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
-                                 simplejson.dumps(self.options, indent=2, default=_type_convert, ignore_nan=True))
+    @staticmethod
+    def convert_to_js_options(options):
+        return re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
+                      simplejson.dumps(options, indent=2, default=_type_convert, ignore_nan=True))
 
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
         :return:
         """
-        self._ensure_js_options()
+        self.convert_to_js_options()
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         return html
 
