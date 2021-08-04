@@ -282,7 +282,7 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
 
 def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
                 clo: str = 'close',
-                vol: str = 'volume', mas: list = [5, 10, 30], title: str = "",
+                vol: str = 'volume', mas: list = [5, 10, 30], kline_overlap_options: list = [], title: str = "",
                 width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
     """
     绘制K线
@@ -301,6 +301,13 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     :return:
     """
     df = data_frame[[time, opn, high, low, clo, vol]].sort_values(time, ascending=True).copy()
+    volumes = list((df[vol] / 1000000).round(2).values)
+    vol_filter = (df[vol] / 1000000).quantile([0.05, 0.95]).values
+    bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
+        {"value": vol, "itemStyle": {"color": "red"}} if vol > vol_filter[1] else {"value": vol,
+                                                                                   "itemStyle": {"color": "green"}}))
+                 for vol in volumes]
+
     options = {
         'animation': False,
         'title': {'text': title},
@@ -312,6 +319,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             'padding': 10,
             'formatter': Js("""
                 function(params){
+                    console.log(params);
                     var dt = params[0]['axisValue'];
                     var labels = [];
                     labels.push('时间: ' + dt + '<br/>');
@@ -388,16 +396,24 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         'yAxis': [
             {
                 'scale': True,
-                'axisLabel': {'show': True},
+                'type': 'log',
+                'logBase': 1.1,
+                'splitNumber': 10,
+                'axisLabel': {'show': True,
+                              'formatter': Js("""
+                               function(value,index){
+                                   return value.toFixed(2);
+                               }
+                             """)},
                 'axisLine': {'show': False},
                 'axisTick': {'show': True},
-                'splitLine': {'show': False}
+                'splitLine': {'show': True}
             },
             {
                 'scale': True,
                 'gridIndex': 1,
                 'splitNumber': 2,
-                'axisLabel': {'show': False},
+                'axisLabel': {'show': True, 'formatter': '{value}M'},
                 'axisLine': {'show': False},
                 'axisTick': {'show': False},
                 'splitLine': {'show': False}
@@ -407,7 +423,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             {
                 'type': 'inside',
                 'xAxisIndex': [0, 1],
-                'start': 80,
+                'start': 0,
                 'end': 100
             }
         ],
@@ -423,7 +439,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                 'type': 'bar',
                 'xAxisIndex': 1,
                 'yAxisIndex': 1,
-                'data': df[vol].tolist()
+                'data': bar_items
             }
         ]
     }
@@ -440,6 +456,10 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         }
         options['series'].append(series_ma)
         options['legend']['data'].append(name)
+    if len(kline_overlap_options) > 0:
+        for overlap_option in kline_overlap_options:
+            options["legend"]["data"] = options["legend"]["data"].extend(overlap_option["legend"]["data"])
+            options["series"] = options['series'].extend(overlap_option["series"])
     return Echarts(options=options, width=width, height=height)
 
 

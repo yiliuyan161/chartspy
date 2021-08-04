@@ -208,14 +208,16 @@ class Tools(object):
         return data
 
     @staticmethod
-    def convert_js_to_dict(js_code: str, print_dict: bool = True) -> dict:
+    def convert_js_to_dict(js_code: str, print_dict: bool = True, drop_data: bool = False) -> dict:
         """
         true、false替换，字段名单引号，函数变Js函数包裹
         :param js_code:
         :param print_dict: 是否控制台打印
         :return: dict
+        :param drop_data: 是否删除数据，减小打印长度，方便二次修改
         """
         js_code = js_code.strip()
+
         def rep1(match_obj):
             return "'" + match_obj.group(1) + "':" + match_obj.group(2)
 
@@ -258,7 +260,12 @@ class Tools(object):
         dict_str = "".join(parts)
         if print_dict:
             print(dict_str)
-        return eval(dict_str)
+        dict_options = eval(dict_str)
+        if drop_data:
+            series_count = len(dict_options['series'])
+            for i in range(0, series_count):
+                dict_options['series'][i]['data'] = []
+        return dict_options
 
 
 def _type_convert(o: object):
@@ -296,9 +303,29 @@ class Echarts(object):
         self.options = options
         self.width = width
         self.height = height
-        self.plot_id = "u"+uuid.uuid4().hex
+        self.plot_id = "u" + uuid.uuid4().hex
         self.js_url = ECHARTS_JS_URL
         self.extra_js = extra_js
+
+    def overlap_series(self, other_chart_options: list = []):
+        """
+        叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
+        :param other_chart_options:要叠加的Echarts对象列表，或者options列表
+        :return:
+        """
+        for chart_option in other_chart_options:
+            if isinstance(chart_option, Echarts):
+                chart_option = chart_option.options
+            self.options["legend"]["data"] = self.options["legend"]["data"].extend(chart_option["legend"]["data"])
+            self.options["series"] = self.options["series"].extend(chart_option["series"])
+
+    def print_options(self,drop_data=False):
+        """
+        格式化打印options 方便二次修改
+        :param drop_data: 是否过滤掉data，减小打印长度，方便粘贴
+        :return:
+        """
+        Tools.convert_js_to_dict(self.dump_options(),drop_data=drop_data)
 
     def dump_options(self):
         """
@@ -341,7 +368,7 @@ class Echarts(object):
 
     def _ensure_js_options(self):
         self.js_options = re.sub('"?ECHARTS_BOUNDARY_MARK"?', "",
-                                     simplejson.dumps(self.options, indent=2, default=_type_convert, ignore_nan=True))
+                                 simplejson.dumps(self.options, indent=2, default=_type_convert, ignore_nan=True))
 
     def render_html(self) -> str:
         """
