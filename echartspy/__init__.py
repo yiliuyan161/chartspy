@@ -314,8 +314,12 @@ class Echarts(object):
         for chart_option in other_chart_options:
             if isinstance(chart_option, Echarts):
                 chart_option = chart_option.options
-            self.options["legend"]["data"] = self.options["legend"]["data"].extend(chart_option["legend"]["data"])
-            self.options["series"] = self.options["series"].extend(chart_option["series"])
+            if self.options["legend"]["data"] is None:
+                self.options["legend"]["data"] = []
+            if self.options["series"] is None:
+                self.options["series"] = []
+            self.options["legend"]["data"].extend(chart_option["legend"]["data"])
+            self.options["series"].extend(chart_option["series"])
 
     def print_options(self, drop_data=False):
         """

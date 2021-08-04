@@ -94,14 +94,13 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def line(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, title: str = "",
+def line(data_frame: pd.DataFrame, x: str = None, y_list: list = [], title: str = "",
          width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
-    :param y: 必填 y轴映射的列
-    :param group: 可选 分组列，不同颜色表示
+    :param y_list: 必填 y轴映射的列
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -141,19 +140,17 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = No
         ],
         'series': []
     }
-    df = data_frame.sort_values(x, ascending=True).copy()
+
+    df = data_frame.copy()
+    if x is None:
+        df["x_col_echartspy"] = df.index
+        x = "x_col_echartspy"
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    if group is not None:
-        groups = df[group].unique()
-        for group_value in groups:
-            df_series = df[df[group] == group_value]
-            series = {'name': group_value, 'type': 'line', 'data': df_series[[x, y]].values.tolist()}
-            options['legend']['data'].append(group_value)
-            options['series'].append(series)
-    else:
-        series = {'type': 'line', 'data': df[[x, y]].values.tolist()}
+    for y_col in y_list:
+        series = {'name': y_col, 'type': 'line', 'data': df[[x, y_col]].values.tolist()}
+        options['legend']['data'].append(y_col)
         options['series'].append(series)
     return Echarts(options=options, width=width, height=height)
 
@@ -215,13 +212,13 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = Non
         groups = df[group].unique()
         for group_value in groups:
             df_series = df[df[group] == group_value]
-            series = {'name': group_value, 'type': 'bar', 'data': df_series[[x,y]].values.tolist()}
+            series = {'name': group_value, 'type': 'bar', 'data': df_series[[x, y]].values.tolist()}
             if stacked:
                 series['stack'] = "all"
             options['legend']['data'].append(group_value)
             options['series'].append(series)
     else:
-        series = {'type': 'bar', 'data': df[[x,y]].values.tolist()}
+        series = {'type': 'bar', 'data': df[[x, y]].values.tolist()}
         options['series'].append(series)
     return Echarts(options=options, width=width, height=height)
 
@@ -287,7 +284,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     """
     绘制K线
     :param data_frame:
-    :param time: 时间列名
+    :param time: 时间列名, 如果指定的列不存在，使用index作为time
     :param opn: open列名
     :param high: high列名
     :param low: low列名
@@ -300,7 +297,9 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     :param left: 左侧padding宽度
     :return:
     """
-    df = data_frame[[time, opn, high, low, clo, vol]].sort_values(time, ascending=True).copy()
+    df = data_frame.copy()
+    if time not in data_frame.columns:  # 使用index作为时间
+        df[time] = df.index
     volumes = list((df[vol] / 1000000).round(2).values)
     vol_filter = (df[vol] / 1000000).quantile([0.05, 0.95]).values
     bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
