@@ -743,7 +743,7 @@ def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None,
 
 def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
               label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-              label_font_color: str = 'inherit', fill_color: str = "red", fill_opacity: float = 0.3
+              label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
               ):
     """
     在现有图表上叠加矩形，不能单独显示
@@ -754,7 +754,7 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
     :param y2: 右下方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param label_position:
+    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance:
     :param label_font_size:
     :param label_font_color:
@@ -787,7 +787,7 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
 
 
 def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
-                 label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+                 label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
                  label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
                  line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
     """
