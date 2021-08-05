@@ -813,7 +813,7 @@ def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, l
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
-    data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    data = [[{'name': str(row[label]), 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_line_options = {
         'symbol': [symbol_start, symbol_end],
         'label': {
