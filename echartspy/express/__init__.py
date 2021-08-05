@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# coding=utf-8
+import copy
+
 import pandas as pd
 
 from echartspy import Echarts, Js, Tools
@@ -37,6 +41,17 @@ BASE_GRID_OPTIONS = {
     'series': []
 }
 
+BASE_OVERLAY_OPTIONS = {
+    'legend': {
+        'data': []
+    },
+    'series': [{
+        'type': 'scatter',
+        'data': []
+    }]
+}
+
+
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
             size_max: int = 30, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -56,7 +71,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     if x is None:
         df["x_col_echartspy"] = df.index
         x = "x_col_echartspy"
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = copy.deepcopy(BASE_GRID_OPTIONS)
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
@@ -93,7 +108,7 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = [], title: str = "",
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = copy.deepcopy(BASE_GRID_OPTIONS)
     df = data_frame.copy()
     if x is None:
         df["x_col_echartspy"] = df.index
@@ -122,7 +137,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = BASE_GRID_OPTIONS.deepcopy()
+    options = copy.deepcopy(BASE_GRID_OPTIONS)
     df = data_frame.copy()
     if x is None:
         df["x_col_echartspy"] = df.index
@@ -726,3 +741,168 @@ def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None,
     return Echarts(options, height=height, width=width)
 
 
+def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
+              mark_area_options: dict = {}):
+    """
+    在现有图表上叠加矩形，不能单独显示
+    :param data_frame:
+    :param x1: 左上方顶点x坐标对应列
+    :param y1: 左上方顶点y坐标对应列
+    :param x2: 右下方顶点x坐标对应列
+    :param y2: 右下方顶点y坐标对应列
+    :param label: 矩形标签文字对应列
+    :param title: 用于在legend显示，控制叠加矩形显示隐藏
+    :param mark_area_options: 自定义配置
+    :return:
+    """
+    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
+    data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    base_mark_area_options = {
+        'itemStyle': {
+            'color': 'rgba(255, 173, 177, 0.4)'
+        },
+        'label': {
+            'show': True,
+            'position': 'top',
+            'distance': 5,
+            'fontSize': 10
+        },
+        'data': data
+    }
+    base_mark_area_options.update(mark_area_options)
+    options['series'][0]['markArea'] = base_mark_area_options
+    options['legend']['data'] = [title]
+    return Echarts(options)
+
+
+def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
+                 mark_line_options: dict = {}):
+    """
+    在现有图表上叠加线段，不能单独显示
+    :param data_frame:
+    :param x1: 左上方顶点x坐标对应列
+    :param y1: 左上方顶点y坐标对应列
+    :param x2: 右下方顶点x坐标对应列
+    :param y2: 右下方顶点y坐标对应列
+    :param label: 矩形标签文字对应列
+    :param title: 用于在legend显示，控制叠加矩形显示隐藏
+    :param mark_line_options:
+    :return:
+    """
+    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
+    data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    base_mark_line_options = {
+        'symbol': ['circle', 'circle'],
+        'label': {
+            'show': True,
+            'position': 'left',
+            'distance': 5,
+            'fontSize': 10
+        },
+        'lineStyle': {
+            'color': 'red',
+            'width': 2,
+            'type': 'solid'
+        },
+        'data': data
+    }
+    base_mark_line_options.update(mark_line_options)
+    options['series'][0]['markLine'] = base_mark_line_options
+    options['legend']['data'] = [title]
+    return Echarts(options)
+
+
+def mark_point(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
+               mark_point_options: dict = {}):
+    """
+    在现有图表上叠加线段，不能单独显示
+    :param data_frame:
+    :param x: 左上方顶点x坐标对应列
+    :param y: 左上方顶点y坐标对应列
+    :param label: 矩形标签文字对应列
+    :param title: 用于在legend显示，控制叠加矩形显示隐藏
+    :param mark_point_options:
+    :return:
+    """
+    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[x, y, label]].to_dict(orient='records')
+    data = [{'name': row[label], 'coord': [row[x], row[y]]} for row in rows]
+    base_mark_point_options = {
+        'symbol': 'pin',
+        'label': {
+            'show': True,
+            'position': 'top',
+            'distance': 5,
+            'fontSize': 10,
+            'color': 'black'
+
+        },
+        'itemStyle': {
+            'color': 'red'
+        },
+        'data': data
+    }
+    base_mark_point_options.update(mark_point_options)
+    options['series'][0]['markPoint'] = base_mark_point_options
+    options['legend']['data'] = [title]
+    return Echarts(options)
+
+
+def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
+                       mark_line_options: dict = {}):
+    """
+    在现有图表上叠加竖线，不能单独显示
+    :param data_frame:
+    :param x:
+    :param label:
+    :param title:
+    :param mark_line_options:
+    :return:
+    """
+    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[x, label]].to_dict(orient='records')
+    data = [{'name': row[label], 'xAxis': row[x]} for row in rows]
+    base_mark_line_options = {
+        'label': {
+            'position': 'end',
+            'show': True,
+            'formatter': "{b}"
+        },
+        'symbol': [None, None],
+        'data': data
+    }
+    base_mark_line_options.update(mark_line_options)
+    options['series'][0]['markLine'] = base_mark_line_options
+    options['legend']['data'] = [title]
+    return Echarts(options)
+
+
+def mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
+                       mark_line_options: dict = {}):
+    """
+    在现有图表上叠加横线，不能单独显示
+    :param data_frame:
+    :param y:
+    :param label:
+    :param title:
+    :param mark_line_options:
+    :return:
+    """
+    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[y, label]].to_dict(orient='records')
+    data = [{'name': row[label], 'yAxis': row[y]} for row in rows]
+    base_mark_line_options = {
+        'label': {
+            'position': 'end',
+            'show': True,
+            'formatter': "{b}"
+        },
+        'symbol': [None, None],
+        'data': data
+    }
+    base_mark_line_options.update(mark_line_options)
+    options['series'][0]['markLine'] = base_mark_line_options
+    options['legend']['data'] = [title]
+    return Echarts(options)

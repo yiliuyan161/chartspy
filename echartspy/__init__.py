@@ -153,6 +153,23 @@ class Tools(object):
         return data
 
     @staticmethod
+    def df_uniformize_datetime_columns(data_frame: pd.DataFrame, columns: list = [],
+                                       index: bool = False) -> pd.DataFrame:
+        """
+        data_frame 时间相关的列，统一成datetime格式
+        :param data_frame: 源data_frame
+        :param columns: 需要转换成datetime格式的列
+        :param index: 是否转换index成datetime格式
+        :return: 转换过时间格式的DataFrame
+        """
+        df = data_frame.copy()
+        for col in columns:
+            df[col] = pd.to_datetime(df[col])
+        if index:
+            df.index = pd.to_datetime(df.index)
+        return df
+
+    @staticmethod
     def wrap_template(js_options_template: str, **kwargs):
         """
         组装模板和数据生成配置字符串，模板可以从echarts例子修改而来，使用jinja2模板引擎
