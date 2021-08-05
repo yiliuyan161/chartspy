@@ -17,7 +17,7 @@
 ```python
 import echartspy.express as ex
 ...... 
-ex.scatter(df,x='数量',y='价格',size='数量',group='水果',size_max=50,height='250px',title='scatter').render_notebook()
+ex.scatter(df,x='数量',y='价格',size='数量',size_max=50,height='250px',title='scatter').render_notebook()
 
 ex.pie(df,name='水果',value='数量',rose_type='area',title="pie2",height='350px').render_notebook()
 

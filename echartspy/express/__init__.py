@@ -2,15 +2,96 @@ import pandas as pd
 
 from echartspy import Echarts, Js, Tools
 
+# 二维坐标系统基础配置适用  scatter,bar,line
+BASE_GRID_OPTIONS = {
+    'legend': {
+        'data': []
+    },
+    'tooltip': {
+        'trigger': 'item',
+        'backgroundColor': 'rgba(255, 255, 255, 0.8)'
+    },
+    'xAxis': {
+        'type': 'value',
+    },
+    'yAxis': {
+        'type': 'value',
+        'splitLine': {
+            'show': True
+        }
+    },
+    'dataZoom': [
+        {
+            'type': 'inside',
+            'xAxisIndex': 0,
+            'start': 1,
+            'end': 100
+        },
+        {
+            'type': 'inside',
+            'yAxisIndex': 0,
+            'start': 1,
+            'end': 100
+        }
+    ],
+    'series': []
+}
 
-def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, size: str = None,
+
+def __df2tree(df, category_cols=[], value_col="") -> list:
+    """
+    从 cat1,cat2,...catN,value 数据生成嵌套数据结构
+    :param df:
+    :param category_cols:
+    :param value_col:
+    :return:
+    """
+    cols = category_cols
+    df_data = df[category_cols + [value_col]]
+    tmp_dict = {}
+    # 从最底层2个类别列开始处理，依次往左处理
+    for i in range(len(cols) - 1, 0, -1):
+        # c1,c0,v0
+        parent_idx = i - 1
+        child_idx = i
+        df_unit = df_data[[cols[parent_idx], cols[child_idx], value_col]]
+        # c1:set(c0)
+        parent_child_map = df_unit.groupby(cols[parent_idx]).apply(
+            lambda dx: list(dx[cols[child_idx]].unique())).to_dict()
+        # c1:sum(v0)
+        parent_sum_value_dict = df_unit[[cols[parent_idx], value_col]].groupby(cols[parent_idx]).sum()[
+            value_col].to_dict()
+        # 第一次迭代，拼装子结构放到父节点下
+        if i == len(cols) - 1:
+            child_sum_value_dict = df_unit[[cols[child_idx], value_col]].groupby(cols[child_idx]).sum()[
+                value_col].to_dict()
+            for parent in parent_child_map.keys():
+                children = []
+                for child in parent_child_map[parent]:
+                    value = child_sum_value_dict[child]
+                    children.append({'name': child, 'value': value})
+                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
+        else:
+            # 非首次迭代,从tmp_dict中取拼装好的子结构放到父节点下
+            for parent in parent_child_map.keys():
+                children = []
+                for child in parent_child_map[parent]:
+                    children.append(tmp_dict[child])
+                tmp_dict[parent] = {'name': parent, 'value': parent_sum_value_dict[parent], 'children': children}
+    data = []
+    for cat in df_data[cols[0]].unique():
+        data.append(tmp_dict[cat])
+    return data
+
+
+def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
             size_max: int = 30, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制scatter图
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
-    :param group: 可选 分组列，不同颜色表示
+    :param symbol: 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none',image://dataURI(), path://(svg)
     :param size: 可选 原点大小列
     :param size_max: 可选
     :param title: 可选标题
@@ -18,129 +99,48 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str =
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = {
-        'animation': True,
-        'legend': {
-            'data': []
-        },
-        'tooltip': {
-            'trigger': 'item',
-            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
-        },
-        'xAxis': {
-            'type': 'value',
-        },
-        'yAxis': {
-            'type': 'value',
-            'splitLine': {
-                'show': True
-            }
-        },
-        'dataZoom': [
-            {
-                'type': 'inside',
-                'xAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            },
-            {
-                'type': 'inside',
-                'yAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            }
-        ],
-        'series': []
-    }
-    df = data_frame.sort_values(x, ascending=True).copy()
+    df = data_frame.copy()
+    if x is None:
+        df["x_col_echartspy"] = df.index
+        x = "x_col_echartspy"
+    options = BASE_GRID_OPTIONS.deepcopy()
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    if group is not None:
-        groups = df[group].unique()
-        for group_value in groups:
-            df_series = df[df[group] == group_value]
-            series = {
-                'name': group_value,
-                'type': 'scatter'
-            }
-            if size is not None:
-                max_size_value = df[size].max()
-                series['symbolSize'] = Js(Tools.wrap_template("""
+    series = {
+        'type': 'scatter'
+    }
+    if symbol is not None:
+        series['symbol'] = symbol
+    if size is not None:
+        max_size_value = df[size].max()
+        series['symbolSize'] = Js(Tools.wrap_template("""
                         function(val) {
-                         return val[2]/{{max_size_value}}*{{size_max}};
+                            return val[2]/{{max_size_value}}*{{size_max}};
                         }
                     """, **locals()))
-                series['data'] = df_series[[x, y, size]].values.tolist()
-            else:
-                series['data'] = df_series[[x, y]].values.tolist()
-            options['legend']['data'].append(group_value)
-            options['series'].append(series)
+        series['data'] = df[[x, y, size]].values.tolist()
     else:
-        series = {
-            'type': 'scatter'
-        }
-        if size is not None:
-            max_size_value = df[size].max()
-            series['symbolSize'] = Js(Tools.wrap_template("""
-                    function(val) {
-                        return val[2]/{{max_size_value}}*{{size_max}};
-                    }
-                """, **locals()))
-            series['data'] = df[[x, y, size]].values.tolist()
-        else:
-            series['data'] = df[[x, y]].values.tolist()
-        options['series'].append(series)
+        series['data'] = df[[x, y]].values.tolist()
+    options['series'].append(series)
+    options['legend']['data'].append(title)
+
     return Echarts(options=options, width=width, height=height)
 
 
-def line(data_frame: pd.DataFrame, x: str = None, y_list: list = [], title: str = "",
+def line(data_frame: pd.DataFrame, x: str = None, y: str = [], title: str = "",
          width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
-    :param y_list: 必填 y轴映射的列
+    :param y: 必填 y轴映射的列
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = {
-        'animation': True,
-        'legend': {
-            'data': []
-        },
-        'tooltip': {
-            'trigger': 'item',
-            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
-        },
-        'xAxis': {
-            'type': 'value',
-        },
-        'yAxis': {
-            'type': 'value',
-            'splitLine': {
-                'show': True
-            }
-        },
-        'dataZoom': [
-            {
-                'type': 'inside',
-                'xAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            },
-            {
-                'type': 'inside',
-                'yAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            }
-        ],
-        'series': []
-    }
-
+    options = BASE_GRID_OPTIONS.deepcopy()
     df = data_frame.copy()
     if x is None:
         df["x_col_echartspy"] = df.index
@@ -148,14 +148,14 @@ def line(data_frame: pd.DataFrame, x: str = None, y_list: list = [], title: str 
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    for y_col in y_list:
-        series = {'name': y_col, 'type': 'line', 'data': df[[x, y_col]].values.tolist()}
-        options['legend']['data'].append(y_col)
-        options['series'].append(series)
+    series = {'name': y, 'type': 'line', 'data': df[[x, y]].values.tolist()}
+    options['legend']['data'].append(y)
+    options['series'].append(series)
+
     return Echarts(options=options, width=width, height=height)
 
 
-def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = None, stacked: bool = False,
+def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
         title: str = "",
         width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -163,70 +163,30 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, group: str = Non
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
-    :param group: 可选 分组列，不同颜色表示
-    :param stacked:是否堆叠
+    :param stack:堆叠分组
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = {
-        'animation': True,
-        'legend': {
-            'data': []
-        },
-        'tooltip': {
-            'trigger': 'item',
-            'backgroundColor': 'rgba(255, 255, 255, 0.8)'
-        },
-        'xAxis': {
-            'type': 'value'
-        },
-        'yAxis': {
-            'type': 'value',
-            'splitLine': {
-                'show': True
-            }
-        },
-        'dataZoom': [
-            {
-                'type': 'inside',
-                'xAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            },
-            {
-                'type': 'inside',
-                'yAxisIndex': 0,
-                'start': 1,
-                'end': 100
-            }
-        ],
-        'series': []
-    }
-    df = data_frame.sort_values(x, ascending=True).copy()
+    options = BASE_GRID_OPTIONS.deepcopy()
+    df = data_frame.copy()
+    if x is None:
+        df["x_col_echartspy"] = df.index
+        x = "x_col_echartspy"
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    if group is not None:
-        groups = df[group].unique()
-        for group_value in groups:
-            df_series = df[df[group] == group_value]
-            series = {'name': group_value, 'type': 'bar', 'data': df_series[[x, y]].values.tolist()}
-            if stacked:
-                series['stack'] = "all"
-            options['legend']['data'].append(group_value)
-            options['series'].append(series)
-    else:
-        series = {'type': 'bar', 'data': df[[x, y]].values.tolist()}
-        options['series'].append(series)
+    series = {'type': 'bar', 'stack': stack, 'data': df[[x, y]].values.tolist()}
+    options['series'].append(series)
+    options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
 
 
 def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
         width: str = "100%", height: str = "500px") -> Echarts:
     """
-
+    饼图
     :param data_frame: 必填 DataFrame
     :param name: name列名
     :param value: value列名
@@ -512,7 +472,7 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
 def heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
             width: str = "100%", height: str = "500px") -> Echarts:
     """
-    二维热力图
+    二维热度图
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
@@ -574,7 +534,7 @@ def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = No
                      title: str = "",
                      width: str = "100%", height: str = "300px") -> Echarts:
     """
-
+    日历热度图，显示日期热度
     :param data_frame:
     :param date: 日期列
     :param value: 值列
@@ -631,20 +591,20 @@ def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = No
     return Echarts(options=options, width=width, height=height)
 
 
-def parallel(data_frame: pd.DataFrame, name: str = None, axis: list = [],
+def parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
              title: str = "",
              width: str = "100%", height: str = "500px") -> Echarts:
     """
-
+    平行坐标图,要求name列每行唯一 比如：显示每个报告期各财务指标
     :param data_frame:
     :param name: name列
-    :param axis: 维度列list
+    :param parallel_axis: 数据维度列list
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[name] + axis].copy()
+    df = data_frame[[name] + parallel_axis].copy()
     options = {
         'title': {'text': title},
         'legend': {
@@ -654,18 +614,19 @@ def parallel(data_frame: pd.DataFrame, name: str = None, axis: list = [],
         'series': []
     }
     value_dict_list = df.to_dict(orient='records')
-    for i in range(0, len(axis)):
-        if "object" in str(df[axis[i]].dtype):
-            col = {'dim': i, 'name': axis[i], 'type': 'category', 'data': sorted(df[axis[i]].unique())}
+    for i in range(0, len(parallel_axis)):
+        if "object" in str(df[parallel_axis[i]].dtype):
+            col = {'dim': i, 'name': parallel_axis[i], 'type': 'category',
+                   'data': sorted(df[parallel_axis[i]].unique())}
         else:
-            col = {'dim': i, 'name': axis[i], 'min': "dataMin", 'max': "dataMax"}
+            col = {'dim': i, 'name': parallel_axis[i], 'min': "dataMin", 'max': "dataMax"}
         options['parallelAxis'].append(col)
     for value_dict in value_dict_list:
         series = {
             'name': value_dict[name],
             'type': 'parallel',
             'lineStyle': {width: 3},
-            'data': [[value_dict[col] for col in axis]]
+            'data': [[value_dict[col] for col in parallel_axis]]
         }
         options['series'].append(series)
         options['legend']['data'].append(value_dict[name])
@@ -726,6 +687,7 @@ def theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, t
     """
     df = data_frame[[date, value, theme]].copy()
     options = {
+        'title': {'text': title},
         'tooltip': {
             'trigger': 'axis',
             'axisPointer': {
@@ -774,3 +736,40 @@ def theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, t
         ]
     }
     return Echarts(options=options, width=width, height=height)
+
+
+def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "", font_size: int = 8,
+             width: str = "100%", height: str = "500px") -> Echarts:
+    data = __df2tree(data_frame, categories, value)
+    options = {
+        'title': {
+            'text': title,
+        },
+        'tooltip': {
+            'trigger': 'item',
+            'formatter': Js("""
+            function(params){
+                var pathInfo= params['treePathInfo'];
+                var labels = [];
+                for(var i=0; i<pathInfo.length; i++){
+                    labels.push(pathInfo[i].name +':'+ pathInfo[i].value + '<br/>');
+                }
+                return labels.join('');
+            }
+        """)
+
+        },
+        'series': {
+            'type': 'sunburst',
+            'label': {'fontSize': font_size},
+            'data': data,
+            'radius': [0, '95%'],
+            'emphasis': {
+                'focus': 'ancestor'
+            }
+
+        }
+    }
+    return Echarts(options, height=height, width=width)
+
+

@@ -306,7 +306,7 @@ class Echarts(object):
         self.js_url = ECHARTS_JS_URL
         self.extra_js = extra_js
 
-    def overlap_series(self, other_chart_options: list = [])->Echarts:
+    def overlap_series(self, other_chart_options: list = []):
         """
         叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
         :param other_chart_options:要叠加的Echarts对象列表，或者options列表
