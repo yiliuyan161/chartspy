@@ -23,7 +23,7 @@ def get_install_requires():
 
 setup(
     name="echartspy",
-    version="1.0.8",
+    version="1.0.9",
     url="https://echartspy.icopy.site/",
     description="echarts python wrapper",
     keywords='echarts python ',
