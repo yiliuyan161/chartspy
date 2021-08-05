@@ -252,7 +252,7 @@ class Tools(object):
         right_bracket_count = 0
         in_function = False
         for i in range(8, len(js_code)):
-            if "function" == js_code[i - 8:i]:  # 函数位置开始
+            if "function" == js_code[i - 8:i] and not in_function:  # 函数位置开始
                 function_start = i - 8
                 left_bracket_count = 0
                 right_bracket_count = 0

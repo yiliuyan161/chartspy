@@ -742,7 +742,9 @@ def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None,
 
 
 def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
-              mark_area_options: dict = {}):
+              label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+              label_font_color: str = 'inherit', fill_color: str = "red", fill_opacity: float = 0.3
+              ):
     """
     在现有图表上叠加矩形，不能单独显示
     :param data_frame:
@@ -752,7 +754,13 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
     :param y2: 右下方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param mark_area_options: 自定义配置
+    :param label_position:
+    :param label_distance:
+    :param label_font_size:
+    :param label_font_color:
+    :param fill_opacity:
+    :param fill_color:
+
     :return:
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
@@ -760,26 +768,31 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
     data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_area_options = {
         'itemStyle': {
-            'color': 'rgba(255, 173, 177, 0.4)'
+            'color': fill_color,
+            'opacity': fill_opacity
         },
         'label': {
             'show': True,
-            'position': 'top',
-            'distance': 5,
-            'fontSize': 10
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color
         },
         'data': data
     }
-    base_mark_area_options.update(mark_area_options)
+    options['series'][0]['name'] = title
     options['series'][0]['markArea'] = base_mark_area_options
     options['legend']['data'] = [title]
     return Echarts(options)
 
 
 def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
-                 mark_line_options: dict = {}):
+                 label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+                 label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
+                 line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
     """
     在现有图表上叠加线段，不能单独显示
+
     :param data_frame:
     :param x1: 左上方顶点x坐标对应列
     :param y1: 左上方顶点y坐标对应列
@@ -787,35 +800,45 @@ def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, l
     :param y2: 右下方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param mark_line_options:
+    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_distance: 10
+    :param label_font_color:inherit
+    :param label_font_size:12
+    :param symbol_start:circle
+    :param symbol_end:circle
+    :param line_type: solid/dashed/dotted
+    :param line_width: 2
+    :param line_color: inherit
     :return:
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
     data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_line_options = {
-        'symbol': ['circle', 'circle'],
+        'symbol': [symbol_start, symbol_end],
         'label': {
             'show': True,
-            'position': 'left',
-            'distance': 5,
-            'fontSize': 10
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color
         },
         'lineStyle': {
-            'color': 'red',
-            'width': 2,
-            'type': 'solid'
+            'color': line_color,
+            'width': line_width,
+            'type': line_type
         },
         'data': data
     }
-    base_mark_line_options.update(mark_line_options)
+    options['series'][0]['name'] = title
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
     return Echarts(options)
 
 
-def mark_point(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
-               mark_point_options: dict = {}):
+def mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
+               label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+               label_font_color: str = 'inherit', label_background_color: str = "transparent"):
     """
     在现有图表上叠加线段，不能单独显示
     :param data_frame:
@@ -823,42 +846,50 @@ def mark_point(data_frame: pd.DataFrame, x: str, y: str, label: str, title="poin
     :param y: 左上方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param mark_point_options:
+    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_distance: 10
+    :param label_font_color:inherit
+    :param label_font_size:12
+    :param label_background_color:transparent
     :return:
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x, y, label]].to_dict(orient='records')
-    data = [{'name': row[label], 'coord': [row[x], row[y]]} for row in rows]
+    data = [{'value': row[label], 'coord': [row[x], row[y]]} for row in rows]
     base_mark_point_options = {
-        'symbol': 'pin',
+        'symbol': 'circle',
+        'symbolSize': 0,
         'label': {
             'show': True,
-            'position': 'top',
-            'distance': 5,
-            'fontSize': 10,
-            'color': 'black'
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color,
+            'backgroundColor': label_background_color,
+            'padding': 2
 
-        },
-        'itemStyle': {
-            'color': 'red'
         },
         'data': data
     }
-    base_mark_point_options.update(mark_point_options)
     options['series'][0]['markPoint'] = base_mark_point_options
+    options['series'][0]['name'] = title
     options['legend']['data'] = [title]
     return Echarts(options)
 
 
 def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
-                       mark_line_options: dict = {}):
+                       label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
+                       label_font_color: str = 'inherit'):
     """
     在现有图表上叠加竖线，不能单独显示
     :param data_frame:
     :param x:
     :param label:
     :param title:
-    :param mark_line_options:
+    :param label_position: 'start', 'middle', 'end', 'insideStartTop', 'insideStartBottom', 'insideMiddleTop', 'insideMiddleBottom', 'insideEndTop', 'insideEndBottom'
+    :param label_font_color: inherit
+    :param label_distance: 10
+    :param label_font_size: 10
     :return:
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
@@ -866,28 +897,35 @@ def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vert
     data = [{'name': row[label], 'xAxis': row[x]} for row in rows]
     base_mark_line_options = {
         'label': {
-            'position': 'end',
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color,
             'show': True,
             'formatter': "{b}"
         },
         'symbol': [None, None],
         'data': data
     }
-    base_mark_line_options.update(mark_line_options)
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
+    options['series'][0]['name'] = title
     return Echarts(options)
 
 
 def mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
-                       mark_line_options: dict = {}):
+                         label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
+                         label_font_color: str = 'inherit'):
     """
     在现有图表上叠加横线，不能单独显示
     :param data_frame:
     :param y:
     :param label:
     :param title:
-    :param mark_line_options:
+    :param label_position: 'start', 'middle', 'end', 'insideStartTop', 'insideStartBottom', 'insideMiddleTop', 'insideMiddleBottom', 'insideEndTop', 'insideEndBottom'
+    :param label_font_color: inherit
+    :param label_distance: 10
+    :param label_font_size: 10
     :return:
     """
     options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
@@ -895,14 +933,17 @@ def mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="ve
     data = [{'name': row[label], 'yAxis': row[y]} for row in rows]
     base_mark_line_options = {
         'label': {
-            'position': 'end',
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color,
             'show': True,
             'formatter': "{b}"
         },
         'symbol': [None, None],
         'data': data
     }
-    base_mark_line_options.update(mark_line_options)
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
+    options['series'][0]['name'] = title
     return Echarts(options)
