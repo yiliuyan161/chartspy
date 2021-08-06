@@ -12,14 +12,50 @@ BASE_GRID_OPTIONS = {
         'data': []
     },
     'tooltip': {
-        'trigger': 'item',
-        'backgroundColor': 'rgba(255, 255, 255, 0.8)'
+        'trigger': 'axis', 'axisPointer': {'type': 'cross'},
+        'borderWidth': 1,
+        'borderColor': '#ccc',
+        'padding': 10,
+        'formatter': Js("""
+                function(params){
+                    var dt = params[0]['axisValue'];
+                    var labels = [];
+                    labels.push('时间: ' + dt + '<br/>');
+                    params.sort(function(a, b) {
+                      if (a.seriesName < b.seriesName ) {return -1;}
+                      else if (a.seriesName > b.seriesName ) {return 1;}
+                      else{ return 0;}
+                    });
+                    for (var i=0;i<params.length;i++)
+                    { 
+                       var param= params[i];
+                       if (param.value instanceof Array && param.value.length>1){
+                            labels.push(param.seriesName+': ' + JSON.stringify(param.value) + '<br/>');
+                         }else if (typeof param.value =='number'){
+                            labels.push(param.seriesName+': ' + param.value + '<br/>');
+                        }
+                    }
+                    return labels.join('');
+                }"""),
+        'textStyle': {'color': '#000'},
+        'position': Js("""
+                function (pos, params, el, elRect, size){
+                    var obj = {top: 10};
+                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                    return obj;
+                }
+            """)
+    },
+    'axisPointer': {
+        'link': {'xAxisIndex': 'all'},
+        'label': {'backgroundColor': '#777'}
     },
     'xAxis': {
         'type': 'value',
     },
     'yAxis': {
         'type': 'value',
+        'scale': True,
         'splitLine': {
             'show': True
         }
@@ -28,13 +64,13 @@ BASE_GRID_OPTIONS = {
         {
             'type': 'inside',
             'xAxisIndex': 0,
-            'start': 1,
+            'start': 0,
             'end': 100
         },
         {
             'type': 'inside',
             'yAxisIndex': 0,
-            'start': 1,
+            'start': 0,
             'end': 100
         }
     ],
@@ -76,7 +112,8 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
     series = {
-        'type': 'scatter'
+        'type': 'scatter',
+        'name': title
     }
     if symbol is not None:
         series['symbol'] = symbol
@@ -116,8 +153,8 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = [], title: str = "",
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': y, 'type': 'line', 'data': df[[x, y]].values.tolist()}
-    options['legend']['data'].append(y)
+    series = {'name': title, 'type': 'line', 'data': df[[x, y]].values.tolist()}
+    options['legend']['data'].append(title)
     options['series'].append(series)
 
     return Echarts(options=options, width=width, height=height)
@@ -145,7 +182,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'type': 'bar', 'stack': stack, 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'bar', 'stack': stack, 'data': df[[x, y]].values.tolist()}
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
@@ -207,7 +244,7 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
 
 def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
                 clo: str = 'close',
-                vol: str = 'volume', mas: list = [5, 10, 30], kline_overlap_options: list = [], title: str = "",
+                vol: str = 'volume', mas: list = [5, 10, 30], log_y:bool=True, title: str = "",
                 width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
     """
     绘制K线
@@ -219,6 +256,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     :param clo: close列名
     :param vol: volume列名
     :param mas: 均线组
+    :param log_y: y轴 log分布 低为1.1 一个格子对应10%
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -228,8 +266,8 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     df = data_frame.copy()
     if time not in data_frame.columns:  # 使用index作为时间
         df[time] = df.index
-    volumes = list((df[vol] / 1000000).round(2).values)
-    vol_filter = (df[vol] / 1000000).quantile([0.05, 0.95]).values
+    volumes = (df[vol]).round(2).tolist()
+    vol_filter = (df[vol]).quantile([0.05, 0.95]).values
     bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
         {"value": vol, "itemStyle": {"color": "red"}} if vol > vol_filter[1] else {"value": vol,
                                                                                    "itemStyle": {"color": "green"}}))
@@ -257,14 +295,14 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                     for (var i=0;i<params.length;i++)
                     { 
                        var param= params[i];
-                       if(param.seriesType =='candlestick'){
-                         labels.push('open: ' + param.data[1].toFixed(2) + '<br/>');
-                         labels.push('close: ' + param.data[2].toFixed(2) + '<br/>');
-                         labels.push('low: ' + param.data[3].toFixed(2) + '<br/>');
-                         labels.push('high: ' + param.data[4].toFixed(2) + '<br/>');
+                       if(param.seriesType =='candlestick' && param.data && param.data.length > 4){
+                         labels.push('open: ' + param.data[1]?param.data[1].toFixed(2):"" + '<br/>');
+                         labels.push('close: ' + param.data[2]?param.data[2].toFixed(2):""  + '<br/>');
+                         labels.push('low: ' + param.data[3]?param.data[3].toFixed(2):""  + '<br/>');
+                         labels.push('high: ' + param.data[4]?param.data[4].toFixed(2):""  + '<br/>');
                        }else{
                          if (param.value instanceof Array && param.value.length>1){
-                            labels.push(param.seriesName+': ' + param.value[1] + '<br/>');
+                            labels.push(param.seriesName+': ' + JSON.stringify(param.value)+ '<br/>');
                          }else if (typeof param.value =='number')
                             labels.push(param.seriesName+': ' + param.value + '<br/>');
                        }
@@ -285,8 +323,8 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
             'label': {'backgroundColor': '#777'}
         },
         'grid': [
-            {'left': left, 'right': '0%', 'height': '70%'},
-            {'left': left, 'right': '0%', 'top': '71%', 'height': '16%'}
+            {'left': left, 'right': '3%', 'height': '70%'},
+            {'left': left, 'right': '3%', 'top': '71%', 'height': '16%'}
         ],
         'xAxis': [
             {
@@ -325,7 +363,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         'yAxis': [
             {
                 'scale': True,
-                'type': 'log',
+                'type': 'log' if log_y else 'value',
                 'logBase': 1.1,
                 'splitNumber': 10,
                 'axisLabel': {'show': True,
@@ -342,7 +380,29 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                 'scale': True,
                 'gridIndex': 1,
                 'splitNumber': 2,
-                'axisLabel': {'show': True, 'formatter': '{value}M'},
+                'axisLabel': {'show': True,
+                              'formatter': Js("""
+                                function(value,index){
+                                    var si = [
+                                        { value: 1, symbol: "" },
+                                        { value: 1E3, symbol: "K" },
+                                        { value: 1E6, symbol: "M" },
+                                        { value: 1E9, symbol: "G" },
+                                        { value: 1E12, symbol: "T" },
+                                        { value: 1E15, symbol: "P" },
+                                        { value: 1E18, symbol: "E" }
+                                    ];
+                                    var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+                                    var i;
+                                    for (i = si.length - 1; i > 0; i--) {
+                                        if (value >= si[i].value) {
+                                            break;
+                                        }
+                                    }
+                                    return (value / si[i].value).toFixed(2).replace(rx, "$1") + si[i].symbol;
+                                }
+                              """)
+                              },
                 'axisLine': {'show': False},
                 'axisTick': {'show': False},
                 'splitLine': {'show': False}
@@ -385,10 +445,6 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         }
         options['series'].append(series_ma)
         options['legend']['data'].append(name)
-    if len(kline_overlap_options) > 0:
-        for overlap_option in kline_overlap_options:
-            options["legend"]["data"] = options["legend"]["data"].extend(overlap_option["legend"]["data"])
-            options["series"] = options['series'].extend(overlap_option["series"])
     return Echarts(options=options, width=width, height=height)
 
 

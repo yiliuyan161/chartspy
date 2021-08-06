@@ -103,6 +103,26 @@ HTML_TEMPLATE = """
 </html>
 """
 
+# language=HTML
+HTML_FRAGMENT_TEMPLATE = """
+<div>
+ <script type="text/javascript" src="{{ plot.js_url }}"></script>
+ <style>
+      #{{plot.plot_id}} {
+            width:{{plot.width}};
+            height:{{plot.height}};
+         }
+ </style>
+ <div id="{{ plot.plot_id }}" ></div>
+  <script>
+    var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+    {{plot.extra_js}}
+    plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
+  </script>
+</div>
+"""
+
+
 
 class Js:
     """
@@ -282,7 +302,7 @@ class Tools(object):
         dict_options = eval(dict_str)
         return dict_options
 
-
+json_encoder = simplejson.JSONEncoder()
 def _type_convert(o: object):
     """
     python 类型转换成js类型
@@ -299,7 +319,7 @@ def _type_convert(o: object):
     elif isinstance(o, Js):
         return o.js_code
     else:
-        return o
+        return json_encoder.default(o)
 
 
 class Echarts(object):
@@ -424,5 +444,18 @@ class Echarts(object):
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         return html
 
+    def render_html_fragment(self):
+        """
+                渲染html 片段，方便一个网页输出多个图表
+                :return:
+                """
+        self.convert_to_js_options()
+        html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
+        return html
+
 
 __all__ = ["Echarts", "Tools", "Js", "Html", "ECHARTS_JS_URL"]
+
+
+if __name__ == "__main__":
+    pass
