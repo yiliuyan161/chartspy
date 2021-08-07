@@ -283,7 +283,6 @@ class Tools(object):
         :param js_code:
         :param print_dict: 是否控制台打印
         :return: dict
-        :param drop_data: 是否删除数据，减小打印长度，方便二次修改
         """
         js_code = js_code.strip()
 

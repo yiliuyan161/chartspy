@@ -1,6 +1,7 @@
 # echartspy
 
-[中文文档](https://github.com/yiliuyan161/echartspy/blob/main/README.md)
+[English documents](https://echartspy.icopy.site/en/)
+[中文文档](https://echartspy.icopy.site)
 
 Help users to use echarts drawing in python environment
 

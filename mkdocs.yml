@@ -42,6 +42,7 @@ nav:
   - 安装&升级: "安装.md"
   - 代码说明: "代码说明.md"
   - API使用示例: "示例.md"
+  - pyecharts迁移: "pyecharts迁移指南.md"
   - English:
       - how to use: "en/index.md"
       - install&upgrade: "en/安装.md"
