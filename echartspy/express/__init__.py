@@ -35,7 +35,7 @@ BASE_GRID_OPTIONS = {
                             for (let j = 1; j <dimensionNames.length; j++) {
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
-                                    if (value%1==0){
+                                    if (value%1==0 || value>100000){
                                         label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
                                     }else{
                                         label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
@@ -303,7 +303,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                 function(params){
                     var dt = params[0]['axisValue'];
                     var labels = [];
-                    labels.push('时间: ' + dt + '<br/>');
+                    labels.push('<b><span>时间:</span></b>' + dt + '<br/>');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
                       else if (a.seriesName > b.seriesName ) {return 1;}
@@ -318,7 +318,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                             for (let j = 1; j <dimensionNames.length; j++) {
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
-                                    if (value%1==0){
+                                    if (value%1==0 || value>100000){
                                         label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
                                     }else{
                                         label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
