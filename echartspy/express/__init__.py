@@ -295,14 +295,14 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                     for (var i=0;i<params.length;i++)
                     { 
                        var param= params[i];
-                       if(param.seriesType =='candlestick' && param.data && param.data.length > 4){
+                       if(param.seriesType =='candlestick'){
                          labels.push('open: ' + param.data[1]?param.data[1].toFixed(2):"" + '<br/>');
                          labels.push('close: ' + param.data[2]?param.data[2].toFixed(2):""  + '<br/>');
                          labels.push('low: ' + param.data[3]?param.data[3].toFixed(2):""  + '<br/>');
                          labels.push('high: ' + param.data[4]?param.data[4].toFixed(2):""  + '<br/>');
                        }else{
                          if (param.value instanceof Array && param.value.length>1){
-                            labels.push(param.seriesName+': ' + JSON.stringify(param.value)+ '<br/>');
+                            labels.push(param.seriesName+': ' + JSON.stringify(param.value)+ ' <br/>');
                          }else if (typeof param.value =='number')
                             labels.push(param.seriesName+': ' + param.value + '<br/>');
                        }

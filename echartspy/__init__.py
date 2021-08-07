@@ -19,6 +19,47 @@ GLOBAL_ENV = Environment(loader=BaseLoader)
 ECHARTS_JS_URL = "https://unpkg.com/echarts@5.1.2/dist/echarts.min.js"
 
 # language=HTML
+JUPYTER_ALL_TEMPLATE = """
+<script>
+
+</script>
+<style>
+  #{{plot.plot_id}} {
+    width:{{plot.width}};
+    height:{{plot.height}};
+ }
+</style>
+<div id="{{ plot.plot_id }}"></div>
+<script>
+  {{plot.extra_js}}
+  var options = {{ plot.js_options }};
+  if (typeof require !== 'undefined'){
+      require.config({
+        paths: {
+          "echarts": "{{plot.js_url[:-3]}}"
+        }
+      });
+      require(['echarts'], function (echarts) {
+        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+        plot_{{ plot.plot_id }}.setOption(options)
+      });
+  }else{
+    new Promise(function(resolve, reject) {
+      var script = document.createElement("script");
+      script.onload = resolve;
+      script.onerror = reject;
+      script.src = "{{plot.js_url}}";
+      document.head.appendChild(script);
+    }).then(() => {
+       var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+       plot_{{ plot.plot_id }}.setOption(options)
+    });
+  }
+  
+</script>
+"""
+
+# language=HTML
 JUPYTER_NOTEBOOK_TEMPLATE = """
 <script>
   require.config({
@@ -45,20 +86,13 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
 
 # language=HTML
 JUPYTER_LAB_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-  <style>
+<style>
  #{{plot.plot_id}} {
     width:{{plot.width}};
     height:{{plot.height}};
  }
 </style>
-</head>
-<body>
-  <div id="{{ plot.plot_id }}"></div>
+<div id="{{ plot.plot_id }}"></div>
   <script>
     // load javascript
     new Promise(function(resolve, reject) {
@@ -73,8 +107,6 @@ JUPYTER_LAB_TEMPLATE = """
        plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
     });
   </script>
-</body>
-</html>
 """
 
 # language=HTML
@@ -121,7 +153,6 @@ HTML_FRAGMENT_TEMPLATE = """
   </script>
 </div>
 """
-
 
 
 class Js:
@@ -302,7 +333,10 @@ class Tools(object):
         dict_options = eval(dict_str)
         return dict_options
 
+
 json_encoder = simplejson.JSONEncoder()
+
+
 def _type_convert(o: object):
     """
     python 类型转换成js类型
@@ -318,6 +352,22 @@ def _type_convert(o: object):
         return o.isoformat()
     elif isinstance(o, Js):
         return o.js_code
+    elif isinstance(o, np.datetime64):
+        o1 = pd.to_datetime(o)
+        if o1.hour + o1.minute + o1.second == 0:
+            return o.strftime("%Y-%m-%d")
+        else:
+            return o.isoformat()
+    elif isinstance(o, np.bool):
+        return bool(o)
+    elif isinstance(o, np.integer):
+        return int(o)
+    elif isinstance(o, np.floating):
+        return float(o)
+    elif isinstance(o, np.complexfloating):
+        return float(o)
+    elif isinstance(o, np.character):
+        return str(o)
     else:
         return json_encoder.default(o)
 
@@ -446,16 +496,24 @@ class Echarts(object):
 
     def render_html_fragment(self):
         """
-                渲染html 片段，方便一个网页输出多个图表
-                :return:
-                """
+        渲染html 片段，方便一个网页输出多个图表
+        :return:
+        """
         self.convert_to_js_options()
         html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
         return html
 
+    def _repr_html_(self):
+        """
+        jupyter 环境，直接输出
+        :return:
+        """
+        self.js_options = self.convert_to_js_options(self.options)
+        html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
+        return Html(html).data
+
 
 __all__ = ["Echarts", "Tools", "Js", "Html", "ECHARTS_JS_URL"]
-
 
 if __name__ == "__main__":
     pass
