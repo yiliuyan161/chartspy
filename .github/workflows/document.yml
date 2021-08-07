@@ -1,4 +1,4 @@
-name: ci
+name: doc update
 on:
   push:
     branches:
