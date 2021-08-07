@@ -43,10 +43,10 @@ nav:
   - 代码说明: "代码说明.md"
   - API使用示例: "示例.md"
   - English:
-      - how to use: "index.md"
-      - install&upgrade: "安装.md"
-      - code structure: "代码说明.md"
-      - API example: "示例.md"
+      - how to use: "en/index.md"
+      - install&upgrade: "en/安装.md"
+      - code structure: "en/代码说明.md"
+      - API example: "en/示例.md"
 
 
 

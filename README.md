@@ -1,10 +1,11 @@
 # echartspy
 
-[English documents](https://github.com/yiliuyan161/echartspy/blob/main/README_EN.md)
+[English documents](https://echartspy.icopy.site/en/)
+[中文文档](https://echartspy.icopy.site)
 
 帮助用户在python环境使用echarts绘图
 
-[echartspy文档](https://echartspy.icopy.site)
+
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
 
