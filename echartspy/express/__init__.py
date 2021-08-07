@@ -244,7 +244,7 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
 
 def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
                 clo: str = 'close',
-                vol: str = 'volume', mas: list = [5, 10, 30], log_y:bool=True, title: str = "",
+                vol: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
                 width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
     """
     绘制K线
@@ -276,7 +276,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     options = {
         'animation': False,
         'title': {'text': title},
-        'legend': {'top': 10, 'left': 'center', 'data': ["K线"]},
+        'legend': {'top': 10, 'left': 'center', 'data': [title]},
         'tooltip': {
             'trigger': 'axis', 'axisPointer': {'type': 'cross'},
             'borderWidth': 1,
@@ -418,7 +418,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
         ],
         'series': [
             {
-                'name': 'K线',
+                'name': title,
                 'type': 'candlestick',
                 'data': df[[opn, clo, high, low]].values.tolist(),
 
