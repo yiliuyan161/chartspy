@@ -31,8 +31,6 @@ repo_name: yiliuyan161/echartspy
 
 extra:
   alternate:
-
-    # Switch to English
     - name: English
       link: https://echartspy.icopy.site/en/
       lang: en
@@ -43,6 +41,7 @@ nav:
   - 代码说明: "代码说明.md"
   - API使用示例: "示例.md"
   - pyecharts迁移: "pyecharts迁移指南.md"
+  - 图表示例: "express.md"
   - English:
       - how to use: "en/index.md"
       - install&upgrade: "en/安装.md"

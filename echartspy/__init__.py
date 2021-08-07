@@ -498,7 +498,7 @@ class Echarts(object):
         渲染html 片段，方便一个网页输出多个图表
         :return:
         """
-        self.convert_to_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
         return html
 
