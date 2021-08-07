@@ -1,5 +1,7 @@
 # echartspy
 
+[English documents](https://github.com/yiliuyan161/echartspy/blob/main/README_EN.md)
+
 帮助用户在python环境使用echarts绘图
 
 [echartspy文档](https://echartspy.icopy.site)

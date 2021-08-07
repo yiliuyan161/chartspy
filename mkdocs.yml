@@ -29,11 +29,24 @@ markdown_extensions:
 repo_url: https://github.com/yiliuyan161/echartspy
 repo_name: yiliuyan161/echartspy
 
+extra:
+  alternate:
+
+    # Switch to English
+    - name: English
+      link: https://echartspy.icopy.site/en/
+      lang: en
+
 nav:
   - 使用说明: "index.md"
   - 安装&升级: "安装.md"
   - 代码说明: "代码说明.md"
   - API使用示例: "示例.md"
+  - English:
+      - how to use: "index.md"
+      - install&upgrade: "安装.md"
+      - code structure: "代码说明.md"
+      - API example: "示例.md"
 
 
 
