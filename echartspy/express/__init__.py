@@ -12,33 +12,50 @@ BASE_GRID_OPTIONS = {
         'data': []
     },
     'tooltip': {
-        'trigger': 'axis', 'axisPointer': {'type': 'cross'},
-        'borderWidth': 1,
-        'borderColor': '#ccc',
-        'padding': 10,
-        'formatter': Js("""
+            'trigger': 'axis', 'axisPointer': {'type': 'cross'},
+            'borderWidth': 1,
+            'borderColor': '#ccc',
+            'padding': 10,
+            'formatter': Js("""
                 function(params){
-                    var dt = params[0]['axisValue'];
+                    var x_value = params[0]['axisValue'];
                     var labels = [];
-                    labels.push('时间: ' + dt + '<br/>');
+                    labels.push('<b><span>x轴:</span></b>' + x_value + '<br/>');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
                       else if (a.seriesName > b.seriesName ) {return 1;}
                       else{ return 0;}
                     });
-                    for (var i=0;i<params.length;i++)
-                    { 
-                       var param= params[i];
-                       if (param.value instanceof Array && param.value.length>1){
-                            labels.push(param.seriesName+': ' + JSON.stringify(param.value) + '<br/>');
-                         }else if (typeof param.value =='number'){
-                            labels.push(param.seriesName+': ' + param.value + '<br/>');
+                    for (let i = 0; i < params.length; i++) {
+                        const param = params[i];
+                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):</span></b>"];
+                        var dimensionNames=param["dimensionNames"];
+                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
+                            label.push("<br/>");
+                            for (let j = 1; j <dimensionNames.length; j++) {
+                                var value= param['value'][j];
+                                if (typeof(value)=='number'){
+                                    if (value%1==0){
+                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
+                                    }else{
+                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
+                                    }
+                                }
+                            }
+                        }else if(typeof(param['value'])=='number'){
+                            if (param['value']%1==0){
+                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                            }else{
+                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                            }
                         }
+                        var cardStr= label.join('');
+                        labels.push(cardStr);
                     }
                     return labels.join('');
                 }"""),
-        'textStyle': {'color': '#000'},
-        'position': Js("""
+            'textStyle': {'color': '#000'},
+            'position': Js("""
                 function (pos, params, el, elRect, size){
                     var obj = {top: 10};
                     obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
@@ -292,20 +309,31 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                       else if (a.seriesName > b.seriesName ) {return 1;}
                       else{ return 0;}
                     });
-                    for (var i=0;i<params.length;i++)
-                    { 
-                       var param= params[i];
-                       if(param.seriesType =='candlestick'){
-                         labels.push('open: ' + param.data[1]?param.data[1].toFixed(2):"" + '<br/>');
-                         labels.push('close: ' + param.data[2]?param.data[2].toFixed(2):""  + '<br/>');
-                         labels.push('low: ' + param.data[3]?param.data[3].toFixed(2):""  + '<br/>');
-                         labels.push('high: ' + param.data[4]?param.data[4].toFixed(2):""  + '<br/>');
-                       }else{
-                         if (param.value instanceof Array && param.value.length>1){
-                            labels.push(param.seriesName+': ' + JSON.stringify(param.value)+ ' <br/>');
-                         }else if (typeof param.value =='number')
-                            labels.push(param.seriesName+': ' + param.value + '<br/>');
-                       }
+                    for (let i = 0; i < params.length; i++) {
+                        const param = params[i];
+                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):</span></b>"];
+                        var dimensionNames=param["dimensionNames"];
+                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
+                            label.push("<br/>");
+                            for (let j = 1; j <dimensionNames.length; j++) {
+                                var value= param['value'][j];
+                                if (typeof(value)=='number'){
+                                    if (value%1==0){
+                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
+                                    }else{
+                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
+                                    }
+                                }
+                            }
+                        }else if(typeof(param['value'])=='number'){
+                            if (param['value']%1==0){
+                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                            }else{
+                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                            }
+                        }
+                        var cardStr= label.join('');
+                        labels.push(cardStr);
                     }
                     return labels.join('');
                 }"""),
