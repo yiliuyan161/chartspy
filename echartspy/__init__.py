@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import simplejson
 from jinja2 import Environment, BaseLoader
+from .symbols import SYMBOLS
 
 # jinja2模板引擎env
 GLOBAL_ENV = Environment(loader=BaseLoader)
@@ -512,7 +513,7 @@ class Echarts(object):
         return Html(html).data
 
 
-__all__ = ["Echarts", "Tools", "Js", "Html", "ECHARTS_JS_URL"]
+__all__ = ["Echarts", "Tools", "Js", "Html", "ECHARTS_JS_URL",'SYMBOLS']
 
 if __name__ == "__main__":
     pass

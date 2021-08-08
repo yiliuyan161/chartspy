@@ -12,15 +12,16 @@ BASE_GRID_OPTIONS = {
         'data': []
     },
     'tooltip': {
-            'trigger': 'axis', 'axisPointer': {'type': 'cross'},
-            'borderWidth': 1,
-            'borderColor': '#ccc',
-            'padding': 10,
-            'formatter': Js("""
+        'trigger': 'axis', 'axisPointer': {'type': 'cross'},
+        'borderWidth': 1,
+        'borderColor': '#ccc',
+        'padding': 10,
+        'formatter': Js("""
                 function(params){
+                    window.params=params;
                     var x_value = params[0]['axisValue'];
                     var labels = [];
-                    labels.push('<b><span>x轴:</span></b>' + x_value + '<br/>');
+                    labels.push('<b><span>x轴:&nbsp;</span></b>' + x_value + '<br/>');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
                       else if (a.seriesName > b.seriesName ) {return 1;}
@@ -28,7 +29,7 @@ BASE_GRID_OPTIONS = {
                     });
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
-                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):</span></b>"];
+                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
                         var dimensionNames=param["dimensionNames"];
                         if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
                             label.push("<br/>");
@@ -36,10 +37,12 @@ BASE_GRID_OPTIONS = {
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
                                     if (value%1==0 || value>100000){
-                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
+                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
                                     }else{
-                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
+                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
                                     }
+                                }else{
+                                    label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
                                 }
                             }
                         }else if(typeof(param['value'])=='number'){
@@ -48,14 +51,18 @@ BASE_GRID_OPTIONS = {
                             }else{
                                 label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
                             }
+                        }else if(param['value']){
+                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                        }else{
+                            label.push("<br/>");
                         }
                         var cardStr= label.join('');
                         labels.push(cardStr);
                     }
                     return labels.join('');
                 }"""),
-            'textStyle': {'color': '#000'},
-            'position': Js("""
+        'textStyle': {'color': '#000'},
+        'position': Js("""
                 function (pos, params, el, elRect, size){
                     var obj = {top: 10};
                     obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
@@ -106,7 +113,8 @@ BASE_OVERLAY_OPTIONS = {
 
 
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-            size_max: int = 30, title: str = "", width: str = "100%", height: str = "500px") -> Echarts:
+            size_max: int = 30, info: str = None, title: str = "", width: str = "100%",
+            height: str = "500px") -> Echarts:
     """
     绘制scatter图
     :param data_frame: 必填 DataFrame
@@ -115,6 +123,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     :param symbol: 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none',image://dataURI(), path://(svg)
     :param size: 可选 原点大小列
     :param size_max: 可选
+    :param info: 额外信息tooltip显示
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -141,9 +150,19 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
                             return val[2]/{{max_size_value}}*{{size_max}};
                         }
                     """, **locals()))
-        series['data'] = df[[x, y, size]].values.tolist()
+        if info is not None:
+            series['dimensions'] = [x, y, size, info]
+            series['data'] = df[[x, y, size, info]].values.tolist()
+        else:
+            series['dimensions'] = [x, y, size]
+            series['data'] = df[[x, y, size]].values.tolist()
     else:
-        series['data'] = df[[x, y]].values.tolist()
+        if info is not None:
+            series['dimensions'] = [x, y, info]
+            series['data'] = df[[x, y, info]].values.tolist()
+        else:
+            series['dimensions'] = [x, y]
+            series['data'] = df[[x, y]].values.tolist()
     options['series'].append(series)
     options['legend']['data'].append(title)
 
@@ -170,7 +189,7 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = [], title: str = "",
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'line', 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'line', 'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
     options['legend']['data'].append(title)
     options['series'].append(series)
 
@@ -199,7 +218,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'bar', 'stack': stack, 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'bar', 'stack': stack,'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
@@ -303,7 +322,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                 function(params){
                     var dt = params[0]['axisValue'];
                     var labels = [];
-                    labels.push('<b><span>时间:</span></b>' + dt + '<br/>');
+                    labels.push('<b><span>时间:&nbsp;</span></b>' + dt + '<br/>');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
                       else if (a.seriesName > b.seriesName ) {return 1;}
@@ -311,7 +330,7 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                     });
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
-                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):</span></b>"];
+                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
                         var dimensionNames=param["dimensionNames"];
                         if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
                             label.push("<br/>");
@@ -319,10 +338,12 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
                                     if (value%1==0 || value>100000){
-                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(0)+"</span><br/>");
+                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
                                     }else{
-                                        label.push("<span>"+dimensionNames[j]+':'+value.toFixed(2)+"</span><br/>");
+                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
                                     }
+                                }else{
+                                    label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
                                 }
                             }
                         }else if(typeof(param['value'])=='number'){
@@ -331,6 +352,10 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
                             }else{
                                 label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
                             }
+                        }else if(param['value']){
+                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                        }else{
+                            label.push("<br/>");
                         }
                         var cardStr= label.join('');
                         labels.push(cardStr);
