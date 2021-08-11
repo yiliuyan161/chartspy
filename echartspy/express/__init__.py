@@ -137,6 +137,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
+    title = y if title == '' else title
     series = {
         'type': 'scatter',
         'itemStyle': {
@@ -168,7 +169,6 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
             series['data'] = df[[x, y]].values.tolist()
     options['series'].append(series)
     options['legend']['data'].append(title)
-
     return Echarts(options=options, width=width, height=height)
 
 
@@ -185,6 +185,7 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = ""
     :return:
     """
     options = copy.deepcopy(BASE_GRID_OPTIONS)
+    title = y if title == '' else title
     df = data_frame.copy()
     if x is None:
         df["x_col_echartspy"] = df.index
@@ -215,6 +216,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     """
     options = copy.deepcopy(BASE_GRID_OPTIONS)
     df = data_frame.copy()
+    title = y if title == '' else title
     if x is None:
         df["x_col_echartspy"] = df.index
         x = "x_col_echartspy"
