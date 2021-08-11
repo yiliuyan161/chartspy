@@ -31,9 +31,9 @@ BASE_GRID_OPTIONS = {
                         const param = params[i];
                         var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
                         var dimensionNames=param["dimensionNames"];
-                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
+                        if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
                             label.push("<br/>");
-                            for (let j = 1; j <dimensionNames.length; j++) {
+                            for (let j = 1; j <param['data'].length; j++) {
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
                                     if (value%1==0 || value>100000){
@@ -113,7 +113,7 @@ BASE_OVERLAY_OPTIONS = {
 
 
 def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-            size_max: int = 30, info: str = None, title: str = "", width: str = "100%",
+            size_max: int = 30, info: str = None, opacity=0.5, title: str = "", width: str = "100%",
             height: str = "500px") -> Echarts:
     """
     绘制scatter图
@@ -139,6 +139,9 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
         options['xAxis']['type'] = 'category'
     series = {
         'type': 'scatter',
+        'itemStyle': {
+            'opacity': opacity
+        },
         'name': title
     }
     if symbol is not None:
@@ -169,7 +172,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     return Echarts(options=options, width=width, height=height)
 
 
-def line(data_frame: pd.DataFrame, x: str = None, y: str = [], title: str = "",
+def line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
          width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
@@ -218,7 +221,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'bar', 'stack': stack,'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
