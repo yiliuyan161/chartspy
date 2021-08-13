@@ -137,6 +137,8 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
+    if "date" in str(df[y].dtype) or "object" in str(df[y].dtype):
+        options['yAxis']['type'] = 'category'
     title = y if title == '' else title
     series = {
         'type': 'scatter',
@@ -524,15 +526,37 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
             'text': title
         },
         'legend': {
+            'top':20,
+            'type':'scroll',
             'data': []
         },
         'radar': {
+            'center':['50%', '60%'],
             'shape': 'circle',
             'indicator': []
         },
+        'tooltip':{
+            'position': Js("""
+                function (pos, params, el, elRect, size){
+                    var obj = {top: 20};
+                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                    return obj;
+                }
+            """)},
         'series': [{
             'name': title,
             'type': 'radar',
+            'emphasis':{
+                'lineStyle':{
+                    "shadowBlur": 15,
+                    "width":4,
+                    "type":'dotted',
+                    "shadowOffsetX": 0,
+                    "shadowColor": 'rgba(0, 0, 0, 0.9)',
+                    "opacity":1
+                },
+                'inactiveOpacity':0.05
+            },
             'data': []
         }]
     }
@@ -549,7 +573,6 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
         options['series'][0]['data'].append(data)
         options['legend']['data'].append(record[name])
     return Echarts(options=options, width=width, height=height)
-
 
 def heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
             width: str = "100%", height: str = "500px") -> Echarts:
@@ -633,22 +656,24 @@ def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = No
     df[date] = pd.to_datetime(df[date]).dt.strftime("%Y-%m-%d")
     options = {
         'title': {
-            'top': 30,
-            'left': 'center',
             'text': title
         },
         'tooltip': {'formatter': "{c}"},
         'visualMap': {
+            'text':['高', '低'],
             'min': value_min,
             'max': value_max,
-            'type': 'piecewise',
+            'type': 'continuous',
             'orient': 'horizontal',
+            'inRange': {
+               'color': ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+            },
             'left': 'center',
-            'top': 65,
+            'top':0,
             'hoverLink': True
         },
         'calendar': {
-            'top': 120,
+            'top': 60,
             'left': 30,
             'right': 30,
             'cellSize': ['auto', 'auto'],
@@ -690,24 +715,49 @@ def parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [
     options = {
         'title': {'text': title},
         'legend': {
+            'top': '20',
+            'type': 'scroll',
             'data': []
         },
+        'parallel': {'top': 80},
+        'tooltip': {
+            'trigger': 'item',
+            'formatter': Js(Tools.wrap_template(""" function(params){
+                    var dims={{dims}};
+                    var value_dict={};
+                    var labels=[params.seriesName+':<br/>'];
+                    for(var i=0;i<dims.length;i++){
+                        labels.push('<span>'+dims[i]+":"+params['value'][i]+'</span><br/>');
+                    }
+                    return labels.join("");
+            }""", dims=str(parallel_axis))),
+            'position': Js("""
+                function (pos, params, el, elRect, size){
+                    var obj = {top: 20};
+                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                    return obj;
+                }
+            """)},
         'parallelAxis': [],
         'series': []
     }
     value_dict_list = df.to_dict(orient='records')
     for i in range(0, len(parallel_axis)):
-        if "object" in str(df[parallel_axis[i]].dtype):
+        data_min = df[parallel_axis[i]].min()
+        data_max = df[parallel_axis[i]].max()
+        if 'int' in str(df[parallel_axis[i]].dtype) or 'float' in str(df[parallel_axis[i]].dtype):
+            col = {'dim': i, 'name': parallel_axis[i], 'type': 'value', 'min': data_min - (data_max - data_min) * 0.1,
+                   'max': data_max + (data_max - data_min) * 0.1}
+        else:
             col = {'dim': i, 'name': parallel_axis[i], 'type': 'category',
                    'data': sorted(df[parallel_axis[i]].unique())}
-        else:
-            col = {'dim': i, 'name': parallel_axis[i], 'min': "dataMin", 'max': "dataMax"}
+
         options['parallelAxis'].append(col)
     for value_dict in value_dict_list:
         series = {
             'name': value_dict[name],
             'type': 'parallel',
-            'lineStyle': {width: 3},
+            'lineStyle': {'width': 3},
             'data': [[value_dict[col] for col in parallel_axis]]
         }
         options['series'].append(series)

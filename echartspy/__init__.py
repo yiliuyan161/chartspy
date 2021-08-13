@@ -357,9 +357,9 @@ def _type_convert(o: object):
     elif isinstance(o, np.datetime64):
         o1 = pd.to_datetime(o)
         if o1.hour + o1.minute + o1.second == 0:
-            return o.strftime("%Y-%m-%d")
+            return o1.strftime("%Y-%m-%d")
         else:
-            return o.isoformat()
+            return o1.isoformat()
     elif isinstance(o, np.bool):
         return bool(o)
     elif isinstance(o, np.integer):
