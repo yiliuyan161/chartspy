@@ -114,7 +114,7 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 }
 
 
-def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
+def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
                     size_max: int = 30, color: str = None,
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
@@ -215,7 +215,7 @@ def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
+def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
                  width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
@@ -250,7 +250,7 @@ def echarts_line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: 
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
+def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
                 title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -287,7 +287,7 @@ def echarts_bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
+def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
     饼图
@@ -345,7 +345,7 @@ def echarts_pie(data_frame: pd.DataFrame, name: str = None, value: str = None, r
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high',
+def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high',
                         low: str = 'low',
                         clo: str = 'close',
                         vol: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
@@ -584,7 +584,7 @@ def echarts_candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True,
+def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True,
                   title: str = "",
                   width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -652,7 +652,7 @@ def echarts_radar(data_frame: pd.DataFrame, name: str = None, indicators: list =
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
+def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
                     width: str = "100%", height: str = "500px") -> Echarts:
     """
     二维热度图
@@ -713,7 +713,7 @@ def echarts_heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, valu
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = None,
+def calendar_heatmap_echarts(data_frame: pd.DataFrame, date: str = None, value: str = None,
                              title: str = "",
                              width: str = "100%", height: str = "300px") -> Echarts:
     """
@@ -785,7 +785,7 @@ def echarts_calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: 
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
+def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
                      title: str = "",
                      width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -852,7 +852,7 @@ def echarts_parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_sankey(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
+def sankey_echarts(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
                    width: str = "100%", height: str = "500px") -> Echarts:
     """
 
@@ -899,7 +899,7 @@ def echarts_sankey(data_frame: pd.DataFrame, source: str = None, target: str = N
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None,
+def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None,
                         title: str = "",
                         width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -966,7 +966,7 @@ def echarts_theme_river(data_frame: pd.DataFrame, date: str = None, value: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def echarts_sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "",
+def sunburst_echarts(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "",
                      font_size: int = 8,
                      width: str = "100%", height: str = "500px") -> Echarts:
     data = Tools.df2tree(data_frame, categories, value)
@@ -1007,7 +1007,7 @@ def echarts_sunburst(data_frame: pd.DataFrame, categories: list = [], value: str
     return Echarts(options, height=height, width=width)
 
 
-def echarts_mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
+def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
                       label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
                       label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
                       ):
@@ -1052,7 +1052,7 @@ def echarts_mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     return Echarts(options)
 
 
-def echarts_mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
+def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
                          label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
                          label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
                          line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
@@ -1102,7 +1102,7 @@ def echarts_mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     return Echarts(options)
 
 
-def echarts_mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
+def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
                        label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
                        label_font_color: str = 'inherit', label_background_color: str = "transparent"):
     """
@@ -1143,7 +1143,7 @@ def echarts_mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
     return Echarts(options)
 
 
-def echarts_mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
+def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
                                label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
                                label_font_color: str = 'inherit'):
     """
@@ -1179,7 +1179,7 @@ def echarts_mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, tit
     return Echarts(options)
 
 
-def echarts_mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
+def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
                                  label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
                                  label_font_color: str = 'inherit'):
     """
@@ -1215,7 +1215,7 @@ def echarts_mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, t
     return Echarts(options)
 
 
-def g2plot_bullet(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
+def bullet_g2plot(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
                   width="100%", height="50px") -> G2PLOT:
     """
     子弹图
@@ -1236,7 +1236,7 @@ def g2plot_bullet(title: str = "", range_field: list = [], measure_field: list =
         }, height=height, width=width)
 
 
-def g2plot_chord(df, source_field: str = None, target_field: str = None, weight_field: str = None, width="100%",
+def chord_g2plot(df, source_field: str = None, target_field: str = None, weight_field: str = None, width="100%",
                  height="500px"):
     """
     关系图
@@ -1255,7 +1255,7 @@ def g2plot_chord(df, source_field: str = None, target_field: str = None, weight_
     }, height=height, width=width)
 
 
-def g2plot_waterfall(df, x_field: str = None, y_field: str = None, width="100%", height="500px"):
+def waterfall_g2plot(df, x_field: str = None, y_field: str = None, width="100%", height="500px"):
     """
     瀑布图
     :param df:
@@ -1271,7 +1271,7 @@ def g2plot_waterfall(df, x_field: str = None, y_field: str = None, width="100%",
     }, width=width, height=height)
 
 
-def g2plot_liquid(percent: float = 1, width='200px', height='200px'):
+def liquid_g2plot(percent: float = 1, width='200px', height='200px'):
     """
     水波图
     :param percent:百分比
@@ -1289,7 +1289,7 @@ def g2plot_liquid(percent: float = 1, width='200px', height='200px'):
     }, width=width, height=height)
 
 
-def g2plot_wordcloud(df, word_field: str = None, weight_field: str = None, width='100%', height='500px'):
+def wordcloud_g2plot(df, word_field: str = None, weight_field: str = None, width='100%', height='500px'):
     """
     词云
     :param df:
@@ -1317,7 +1317,7 @@ def g2plot_wordcloud(df, word_field: str = None, weight_field: str = None, width
     }, width=width, height=height)
 
 
-def g2plot_bar_stack_percent(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%',
+def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%',
                              height='500px'):
     """
     柱状图百分比堆叠，查看组成部分，占比随时间变化，x_field时间，y_field比例，series_field 类别
@@ -1343,7 +1343,7 @@ def g2plot_bar_stack_percent(df, x_field: str = None, y_field: str = None, serie
     }, width=width, height=height)
 
 
-def g2plot_violin(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%", height='500px'):
+def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%", height='500px'):
     """
     小提琴图，展示y列的分布
     :param df:
@@ -1368,3 +1368,13 @@ def g2plot_violin(df, x_field: str = None, y_field: str = None, series_field: st
         options['seriesField'] = series_field
 
     return G2PLOT(df, plot_type='Violin', options=options, width=width, height=height)
+
+
+__all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
+           'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts', 'theme_river_echarts',
+           'sunburst_echarts',
+           'mark_label_echarts', 'mark_segment_echarts', 'mark_vertical_line_echarts',
+           'mark_horizontal_line_echarts', 'mark_area_echarts',
+           'bullet_g2plot', 'chord_g2plot', 'waterfall_g2plot', 'liquid_g2plot', 'wordcloud_g2plot',
+           'bar_stack_percent_g2plot', 'violin_g2plot'
+           ]

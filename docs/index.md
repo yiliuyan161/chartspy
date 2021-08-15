@@ -1,6 +1,6 @@
 # echartspy
 
-帮助用户在python环境使用echarts /g2plot 绘图
+帮助用户在python环境使用echarts g2plot 绘图
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
 
@@ -12,17 +12,16 @@
 
 ## 使用说明
 
-### 简单模式
+### 简单模式   
 
 ```python
 import chartspy.express as ex
 
-......
-ex.echarts_scatter(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter').render_notebook()
+ex.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter').render_notebook()
 
-ex.echarts_pie(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px').render_notebook()
+ex.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px').render_notebook()
 
-ex.echarts_candlestick(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行').render_notebook()
+ex.candlestick_echarts(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行').render_notebook()
 ```
 !!! note ""
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)

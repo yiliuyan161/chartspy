@@ -259,9 +259,9 @@ class Echarts(object):
         function_start = 0
         mask_length = len(FUNCTION_BOUNDARY_MARK)
         for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length:i] == '"'+FUNCTION_BOUNDARY_MARK:
+            if json_str[i - mask_length:i] == '"' + FUNCTION_BOUNDARY_MARK:
                 function_start = i - mask_length
-            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK+'"':
+            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK + '"':
                 segs.append([function_start, i])
         left_index = 0
         parts = []
@@ -271,7 +271,7 @@ class Echarts(object):
             left_index = seg[1] + 1
         parts.append(json_str[left_index:])
         dict_str = "".join(parts)
-        return re.sub('"?'+FUNCTION_BOUNDARY_MARK+'"?', "", dict_str)
+        return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
 
     def render_html(self) -> str:
         """

@@ -22,7 +22,7 @@ JUPYTER_ALL_TEMPLATE = """
 <div id="{{ plot.plot_id }}"></div>
 <script>
   {{plot.extra_js}}
-  var options = {{ plot.js_options }};
+  var options = {{ plot.js_options }}
   if (typeof require !== 'undefined'){
       require.config({
         paths: {
@@ -68,7 +68,7 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
 <script>
   {{plot.extra_js}}
   require(['G2Plot'], function (G2Plot) {
-    var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}); 
+    var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}) 
     plot_{{ plot.plot_id }}.render();
   });
 </script>
@@ -95,7 +95,7 @@ new Promise(function(resolve, reject) {
   script.src = "{{plot.js_url}}";
   document.head.appendChild(script);
 }).then(() => {
-  var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}); 
+  var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}) 
   plot_{{ plot.plot_id }}.render();
 });
 </script>
@@ -120,7 +120,7 @@ HTML_TEMPLATE = """
   <div id="{{ plot.plot_id }}" ></div>
   <script>
      {{plot.extra_js}}
-     var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}); 
+     var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}) 
      plot_{{ plot.plot_id }}.render();
   </script>
 </body>
@@ -140,7 +140,7 @@ HTML_FRAGMENT_TEMPLATE = """
  <div id="{{ plot.plot_id }}" ></div>
   <script>
     {{plot.extra_js}}
-    var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}); 
+    var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", {{ plot.js_options }}) 
     plot_{{ plot.plot_id }}.render();
   </script>
 </div>
@@ -233,9 +233,9 @@ class G2PLOT(object):
         function_start = 0
         mask_length = len(FUNCTION_BOUNDARY_MARK)
         for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length:i] == '"'+FUNCTION_BOUNDARY_MARK:
+            if json_str[i - mask_length:i] == '"' + FUNCTION_BOUNDARY_MARK:
                 function_start = i - mask_length
-            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK+'"':
+            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK + '"':
                 segs.append([function_start, i])
         left_index = 0
         parts = []
@@ -245,7 +245,7 @@ class G2PLOT(object):
             left_index = seg[1] + 1
         parts.append(json_str[left_index:])
         dict_str = "".join(parts)
-        return re.sub('"?'+FUNCTION_BOUNDARY_MARK+'"?', "", dict_str)
+        return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
 
     def render_html(self) -> str:
         """

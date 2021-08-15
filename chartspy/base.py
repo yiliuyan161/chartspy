@@ -13,6 +13,7 @@ from jinja2 import Environment, BaseLoader
 GLOBAL_ENV = Environment(loader=BaseLoader)
 FUNCTION_BOUNDARY_MARK = "FUNCTION_BOUNDARY_MARK"
 
+
 class Js:
     """
     JavaScript代码因为不是标准json,先以特殊字符包裹字符串形式保存
@@ -199,7 +200,7 @@ json_encoder = simplejson.JSONEncoder()
 def json_type_convert(o: object):
     """
     python 类型转换成js类型
-    :param o:
+    :param o: simplejson序列化不了的对象
     :return:
     """
     if isinstance(o, datetime.datetime):
