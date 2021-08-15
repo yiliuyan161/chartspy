@@ -1,6 +1,6 @@
-# echartspy
+# chartspy
 
-Help users to use echarts drawing in python environment
+Help users to use echarts,g2plot drawing in python environment
 
 Unlike pyecharts, it does not perform python mapping and secondary abstraction of echarts concepts and attributes, ensuring that the library does not depend on a specific echarts version
 
@@ -13,14 +13,16 @@ Unlike pyecharts, it does not perform python mapping and secondary abstraction o
 ## instructions for use
 
 ### simple mode
+
 ```python
-import echartspy.express as ex
-...... 
-ex.scatter(df,x='数量',y='价格',size='数量',group='水果',size_max=50,height='250px',title='scatter').render_notebook()
+import chartspy.express as ex
 
-ex.pie(df,name='水果',value='数量',rose_type='area',title="pie2",height='350px').render_notebook()
+......
+ex.scatter(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter').render_notebook()
 
-ex.candlestick(df.reset_index(),left='5%',mas=[5,10,30],title='平安银行').render_notebook()
+ex.pie(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px').render_notebook()
+
+ex.candlestick(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行').render_notebook()
 ```
 !!! note ""
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
@@ -38,8 +40,9 @@ ex.candlestick(df.reset_index(),left='5%',mas=[5,10,30],title='平安银行').re
 handmade，reference [echarts onfiguration manual](https://echarts.apache.org/zh/option.html#title)
 
 ```python
-from echartspy import Echarts,Tools
-options={
+from chartspy import Echarts, Tools
+
+options = {
     'xAxis': {},
     'yAxis': {},
     'series': [{
@@ -54,7 +57,7 @@ options={
         'type': 'scatter'
     }]
 }
-Echarts(options,height='600px',title='散点图测试').render_notebook()
+Echarts(options, height='600px', title='散点图测试').render_notebook()
 ```
 
 #### semi-automatic
@@ -64,8 +67,9 @@ from [echarts examples](https://echarts.apache.org/examples/zh/index.html) copy 
 convert_js_to_dict(js_str,**print_dict=True**) will print python configuration dict in console, manually modify after copy and paste
 
 ```python
-from echartspy import Echarts,Tools,Js
-js_str="""
+from chartspy import Echarts, Tools, Js
+
+js_str = """
 {
     xAxis: {
         type: 'category',
@@ -81,8 +85,8 @@ js_str="""
     }]
 }
 """
-options=Tools.convert_js_to_dict(js_str,print_dict=False)
-Echarts(options,height='300px',width='300px').render_notebook()
+options = Tools.convert_js_to_dict(js_str, print_dict=False)
+Echarts(options, height='300px', width='300px').render_notebook()
 ```
 
 !!! note ""

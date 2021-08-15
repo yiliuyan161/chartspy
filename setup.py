@@ -22,11 +22,11 @@ def get_install_requires():
 
 
 setup(
-    name="echartspy",
+    name="chartspy",
     version="1.2.1",
-    url="https://echartspy.icopy.site/",
-    description="echarts python wrapper",
-    keywords='echarts python ',
+    url="https://chartspy.icopy.site/",
+    description="echarts&g2plot python wrapper",
+    keywords='echarts g2plot python ',
     packages=find_packages(exclude=("tests", "tests.*")),
     author="yiliuyan",
     author_email="yiliuyan161@126.com",

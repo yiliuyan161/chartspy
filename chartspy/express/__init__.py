@@ -4,10 +4,11 @@ import copy
 
 import pandas as pd
 
-from echartspy import Echarts, Js, Tools
+from ..base import Js, Tools
+from ..echarts import Echarts
 
 # 二维坐标系统基础配置适用  scatter,bar,line
-BASE_GRID_OPTIONS = {
+ECHARTS_BASE_GRID_OPTIONS = {
     'legend': {
         'data': []
     },
@@ -101,7 +102,7 @@ BASE_GRID_OPTIONS = {
     'series': []
 }
 
-BASE_OVERLAY_OPTIONS = {
+ECHARTS_BASE_OVERLAY_OPTIONS = {
     'legend': {
         'data': []
     },
@@ -112,9 +113,9 @@ BASE_OVERLAY_OPTIONS = {
 }
 
 
-def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-            size_max: int = 30, info: str = None, opacity=0.5, title: str = "", width: str = "100%",
-            height: str = "500px") -> Echarts:
+def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
+                    size_max: int = 30, info: str = None, opacity=0.5, title: str = "", width: str = "100%",
+                    height: str = "500px") -> Echarts:
     """
     绘制scatter图
     :param data_frame: 必填 DataFrame
@@ -133,7 +134,7 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     if x is None:
         df["x_col_echartspy"] = df.index
         x = "x_col_echartspy"
-    options = copy.deepcopy(BASE_GRID_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
@@ -174,8 +175,8 @@ def scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str 
     return Echarts(options=options, width=width, height=height)
 
 
-def line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
-         width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
+                 width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
@@ -186,7 +187,7 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = ""
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = copy.deepcopy(BASE_GRID_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     title = y if title == '' else title
     df = data_frame.copy()
     if x is None:
@@ -202,9 +203,9 @@ def line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = ""
     return Echarts(options=options, width=width, height=height)
 
 
-def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
-        title: str = "",
-        width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
+                title: str = "",
+                width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame: 必填 DataFrame
@@ -216,7 +217,7 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    options = copy.deepcopy(BASE_GRID_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     df = data_frame.copy()
     title = y if title == '' else title
     if x is None:
@@ -231,8 +232,8 @@ def bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "al
     return Echarts(options=options, width=width, height=height)
 
 
-def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
-        width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
+                width: str = "100%", height: str = "500px") -> Echarts:
     """
     饼图
     :param data_frame: 必填 DataFrame
@@ -285,10 +286,11 @@ def pie(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type
     return Echarts(options=options, width=width, height=height)
 
 
-def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high', low: str = 'low',
-                clo: str = 'close',
-                vol: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
-                width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
+def echarts_candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high',
+                        low: str = 'low',
+                        clo: str = 'close',
+                        vol: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
+                        width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
     """
     绘制K线
     :param data_frame:
@@ -508,8 +510,9 @@ def candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open",
     return Echarts(options=options, width=width, height=height)
 
 
-def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True, title: str = "",
-          width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True,
+                  title: str = "",
+                  width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
@@ -526,16 +529,16 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
             'text': title
         },
         'legend': {
-            'top':20,
-            'type':'scroll',
+            'top': 20,
+            'type': 'scroll',
             'data': []
         },
         'radar': {
-            'center':['50%', '60%'],
+            'center': ['50%', '60%'],
             'shape': 'circle',
             'indicator': []
         },
-        'tooltip':{
+        'tooltip': {
             'position': Js("""
                 function (pos, params, el, elRect, size){
                     var obj = {top: 20};
@@ -546,16 +549,16 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
         'series': [{
             'name': title,
             'type': 'radar',
-            'emphasis':{
-                'lineStyle':{
+            'emphasis': {
+                'lineStyle': {
                     "shadowBlur": 15,
-                    "width":4,
-                    "type":'dotted',
+                    "width": 4,
+                    "type": 'dotted',
                     "shadowOffsetX": 0,
                     "shadowColor": 'rgba(0, 0, 0, 0.9)',
-                    "opacity":1
+                    "opacity": 1
                 },
-                'inactiveOpacity':0.05
+                'inactiveOpacity': 0.05
             },
             'data': []
         }]
@@ -574,8 +577,9 @@ def radar(data_frame: pd.DataFrame, name: str = None, indicators: list = None, f
         options['legend']['data'].append(record[name])
     return Echarts(options=options, width=width, height=height)
 
-def heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
-            width: str = "100%", height: str = "500px") -> Echarts:
+
+def echarts_heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
+                    width: str = "100%", height: str = "500px") -> Echarts:
     """
     二维热度图
     :param data_frame: 必填 DataFrame
@@ -635,9 +639,9 @@ def heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = None,
-                     title: str = "",
-                     width: str = "100%", height: str = "300px") -> Echarts:
+def echarts_calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = None,
+                             title: str = "",
+                             width: str = "100%", height: str = "300px") -> Echarts:
     """
     日历热度图，显示日期热度
     :param data_frame:
@@ -660,16 +664,17 @@ def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = No
         },
         'tooltip': {'formatter': "{c}"},
         'visualMap': {
-            'text':['高', '低'],
+            'text': ['高', '低'],
             'min': value_min,
             'max': value_max,
             'type': 'continuous',
             'orient': 'horizontal',
             'inRange': {
-               'color': ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"]
+                'color': ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61",
+                          "#f46d43", "#d73027", "#a50026"]
             },
             'left': 'center',
-            'top':0,
+            'top': 0,
             'hoverLink': True
         },
         'calendar': {
@@ -698,9 +703,9 @@ def calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: str = No
     return Echarts(options=options, width=width, height=height)
 
 
-def parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
-             title: str = "",
-             width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
+                     title: str = "",
+                     width: str = "100%", height: str = "500px") -> Echarts:
     """
     平行坐标图,要求name列每行唯一 比如：显示每个报告期各财务指标
     :param data_frame:
@@ -765,8 +770,8 @@ def parallel(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [
     return Echarts(options=options, width=width, height=height)
 
 
-def sankey(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
-           width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_sankey(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
+                   width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
@@ -804,8 +809,9 @@ def sankey(data_frame: pd.DataFrame, source: str = None, target: str = None, val
     return Echarts(options=options, width=width, height=height)
 
 
-def theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None, title: str = "",
-                width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None,
+                        title: str = "",
+                        width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
@@ -870,8 +876,9 @@ def theme_river(data_frame: pd.DataFrame, date: str = None, value: str = None, t
     return Echarts(options=options, width=width, height=height)
 
 
-def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "", font_size: int = 8,
-             width: str = "100%", height: str = "500px") -> Echarts:
+def echarts_sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "",
+                     font_size: int = 8,
+                     width: str = "100%", height: str = "500px") -> Echarts:
     data = Tools.df2tree(data_frame, categories, value)
     options = {
         'title': {
@@ -905,10 +912,10 @@ def sunburst(data_frame: pd.DataFrame, categories: list = [], value: str = None,
     return Echarts(options, height=height, width=width)
 
 
-def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
-              label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-              label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
-              ):
+def echarts_mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
+                      label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
+                      ):
     """
     在现有图表上叠加矩形，不能单独显示
     :param data_frame:
@@ -927,7 +934,7 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
 
     :return:
     """
-    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
     data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_area_options = {
@@ -950,10 +957,10 @@ def mark_area(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, labe
     return Echarts(options)
 
 
-def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
-                 label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
-                 label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
-                 line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
+def echarts_mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
+                         label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
+                         label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
+                         line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
     """
     在现有图表上叠加线段，不能单独显示
 
@@ -975,7 +982,7 @@ def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, l
     :param line_color: inherit
     :return:
     """
-    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
     data = [[{'name': str(row[label]), 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_line_options = {
@@ -1000,9 +1007,9 @@ def mark_segment(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, l
     return Echarts(options)
 
 
-def mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
-               label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-               label_font_color: str = 'inherit', label_background_color: str = "transparent"):
+def echarts_mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
+                       label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+                       label_font_color: str = 'inherit', label_background_color: str = "transparent"):
     """
     在现有图表上叠加线段，不能单独显示
     :param data_frame:
@@ -1017,7 +1024,7 @@ def mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="poin
     :param label_background_color:transparent
     :return:
     """
-    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x, y, label]].to_dict(orient='records')
     data = [{'value': row[label], 'coord': [row[x], row[y]]} for row in rows]
     base_mark_point_options = {
@@ -1041,9 +1048,9 @@ def mark_label(data_frame: pd.DataFrame, x: str, y: str, label: str, title="poin
     return Echarts(options)
 
 
-def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
-                       label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
-                       label_font_color: str = 'inherit'):
+def echarts_mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
+                               label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
+                               label_font_color: str = 'inherit'):
     """
     在现有图表上叠加竖线，不能单独显示
     :param data_frame:
@@ -1056,7 +1063,7 @@ def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vert
     :param label_font_size: 10
     :return:
     """
-    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x, label]].to_dict(orient='records')
     data = [{'name': row[label], 'xAxis': row[x]} for row in rows]
     base_mark_line_options = {
@@ -1077,9 +1084,9 @@ def mark_vertical_line(data_frame: pd.DataFrame, x: str, label: str, title="vert
     return Echarts(options)
 
 
-def mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
-                         label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
-                         label_font_color: str = 'inherit'):
+def echarts_mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
+                                 label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
+                                 label_font_color: str = 'inherit'):
     """
     在现有图表上叠加横线，不能单独显示
     :param data_frame:
@@ -1092,7 +1099,7 @@ def mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, title="ve
     :param label_font_size: 10
     :return:
     """
-    options = copy.deepcopy(BASE_OVERLAY_OPTIONS)
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[y, label]].to_dict(orient='records')
     data = [{'name': row[label], 'yAxis': row[y]} for row in rows]
     base_mark_line_options = {

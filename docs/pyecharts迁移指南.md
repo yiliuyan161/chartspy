@@ -38,13 +38,14 @@ js_str=Bar(init_opts=opts.InitOpts(theme=ThemeType.LIGHT)).add_xaxis([1, 2, 3, 4
 ```
 ## 从js 配置 生成 python配置 dict
 
-打印python配置 
+打印python配置
+
 ```python
-from echartspy import Echarts,Tools,Js
+from chartspy import Echarts, Tools, Js
 
-options=Tools.convert_js_to_dict(js_str,print_dict=False)
+options = Tools.convert_js_to_dict(js_str, print_dict=False)
 
-Echarts(options).print_options(drop_data=False) #打印python dict配置
+Echarts(options).print_options(drop_data=False)  # 打印python dict配置
 ```
 
 ## 复制 粘贴 修改
