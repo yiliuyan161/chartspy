@@ -233,9 +233,9 @@ class G2PLOT(object):
         function_start = 0
         mask_length = len(FUNCTION_BOUNDARY_MARK)
         for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length:i] == '"' + FUNCTION_BOUNDARY_MARK:
+            if json_str[i - mask_length-1:i] == '"' + FUNCTION_BOUNDARY_MARK:
                 function_start = i - mask_length
-            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK + '"':
+            elif json_str[i - mask_length-1:i] == FUNCTION_BOUNDARY_MARK + '"':
                 segs.append([function_start, i])
         left_index = 0
         parts = []

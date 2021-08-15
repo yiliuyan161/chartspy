@@ -31,17 +31,17 @@ ECHARTS_BASE_GRID_OPTIONS = {
                     });
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
-                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
-                        var dimensionNames=param["dimensionNames"];
+                        var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
+                        var dimensionNames=param['dimensionNames'];
                         if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
                             label.push("<br/>");
                             for (let j = 1; j <param['data'].length; j++) {
                                 var value= param['value'][j];
                                 if (typeof(value)=='number'){
                                     if (value%1==0 || value>100000){
-                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
+                                        label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
                                     }else{
-                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
+                                        label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
                                     }
                                 }else{
                                     label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
