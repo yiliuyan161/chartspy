@@ -6,6 +6,7 @@ import pandas as pd
 
 from ..base import Js, Tools
 from ..echarts import Echarts
+from ..g2plot import G2PLOT
 
 # 二维坐标系统基础配置适用  scatter,bar,line
 ECHARTS_BASE_GRID_OPTIONS = {
@@ -114,10 +115,15 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 
 
 def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-                    size_max: int = 30, info: str = None, opacity=0.5, title: str = "", width: str = "100%",
+                    size_max: int = 30, color: str = None,
+                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
+                                            "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
+                    opacity=0.5, title: str = "",
+                    width: str = "100%",
                     height: str = "500px") -> Echarts:
     """
     绘制scatter图
+
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
@@ -125,6 +131,9 @@ def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     :param size: 可选 原点大小列
     :param size_max: 可选
     :param info: 额外信息tooltip显示
+    :param color:颜色映射的列
+    :param color_sequence:
+    :param opacity:
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -146,10 +155,20 @@ def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
         'itemStyle': {
             'opacity': opacity
         },
-        'name': title
+        'name': title,
+        'emphasis': {
+            'itemStyle': {
+                'borderColor': "#333",
+                'borderWidth': 1,
+                'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                'shadowBlur': 15
+            }
+        }
     }
     if symbol is not None:
         series['symbol'] = symbol
+    series['dimensions'] = [x, y]
+    series['data'] = df[[x, y]].values.tolist()
     if size is not None:
         max_size_value = df[size].max()
         series['symbolSize'] = Js(Tools.wrap_template("""
@@ -157,19 +176,40 @@ def echarts_scatter(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                             return val[2]/{{max_size_value}}*{{size_max}};
                         }
                     """, **locals()))
-        if info is not None:
-            series['dimensions'] = [x, y, size, info]
-            series['data'] = df[[x, y, size, info]].values.tolist()
+        series['dimensions'].append(size)
+        size_list = df[size].tolist()
+        for i in range(0, len(size_list)):
+            series['data'][i].append(size_list[i])
+    if info is not None:
+        series['dimensions'].append(info)
+        info_list = df[info].tolist()
+        for i in range(0, len(info_list)):
+            series['data'][i].append(info_list[i])
+    if color is not None:
+        series['dimensions'].append(color)
+        color_list = df[color].tolist()
+        for i in range(0, len(color_list)):
+            series['data'][i].append(color_list[i])
+        visual_map = {
+            'show': True,
+            'orient': 'horizontal',
+            'left': 'center',
+            'bottom': 0,
+            'calculable': True,
+            'text': ['高', '低'],
+            'dimension': len(series['dimensions']) - 1,
+            'inRange': {
+                'color': color_sequence
+            }
+        }
+        if "date" in str(df[color].dtype) or "object" in str(df[color].dtype):
+            visual_map['type'] = 'piecewise'
         else:
-            series['dimensions'] = [x, y, size]
-            series['data'] = df[[x, y, size]].values.tolist()
-    else:
-        if info is not None:
-            series['dimensions'] = [x, y, info]
-            series['data'] = df[[x, y, info]].values.tolist()
-        else:
-            series['dimensions'] = [x, y]
-            series['data'] = df[[x, y]].values.tolist()
+            visual_map['type'] = 'continuous'
+            visual_map['min'] = df[color].min()
+            visual_map['max'] = df[color].max()
+        options['visualMap'] = [visual_map]
+
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
@@ -196,7 +236,14 @@ def echarts_line(data_frame: pd.DataFrame, x: str = None, y: str = None, title: 
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'line', 'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'line', 'dimensions': [x, y], 'data': df[[x, y]].values.tolist(), 'emphasis': {
+        'itemStyle': {
+            'borderColor': "#333",
+            'borderWidth': 1,
+            'shadowColor': 'rgba(0, 0, 0, 0.5)',
+            'shadowBlur': 15
+        }
+    }}
     options['legend']['data'].append(title)
     options['series'].append(series)
 
@@ -226,7 +273,15 @@ def echarts_bar(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
     options['title'] = {"text": title}
     if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x, y], 'data': df[[x, y]].values.tolist()}
+    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x, y], 'data': df[[x, y]].values.tolist(),
+              'emphasis': {
+                  'itemStyle': {
+                      'borderColor': "#333",
+                      'borderWidth': 1,
+                      'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                      'shadowBlur': 15
+                  }
+              }}
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
@@ -275,6 +330,10 @@ def echarts_pie(data_frame: pd.DataFrame, name: str = None, value: str = None, r
                     'show': False
                 },
                 'emphasis': {
+                    'itemStyle': {
+                        'borderColor': "#333",
+                        'borderWidth': 1
+                    },
                     'label': {
                         'show': True
                     }
@@ -483,14 +542,29 @@ def echarts_candlestick(data_frame: pd.DataFrame, time: str = 'time', opn: str =
                 'name': title,
                 'type': 'candlestick',
                 'data': df[[opn, clo, high, low]].values.tolist(),
-
+                'emphasis': {
+                    'itemStyle': {
+                        'borderColor': "#333",
+                        'borderWidth': 1,
+                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                        'shadowBlur': 15
+                    }
+                }
             },
             {
                 'name': 'Volume',
                 'type': 'bar',
                 'xAxisIndex': 1,
                 'yAxisIndex': 1,
-                'data': bar_items
+                'data': bar_items,
+                'emphasis': {
+                    'itemStyle': {
+                        'borderColor': "#333",
+                        'borderWidth': 1,
+                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                        'shadowBlur': 15
+                    }
+                }
             }
         ]
     }
@@ -630,7 +704,7 @@ def echarts_heatmap(data_frame: pd.DataFrame, x: str = None, y: str = None, valu
             },
             'emphasis': {
                 'itemStyle': {
-                    'shadowBlur': 10,
+                    'shadowBlur': 15,
                     'shadowColor': 'rgba(0, 0, 0, 0.5)'
                 }
             }
@@ -697,6 +771,14 @@ def echarts_calendar_heatmap(data_frame: pd.DataFrame, date: str = None, value: 
         'series': {
             'type': 'heatmap',
             'coordinateSystem': 'calendar',
+            'emphasis': {
+                'itemStyle': {
+                    'borderColor': "#333",
+                    'borderWidth': 1,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                    'shadowBlur': 15
+                }
+            },
             'data': df[[date, value]].values.tolist()
         }
     }
@@ -798,6 +880,14 @@ def echarts_sankey(data_frame: pd.DataFrame, source: str = None, target: str = N
             'lineStyle': {
                 'color': 'source',
                 'curveness': 0.5
+            },
+            'emphasis': {
+                'itemStyle': {
+                    'borderColor': "#333",
+                    'borderWidth': 1,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                    'shadowBlur': 15
+                }
             },
             'label': {
                 'color': 'rgba(0,0,0,0.7)',
@@ -904,9 +994,14 @@ def echarts_sunburst(data_frame: pd.DataFrame, categories: list = [], value: str
             'data': data,
             'radius': [0, '95%'],
             'emphasis': {
-                'focus': 'ancestor'
+                'focus': 'ancestor',
+                'itemStyle': {
+                    'borderColor': "#333",
+                    'borderWidth': 1,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                    'shadowBlur': 15
+                }
             }
-
         }
     }
     return Echarts(options, height=height, width=width)
@@ -1118,3 +1213,158 @@ def echarts_mark_horizontal_line(data_frame: pd.DataFrame, y: str, label: str, t
     options['legend']['data'] = [title]
     options['series'][0]['name'] = title
     return Echarts(options)
+
+
+def g2plot_bullet(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
+                  width="100%", height="50px") -> G2PLOT:
+    """
+    子弹图
+    :param title: 标题
+    :param range_field: 区间数组
+    :param measure_field: 实际值数组 多个值会堆叠显示，
+    :param target_field: 目标值
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT([{'title': title, '区间': range_field, '实际值': measure_field, '目标': target_field}],
+                  plot_type='Bullet', options={
+            'measureField': '实际值',
+            'rangeField': '区间',
+            'targetField': '目标',
+            'xField': 'title'
+        }, height=height, width=width)
+
+
+def g2plot_chord(df, source_field: str = None, target_field: str = None, weight_field: str = None, width="100%",
+                 height="500px"):
+    """
+    关系图
+    :param df:
+    :param source_field:
+    :param target_field:
+    :param weight_field:
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT(df, plot_type='Chord', options={
+        'sourceField': source_field,
+        'targetField': target_field,
+        'weightField': weight_field
+    }, height=height, width=width)
+
+
+def g2plot_waterfall(df, x_field: str = None, y_field: str = None, width="100%", height="500px"):
+    """
+    瀑布图
+    :param df:
+    :param x_field:
+    :param y_field:
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT(df, plot_type='Waterfall', options={
+        'xField': x_field,
+        'yField': y_field
+    }, width=width, height=height)
+
+
+def g2plot_liquid(percent: float = 1, width='200px', height='200px'):
+    """
+    水波图
+    :param percent:百分比
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT([], plot_type='Liquid', options={
+        'percent': percent,
+        'autoFit': True,
+        'outline': {
+            'border': 4,
+            'distance': 8,
+        }
+    }, width=width, height=height)
+
+
+def g2plot_wordcloud(df, word_field: str = None, weight_field: str = None, width='100%', height='500px'):
+    """
+    词云
+    :param df:
+    :param word_field: 词列
+    :param weight_field: 权重列
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT(df, plot_type="WordCloud", options={
+        'wordField': word_field,
+        'weightField': weight_field,
+        'colorField': word_field,
+        'wordStyle': {
+            'fontSize': [15, 100],
+        },
+        'interactions': [{'type': 'element-active'}],
+        'state': {
+            'active': {
+                'style': {
+                    'lineWidth': 3,
+                },
+            },
+        }
+    }, width=width, height=height)
+
+
+def g2plot_bar_stack_percent(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%',
+                             height='500px'):
+    """
+    柱状图百分比堆叠，查看组成部分，占比随时间变化，x_field时间，y_field比例，series_field 类别
+    :param df:
+    :param x_field:
+    :param y_field:
+    :param series_field:
+    :param width:
+    :param height:
+    :return:
+    """
+    return G2PLOT(df, plot_type="Column", options={
+        'xField': x_field,
+        'yField': y_field,
+        'seriesField': series_field,
+        'isPercent': True,
+        'isStack': True,
+        'label': {
+            'position': 'middle',
+        },
+        'tooltip': False,
+        'interactions': [{'type': 'element-highlight-by-color'}, {'type': 'element-link'}]
+    }, width=width, height=height)
+
+
+def g2plot_violin(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%", height='500px'):
+    """
+    小提琴图，展示y列的分布
+    :param df:
+    :param x_field: 类别列
+    :param y_field: 数值列
+    :param series_field: 分组列
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'xField': x_field,
+        'yField': y_field,
+        'meta': {
+            'high': {'alias': '最大值'},
+            'low': {'alias': '最小值'},
+            'q1': {'alias': '上四分位数'},
+            'q3': {'alias': '下四分位数'}
+        }
+    }
+    if series_field is not None:
+        options['seriesField'] = series_field
+
+    return G2PLOT(df, plot_type='Violin', options=options, width=width, height=height)

@@ -11,7 +11,7 @@ from jinja2 import Environment, BaseLoader
 
 # jinja2模板引擎env
 GLOBAL_ENV = Environment(loader=BaseLoader)
-
+FUNCTION_BOUNDARY_MARK = "FUNCTION_BOUNDARY_MARK"
 
 class Js:
     """
@@ -23,7 +23,7 @@ class Js:
         js_code = re.sub("\\n|\\t", "", js_code)
         js_code = re.sub(r"\\n", "\n", js_code)
         js_code = re.sub(r"\\t", "\t", js_code)
-        self.js_code = "ECHARTS_BOUNDARY_MARK" + js_code + "ECHARTS_BOUNDARY_MARK"
+        self.js_code = FUNCTION_BOUNDARY_MARK + js_code + FUNCTION_BOUNDARY_MARK
 
 
 class Html:

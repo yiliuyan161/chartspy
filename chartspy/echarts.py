@@ -7,7 +7,7 @@ import uuid
 
 import simplejson
 
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert
+from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
 
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """
@@ -184,8 +184,19 @@ class Echarts(object):
         for chart_option in other_chart_options:
             if isinstance(chart_option, Echarts):
                 chart_option = chart_option.options
+            old_series_count = len(this_options["series"])
             this_options["legend"]["data"].extend(chart_option["legend"]["data"])
             this_options["series"].extend(chart_option["series"])
+            if "visualMap" in chart_option.keys():
+                if "visualMap" not in this_options.keys():
+                    this_options["visualMap"] = []
+                for i in range(0, len(chart_option["visualMap"])):
+                    if "seriesIndex" in chart_option["visualMap"][i].keys():
+                        chart_option["visualMap"][i]['seriesIndex'] = chart_option["visualMap"][i][
+                                                                          'seriesIndex'] + i + old_series_count
+                    else:
+                        chart_option["visualMap"][i]['seriesIndex'] = i + old_series_count
+                this_options["visualMap"].extend(chart_option["visualMap"])
 
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
@@ -246,10 +257,11 @@ class Echarts(object):
         json_str = simplejson.dumps(options, indent=2, default=json_type_convert, ignore_nan=True)
         segs = []
         function_start = 0
-        for i in range(22, len(json_str)):
-            if json_str[i - 22:i] == '"ECHARTS_BOUNDARY_MARK':
-                function_start = i - 22
-            elif json_str[i - 22:i] == 'ECHARTS_BOUNDARY_MARK"':
+        mask_length = len(FUNCTION_BOUNDARY_MARK)
+        for i in range(mask_length, len(json_str)):
+            if json_str[i - mask_length:i] == '"'+FUNCTION_BOUNDARY_MARK:
+                function_start = i - mask_length
+            elif json_str[i - mask_length:i] == FUNCTION_BOUNDARY_MARK+'"':
                 segs.append([function_start, i])
         left_index = 0
         parts = []
@@ -259,14 +271,14 @@ class Echarts(object):
             left_index = seg[1] + 1
         parts.append(json_str[left_index:])
         dict_str = "".join(parts)
-        return re.sub('"?ECHARTS_BOUNDARY_MARK"?', "", dict_str)
+        return re.sub('"?'+FUNCTION_BOUNDARY_MARK+'"?', "", dict_str)
 
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
         :return:
         """
-        self.convert_to_js_options()
+        self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         return html
 
