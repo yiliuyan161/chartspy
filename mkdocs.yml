@@ -1,5 +1,5 @@
-site_name: echartspy
-site_url: https://echartspy.icopy.site/
+site_name: chartspy
+site_url: https://chartspy.icopy.site/
 theme:
   font: false
   name: material
@@ -26,13 +26,13 @@ markdown_extensions:
       toc_depth: 4
       permalink: true
 
-repo_url: https://github.com/yiliuyan161/echartspy
-repo_name: yiliuyan161/echartspy
+repo_url: https://github.com/yiliuyan161/chartspy
+repo_name: yiliuyan161/chartspy
 
 extra:
   alternate:
     - name: English
-      link: https://echartspy.icopy.site/en/
+      link: https://chartspy.icopy.site/en/
       lang: en
 
 nav:
