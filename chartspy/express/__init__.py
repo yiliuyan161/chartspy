@@ -312,6 +312,7 @@ def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, r
         },
         'legend': {
             'left': 'center',
+            'type':'scroll',
             'show': True,
             'top': 'top',
             'data': list(df['name'].unique())
@@ -322,7 +323,7 @@ def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, r
                 'type': 'pie',
                 'radius': [20, 140],
                 'center': ['25%', '50%'],
-                'roseType': False if rose_type is None else rose_type,
+                'roseType': rose_type if rose_type in ['area','radius'] else False,
                 'itemStyle': {
                     'borderRadius': 5
                 },
@@ -608,25 +609,20 @@ def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list =
             'data': []
         },
         'radar': {
-            'center': ['50%', '60%'],
+            'center': ['50%', '55%'],
             'shape': 'circle',
             'indicator': []
         },
         'tooltip': {
-            'position': Js("""
-                function (pos, params, el, elRect, size){
-                    var obj = {top: 20};
-                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
-                    return obj;
-                }
-            """)},
+
+        },
         'series': [{
             'name': title,
             'type': 'radar',
             'emphasis': {
                 'lineStyle': {
                     "shadowBlur": 15,
-                    "width": 4,
+                    "width": 6,
                     "type": 'dotted',
                     "shadowOffsetX": 0,
                     "shadowColor": 'rgba(0, 0, 0, 0.9)',
@@ -639,7 +635,7 @@ def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list =
     }
     df = data_frame[[name] + indicators].copy()
     if fill:
-        options['series'][0]['areaStyle'] = {'opacity': 0.2}
+        options['series'][0]['areaStyle'] = {'opacity': 0.1}
     indicator_max_dict = df[indicators].max().to_dict()
     options['radar']['indicator'] = [{'name': key, "max": indicator_max_dict[key]} for key in indicator_max_dict.keys()]
     for record in df.to_dict(orient='records'):
@@ -844,9 +840,19 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
         series = {
             'name': value_dict[name],
             'type': 'parallel',
-            'lineStyle': {'width': 3},
+            'lineStyle': {'width': 2},
+            'emphasis': {
+                'lineStyle': {
+                    'width': 5,
+                    'borderColor': "black",
+                    'borderWidth': 2,
+                    'shadowColor': 'rgba(0, 0, 0, 1)',
+                    'shadowBlur': 15
+                }
+            },
             'data': [[value_dict[col] for col in parallel_axis]]
         }
+
         options['series'].append(series)
         options['legend']['data'].append(value_dict[name])
     return Echarts(options=options, width=width, height=height)
@@ -918,14 +924,7 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
         'title': {'text': title},
         'tooltip': {
             'trigger': 'axis',
-            'axisPointer': {
-                'type': 'line',
-                'lineStyle': {
-                    'color': 'rgba(0,0,0,0.2)',
-                    'width': 1,
-                    'type': 'solid'
-                }
-            }
+            'axisPointer':{'type':'cross'}
         },
         'legend': {
             'data': list(df[theme].unique())
@@ -936,12 +935,6 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
             'axisTick': {},
             'axisLabel': {},
             'type': 'time',
-            'axisPointer': {
-                'animation': True,
-                'label': {
-                    'show': True
-                }
-            },
             'splitLine': {
                 'show': True,
                 'lineStyle': {
@@ -966,10 +959,10 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def sunburst_echarts(data_frame: pd.DataFrame, categories: list = [], value: str = None, title: str = "",
+def sunburst_echarts(data_frame: pd.DataFrame, category_cols: list = [], value_col: str = None, title: str = "",
                      font_size: int = 8,
                      width: str = "100%", height: str = "500px") -> Echarts:
-    data = Tools.df2tree(data_frame, categories, value)
+    data = Tools.df2tree(data_frame, category_cols, value_col)
     options = {
         'title': {
             'text': title,
@@ -1240,7 +1233,7 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
     :return:
     """
     options = {
-        'title': {'text': title},
+        'title': {'text': title,'left':50},
         'tooltip': {},
         'xAxis3D': {
             'type': 'value'
@@ -1252,12 +1245,6 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
             'type': 'value'
         },
         'grid3D': {
-            'axisLine': {
-                'lineStyle': {'color': '#fff'}
-            },
-            'axisPointer': {
-                'lineStyle': {'color': '#fff'}
-            },
         }
     }
     if "date" in str(data_frame[x].dtype) or "object" in str(data_frame[x].dtype):
@@ -1265,10 +1252,10 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
         options['xAxis3D']['data'] = sorted(list(data_frame[x].unique()))
     if "date" in str(data_frame[y].dtype) or "object" in str(data_frame[y].dtype):
         options['yAxis3D']['type'] = 'category'
-        options['yAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+        options['yAxis3D']['data'] = sorted(list(data_frame[y].unique()))
     if "date" in str(data_frame[z].dtype) or "object" in str(data_frame[z].dtype):
         options['zAxis3D']['type'] = 'category'
-        options['zAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+        options['zAxis3D']['data'] = sorted(list(data_frame[z].unique()))
     series = {
         'type': 'scatter3D',
         'name': title,
@@ -1278,10 +1265,10 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
     if (color is not None) or (size is not None):
         options['visualMap'] = []
     if size is not None:
-        series['dimensions'].append(color)
-        color_list = data_frame[color].tolist()
-        for i in range(0, len(color_list)):
-            series['data'][i].append(color_list[i])
+        series['dimensions'].append(size)
+        size_list = data_frame[size].tolist()
+        for i in range(0, len(size_list)):
+            series['data'][i].append(size_list[i])
         visual_map = {
             'show': True,
             'orient': 'vertical',
@@ -1294,8 +1281,8 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
                 'symbolSize': size_range,
             },
             'type': 'continuous',
-            'min': data_frame[color].min(),
-            'max': data_frame[color].max()
+            'min': data_frame[size].min(),
+            'max': data_frame[size].max()
         }
         options['visualMap'].append(visual_map)
 
@@ -1331,7 +1318,8 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
-    return Echarts(options, height=height, width=width)
+    return Echarts(options,with_gl=True, height=height, width=width)
+
 
 
 def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, color: str = None,
@@ -1356,7 +1344,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
     :return:
     """
     options = {
-        'title': {'text': title},
+        'title': {'text': title,'left':20},
         'tooltip': {},
         'xAxis3D': {
             'type': 'value'
@@ -1381,7 +1369,9 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
         options['zAxis3D']['data'] = sorted(list(data_frame[x].unique()))
     series = {
         'type': 'bar3D',
-        'data': "data",
+        'name': title,
+        'dimensions': [x, y, z],
+        'data': data_frame[[x, y, z]].values.tolist(),
         'label': {
             'show': False
         },
@@ -1389,13 +1379,10 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
             'opacity': 0.5
         },
         'emphasis': {
-            'label': {
-                'fontSize': 20,
-                'color': '#900'
-            },
             'itemStyle': {
                 'color': '#900'
-            }
+            },
+            'label':{'show':False}
         }
     }
     if color is not None:
@@ -1431,7 +1418,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
-    return Echarts(options, height=height, width=width)
+    return Echarts(options,with_gl=True, height=height, width=width)
 
 
 def bullet_g2plot(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
@@ -1556,10 +1543,97 @@ def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, serie
         'isStack': True,
         'label': {
             'position': 'middle',
+            'content': Js(Tools.wrap_template("""
+                function(item){
+                  return (item['{{y_field}}'] * 100).toFixed(2);
+                }
+            """,y_field=y_field))
         },
         'tooltip': False,
         'interactions': [{'type': 'element-highlight-by-color'}, {'type': 'element-link'}]
     }, width=width, height=height)
+
+
+def area_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%', height='500px'):
+    """
+    area chart
+    :param df:
+    :param x_field:
+    :param y_field:
+    :param series_field:
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'xField': x_field,
+        'yField': y_field
+    }
+    if series_field is not None:
+        options['seriesField'] = series_field
+    return G2PLOT(df, plot_type="Area", options=options, width=width, height=height)
+
+
+def area_percent_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%',
+                        height='500px'):
+    """
+    area stack percent chart
+    :param df:
+    :param x_field:
+    :param y_field:
+    :param series_field:
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'xField': x_field,
+        'yField': y_field,
+        'seriesField': series_field,
+        'areaStyle': {
+            'fillOpacity': 0.6,
+        },
+        'appendPadding': 10,
+        'isPercent': True,
+    }
+    return G2PLOT(df, plot_type="Area", options=options, width=width, height=height)
+
+
+def treemap_g2plot(df, category_cols: list = [], value_col: str = None, width="100%",
+                   height='500px'):
+    """
+    treemap
+    :param df: cat1,cat2,...,catN,value
+    :param category_cols:类别列表
+    :param value_col:值列表
+    :param width:
+    :param height:
+    :return:
+    """
+    data = Tools.df2tree(df, category_cols=category_cols, value_col=value_col)
+    root = {
+        'name': 'root',
+        'children': data
+    }
+    options = {
+        'legend': {
+            'position': 'top-left',
+        },
+        'tooltip': {
+            'formatter': Js("""
+                function(v){
+                    var root = v.path[v.path.length - 1];
+                    return {
+                        name: v.name,
+                        value: v.value+'(总占比'+((v.value / root.value) * 100).toFixed(2)+')'
+                    };
+                }
+            """)
+        },
+        'interactions': [{'type': 'treemap-drill-down'}],
+        'animation': {},
+    }
+    return G2PLOT(root, plot_type='Treemap', options=options, width=width, height=height)
 
 
 def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%",
@@ -1593,9 +1667,9 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
 __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
            'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts',
            'theme_river_echarts',
-           'sunburst_echarts',
+           'sunburst_echarts', 'bar3d_echarts', 'scatter3d_echarts',
            'mark_label_echarts', 'mark_segment_echarts', 'mark_vertical_line_echarts',
            'mark_horizontal_line_echarts', 'mark_area_echarts',
            'bullet_g2plot', 'chord_g2plot', 'waterfall_g2plot', 'liquid_g2plot', 'wordcloud_g2plot',
-           'bar_stack_percent_g2plot', 'violin_g2plot'
+           'bar_stack_percent_g2plot', 'violin_g2plot', 'area_percent_g2plot', 'treemap_g2plot'
            ]

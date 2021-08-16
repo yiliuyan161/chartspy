@@ -13,34 +13,38 @@
 ## 使用说明
 
 ### 简单模式   
+直接选择合适的图表类型，展示DataFrame
 
 ```python
 import chartspy.express as ex
 
-ex.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter').render_notebook()
+ex.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter')
 
-ex.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px').render_notebook()
+ex.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px')
 
-ex.candlestick_echarts(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行').render_notebook()
+ex.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
 ```
 !!! note ""
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
 
 !!! note ""
-    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie2.png?raw=true)
+    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true)
 
 !!! note ""
     ![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
 
 ### 高级模式
 
-#### 全手工
+#### 同js写法
 
+同js写法，只是js 函数要包裹下Js("""function(){}"""),库会自动转换python类型到对应的js类型
 手工书写，参考 [echarts配置手册](https://echarts.apache.org/zh/option.html#title)
+[g2plot官方文档](https://g2plot.antv.vision/zh/docs/manual/plots/line)
 
 ```python
 from chartspy import Echarts, Tools
 
+# Echarts
 options = {
     'xAxis': {},
     'yAxis': {},
@@ -58,8 +62,21 @@ options = {
 }
 Echarts(options, height='600px', title='散点图测试').render_notebook()
 ```
+```python
+from chartspy import G2PLOT, Tools
 
-#### 半自动
+# G2PLOT
+df= ...
+# Echarts
+options = {
+    'xField':'time',
+    'yField':'close'
+}
+G2PLOT(df,plot_type='Line',options=options).render_notebook()
+```
+
+
+#### 半自动JavaScript配置->Python配置
 
 半自动，从[echarts示例](https://echarts.apache.org/examples/zh/index.html) 拷贝js配置，自动生成对应的python配置
 
@@ -87,13 +104,6 @@ js_str = """
 options = Tools.convert_js_to_dict(js_str, print_dict=False)
 Echarts(options, height='300px', width='300px').render_notebook()
 ```
-
-!!! note ""
-    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
-
-!!! note ""
-    ![自动转换](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
-
 
 
 

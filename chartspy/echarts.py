@@ -9,6 +9,9 @@ import simplejson
 
 from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
 
+ECHARTS_JS_URL = "https://unpkg.com/echarts@latest/dist/echarts.min.js"
+ECHARTS_GL_JS_URL = "https://unpkg.com/echarts-gl@latest/dist/echarts-gl.min.js"
+
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """
 <script>
@@ -25,15 +28,30 @@ JUPYTER_ALL_TEMPLATE = """
   {{plot.extra_js}}
   var options = {{ plot.js_options }};
   if (typeof require !== 'undefined'){
+    {% if plot.with_gl %}
       require.config({
         paths: {
-          "echarts": "{{plot.js_url[:-3]}}"
+          "echarts": "{{plot.js_url[:-3]}}",
+          "echartsgl": "{{plot.js_url_gl[:-3]}}"
+        }
+      });
+      require(['echarts','echartsgl'], function (echarts,echartsgl) {
+        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+        plot_{{ plot.plot_id }}.setOption(options)
+      });
+    {% else %}
+      require.config({
+        paths: {
+          "echarts": "{{plot.js_url[:-3]}}",
         }
       });
       require(['echarts'], function (echarts) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
         plot_{{ plot.plot_id }}.setOption(options)
       });
+    {% endif %}
+    
+      
   }else{
     new Promise(function(resolve, reject) {
       var script = document.createElement("script");
@@ -41,6 +59,14 @@ JUPYTER_ALL_TEMPLATE = """
       script.onerror = reject;
       script.src = "{{plot.js_url}}";
       document.head.appendChild(script);
+      {% if plot.with_gl %}
+          var scriptGL = document.createElement("script");
+          scriptGL.onload = resolve;
+          scriptGL.onerror = reject;
+          scriptGL.src = "{{plot.js_url_gl}}";
+          document.head.appendChild(scriptGL);
+      {% endif %}
+
     }).then(() => {
        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
        plot_{{ plot.plot_id }}.setOption(options)
@@ -52,13 +78,7 @@ JUPYTER_ALL_TEMPLATE = """
 
 # language=HTML
 JUPYTER_NOTEBOOK_TEMPLATE = """
-<script>
-  require.config({
-    paths: {
-      "echarts": "{{plot.js_url[:-3]}}"
-    }
-  });
-</script>
+
 <style>
   #{{plot.plot_id}} {
     width:{{plot.width}};
@@ -67,11 +87,30 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
 </style>
 <div id="{{ plot.plot_id }}"></div>
 <script>
-  require(['echarts'], function (echarts) {
-    var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-    {{plot.extra_js}}
-    plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
-  });
+    {% if plot.with_gl %}
+      require.config({
+        paths: {
+          "echarts": "{{plot.js_url[:-3]}}",
+          "echartsgl": "{{plot.js_url_gl[:-3]}}"
+        }
+      });
+      require(['echarts','echartsgl'], function (echarts,echartsgl) {
+        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+        {{plot.extra_js}}
+        plot_{{ plot.plot_id }}.setOption(options)
+      });
+    {% else %}
+      require.config({
+        paths: {
+          "echarts": "{{plot.js_url[:-3]}}",
+        }
+      });
+      require(['echarts'], function (echarts) {
+        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
+        {{plot.extra_js}}
+        plot_{{ plot.plot_id }}.setOption(options)
+      });
+    {% endif %}
 </script>
 """
 
@@ -92,6 +131,13 @@ JUPYTER_LAB_TEMPLATE = """
       script.onerror = reject;
       script.src = "{{plot.js_url}}";
       document.head.appendChild(script);
+      {% if plot.with_gl %}
+      var scriptGL = document.createElement("script");
+      scriptGL.onload = resolve;
+      scriptGL.onerror = reject;
+      scriptGL.src = "{{plot.js_url_gl}}";
+      document.head.appendChild(scriptGL);
+      {% endif %}
     }).then(() => {
        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
        {{plot.extra_js}}
@@ -114,6 +160,9 @@ HTML_TEMPLATE = """
          }
     </style>
    <script type="text/javascript" src="{{ plot.js_url }}"></script>
+   {% if plot.with_gl %}
+    <script type="text/javascript" src="{{ plot.js_url_gl }}"></script>
+   {% endif %}
 </head>
 <body>
   <div id="{{ plot.plot_id }}" ></div>
@@ -130,6 +179,9 @@ HTML_TEMPLATE = """
 HTML_FRAGMENT_TEMPLATE = """
 <div>
  <script type="text/javascript" src="{{ plot.js_url }}"></script>
+   {% if plot.with_gl %}
+    <script type="text/javascript" src="{{ plot.js_url_gl }}"></script>
+   {% endif %}
  <style>
       #{{plot.plot_id}} {
             width:{{plot.width}};
@@ -145,15 +197,13 @@ HTML_FRAGMENT_TEMPLATE = """
 </div>
 """
 
-ECHARTS_JS_URL = "https://unpkg.com/echarts@latest/dist/echarts.min.js"
-
 
 class Echarts(object):
     """
     echarts
     """
 
-    def __init__(self, options: dict = None, extra_js: str = "", width: str = "100%",
+    def __init__(self, options: dict = None, extra_js: str = "", with_gl=False, width: str = "100%",
                  height: str = "500px"):
         """
         :param options: python词典类型的echarts option
@@ -167,7 +217,9 @@ class Echarts(object):
         self.height = height
         self.plot_id = "u" + uuid.uuid4().hex
         self.js_url = ECHARTS_JS_URL
+        self.js_url_gl = ECHARTS_GL_JS_URL
         self.extra_js = extra_js
+        self.with_gl = with_gl
 
     def overlap_series(self, other_chart_options: list = []):
         """
@@ -259,9 +311,9 @@ class Echarts(object):
         function_start = 0
         mask_length = len(FUNCTION_BOUNDARY_MARK)
         for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length-1:i] == '"' + FUNCTION_BOUNDARY_MARK:
+            if json_str[i - mask_length - 1:i] == '"' + FUNCTION_BOUNDARY_MARK:
                 function_start = i - mask_length
-            elif json_str[i - mask_length-1:i] == FUNCTION_BOUNDARY_MARK + '"':
+            elif json_str[i - mask_length - 1:i] == FUNCTION_BOUNDARY_MARK + '"':
                 segs.append([function_start, i])
         left_index = 0
         parts = []
@@ -299,4 +351,3 @@ class Echarts(object):
         self.js_options = self.convert_to_js_options(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
         return Html(html).data
-
