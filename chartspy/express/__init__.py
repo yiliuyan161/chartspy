@@ -122,7 +122,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                     width: str = "100%",
                     height: str = "500px") -> Echarts:
     """
-    绘制scatter图
+    scatter chart
 
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
@@ -1215,6 +1215,225 @@ def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, t
     return Echarts(options)
 
 
+def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, size: str = None,
+                      size_range: list = [2, 10], color: str = None,
+                      color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
+                                              "#fee090",
+                                              "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
+                      title: str = "",
+                      width: str = "100%",
+                      height: str = "500px"):
+    """
+    3d 气泡图
+    :param data_frame:
+    :param x:
+    :param y:
+    :param z:
+    :param size: size对应列，数值类型
+    :param size_range: [1,10]
+    :param color: 颜色列
+    :param color_sequence:
+    :param info: 额外信息
+    :param title:
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'title': {'text': title},
+        'tooltip': {},
+        'xAxis3D': {
+            'type': 'value'
+        },
+        'yAxis3D': {
+            'type': 'value'
+        },
+        'zAxis3D': {
+            'type': 'value'
+        },
+        'grid3D': {
+            'axisLine': {
+                'lineStyle': {'color': '#fff'}
+            },
+            'axisPointer': {
+                'lineStyle': {'color': '#fff'}
+            },
+        }
+    }
+    if "date" in str(data_frame[x].dtype) or "object" in str(data_frame[x].dtype):
+        options['xAxis3D']['type'] = 'category'
+        options['xAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    if "date" in str(data_frame[y].dtype) or "object" in str(data_frame[y].dtype):
+        options['yAxis3D']['type'] = 'category'
+        options['yAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    if "date" in str(data_frame[z].dtype) or "object" in str(data_frame[z].dtype):
+        options['zAxis3D']['type'] = 'category'
+        options['zAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    series = {
+        'type': 'scatter3D',
+        'name': title,
+        'dimensions': [x, y, z],
+        'data': data_frame[[x, y, z]].values.tolist()
+    }
+    if (color is not None) or (size is not None):
+        options['visualMap'] = []
+    if size is not None:
+        series['dimensions'].append(color)
+        color_list = data_frame[color].tolist()
+        for i in range(0, len(color_list)):
+            series['data'][i].append(color_list[i])
+        visual_map = {
+            'show': True,
+            'orient': 'vertical',
+            'left': 0,
+            'top': 0,
+            'calculable': True,
+            'text': ['高', '低'],
+            'dimension': len(series['dimensions']) - 1,
+            'inRange': {
+                'symbolSize': size_range,
+            },
+            'type': 'continuous',
+            'min': data_frame[color].min(),
+            'max': data_frame[color].max()
+        }
+        options['visualMap'].append(visual_map)
+
+    if color is not None:
+        series['dimensions'].append(color)
+        color_list = data_frame[color].tolist()
+        for i in range(0, len(color_list)):
+            series['data'][i].append(color_list[i])
+        visual_map = {
+            'show': True,
+            'orient': 'vertical',
+            'left': 0,
+            'bottom': 0,
+            'calculable': True,
+            'text': ['高', '低'],
+            'dimension': len(series['dimensions']) - 1,
+            'inRange': {
+                'color': color_sequence
+            }
+        }
+        if "date" in str(data_frame[color].dtype) or "object" in str(data_frame[color].dtype):
+            visual_map['type'] = 'piecewise'
+            visual_map['categories'] = list(data_frame[color].unique())
+        else:
+            visual_map['type'] = 'continuous'
+            visual_map['min'] = data_frame[color].min()
+            visual_map['max'] = data_frame[color].max()
+        options['visualMap'].append(visual_map)
+
+    if info is not None:
+        series['dimensions'].append(info)
+        info_list = data_frame[info].tolist()
+        for i in range(0, len(info_list)):
+            series['data'][i].append(info_list[i])
+    options['series'] = [series]
+    return Echarts(options, height=height, width=width)
+
+
+def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, color: str = None,
+                  color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
+                                          "#fee090",
+                                          "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
+                  title: str = "",
+                  width: str = "100%",
+                  height: str = "500px"):
+    """
+    3d bar
+    :param data_frame:
+    :param x:
+    :param y:
+    :param z:
+    :param color:
+    :param color_sequence:
+    :param info:
+    :param title:
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'title': {'text': title},
+        'tooltip': {},
+        'xAxis3D': {
+            'type': 'value'
+        },
+        'yAxis3D': {
+            'type': 'value'
+        },
+        'zAxis3D': {
+            'type': 'value'
+        },
+        'grid3D': {
+        }
+    }
+    if "date" in str(data_frame[x].dtype) or "object" in str(data_frame[x].dtype):
+        options['xAxis3D']['type'] = 'category'
+        options['xAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    if "date" in str(data_frame[y].dtype) or "object" in str(data_frame[y].dtype):
+        options['yAxis3D']['type'] = 'category'
+        options['yAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    if "date" in str(data_frame[z].dtype) or "object" in str(data_frame[z].dtype):
+        options['zAxis3D']['type'] = 'category'
+        options['zAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+    series = {
+        'type': 'bar3D',
+        'data': "data",
+        'label': {
+            'show': False
+        },
+        'itemStyle': {
+            'opacity': 0.5
+        },
+        'emphasis': {
+            'label': {
+                'fontSize': 20,
+                'color': '#900'
+            },
+            'itemStyle': {
+                'color': '#900'
+            }
+        }
+    }
+    if color is not None:
+        options['visualMap'] = []
+        series['dimensions'].append(color)
+        color_list = data_frame[color].tolist()
+        for i in range(0, len(color_list)):
+            series['data'][i].append(color_list[i])
+        visual_map = {
+            'show': True,
+            'orient': 'vertical',
+            'left': 0,
+            'bottom': 0,
+            'calculable': True,
+            'text': ['高', '低'],
+            'dimension': len(series['dimensions']) - 1,
+            'inRange': {
+                'color': color_sequence
+            }
+        }
+        if "date" in str(data_frame[color].dtype) or "object" in str(data_frame[color].dtype):
+            visual_map['type'] = 'piecewise'
+            visual_map['categories'] = list(data_frame[color].unique())
+        else:
+            visual_map['type'] = 'continuous'
+            visual_map['min'] = data_frame[color].min()
+            visual_map['max'] = data_frame[color].max()
+        options['visualMap'] = [visual_map]
+
+    if info is not None:
+        series['dimensions'].append(info)
+        info_list = data_frame[info].tolist()
+        for i in range(0, len(info_list)):
+            series['data'][i].append(info_list[i])
+    options['series'] = [series]
+    return Echarts(options, height=height, width=width)
+
+
 def bullet_g2plot(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
                   width="100%", height="50px") -> G2PLOT:
     """
@@ -1343,7 +1562,8 @@ def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, serie
     }, width=width, height=height)
 
 
-def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%", height='500px'):
+def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width="100%",
+                  height='500px'):
     """
     小提琴图，展示y列的分布
     :param df:
@@ -1371,7 +1591,8 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
 
 
 __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
-           'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts', 'theme_river_echarts',
+           'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts',
+           'theme_river_echarts',
            'sunburst_echarts',
            'mark_label_echarts', 'mark_segment_echarts', 'mark_vertical_line_echarts',
            'mark_horizontal_line_echarts', 'mark_area_echarts',
