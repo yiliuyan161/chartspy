@@ -1,4 +1,4 @@
-# echartspy
+# chartspy
 
 帮助用户在python环境使用echarts g2plot 绘图
 

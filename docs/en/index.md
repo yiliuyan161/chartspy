@@ -28,7 +28,7 @@ ex.candlestick(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
 
 !!! note ""
-    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie2.png?raw=true)
+    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true)
 
 !!! note ""
     ![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
@@ -60,6 +60,19 @@ options = {
 Echarts(options, height='600px', title='散点图测试').render_notebook()
 ```
 
+```python
+from chartspy import G2PLOT, Tools
+
+# G2PLOT
+df= ...
+# Echarts
+options = {
+    'xField':'time',
+    'yField':'close'
+}
+G2PLOT(df,plot_type='Line',options=options).render_notebook()
+```
+
 #### semi-automatic
 
 from [echarts examples](https://echarts.apache.org/examples/zh/index.html) copy js configuration ,auto convert to python dict
@@ -89,11 +102,6 @@ options = Tools.convert_js_to_dict(js_str, print_dict=False)
 Echarts(options, height='300px', width='300px').render_notebook()
 ```
 
-!!! note ""
-    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p1.png?raw=true)
-
-!!! note ""
-    ![自动转换](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
 
 
 

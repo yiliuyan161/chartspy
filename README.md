@@ -1,10 +1,9 @@
 # chartspy
 
-[English documents](https://echartspy.icopy.site/en/)
-[中文文档](https://echartspy.icopy.site)
+[English documents](https://chartspy.icopy.site/en/)
+[中文文档](https://chartspy.icopy.site)
 
 帮助用户在python环境使用echarts  g2plot 绘图
-
 
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
@@ -21,17 +20,24 @@
 ```python
 import chartspy.express as ex
 
-......
-ex.echarts_scatter(df, x='数量', y='价格', size='数量', size_max=50, height='250px', title='scatter').render_notebook()
+ex.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter')
 
-ex.echarts_pie(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px').render_notebook()
+ex.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px')
 
-ex.echarts_candlestick(df.reset_index(), left='5%', mas=[5, 10, 30], title='平安银行').render_notebook()
+ex.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
 ```
+!!! note ""
+    ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
+
+!!! note ""
+    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true)
+
+!!! note ""
+    ![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
 
 ### 高级模式
 
-#### 全手工
+#### 同js写法
 
 手工书写，参考 [echarts配置手册](https://echarts.apache.org/zh/option.html#title)
 
@@ -57,7 +63,21 @@ Echarts(options, height='600px', title='散点图测试').render_notebook()
 
 ```
 
-#### 半自动
+```python
+from chartspy import G2PLOT, Tools
+
+# G2PLOT
+df= ...
+# Echarts
+options = {
+    'xField':'time',
+    'yField':'close'
+}
+G2PLOT(df,plot_type='Line',options=options).render_notebook()
+```
+
+
+#### 半自动JavaScript配置->Python配置
 
 半自动，从[echarts示例](https://echarts.apache.org/examples/zh/index.html) 拷贝js配置，自动生成对应的python配置
 
@@ -86,7 +106,6 @@ options = Tools.convert_js_to_dict(js_str, print_dict=False)
 Echarts(options, height='300px', width='300px').render_notebook()
 ```
 
-![自动转换](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/p0.png?raw=true)
 
 
 ## 安装&升级
@@ -103,12 +122,14 @@ pip uninstall chartspy -y  && pip install chartspy
 ```
 
 
-### 升级echarts版本
-
+## 修改echarts版本
+默认指向最新版，可以修改成指定版本
 ```python
 from  chartspy import  echarts
+from chartspy import g2plot
 
-echarts.ECHARTS_JS_URL = "https://unpkg.com/echarts@5.1.2/dist/echarts.min.js"
+echarts.ECHARTS_JS_URL = "https://unpkg.com/echarts@latest/dist/echarts.min.js"
+g2plot.G2PLOT_JS_URL = "..."
 ```
 
 ## 其他说明参见[chartspy文档](https://chartspy.icopy.site)
