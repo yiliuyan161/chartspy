@@ -97,6 +97,7 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
       require(['echarts','echartsgl'], function (echarts,echartsgl) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
         {{plot.extra_js}}
+        var options = {{ plot.js_options }};
         plot_{{ plot.plot_id }}.setOption(options)
       });
     {% else %}
@@ -108,6 +109,7 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
       require(['echarts'], function (echarts) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
         {{plot.extra_js}}
+        var options = {{ plot.js_options }};
         plot_{{ plot.plot_id }}.setOption(options)
       });
     {% endif %}

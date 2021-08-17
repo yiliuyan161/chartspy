@@ -312,7 +312,7 @@ def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, r
         },
         'legend': {
             'left': 'center',
-            'type':'scroll',
+            'type': 'scroll',
             'show': True,
             'top': 'top',
             'data': list(df['name'].unique())
@@ -323,7 +323,7 @@ def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, r
                 'type': 'pie',
                 'radius': [20, 140],
                 'center': ['25%', '50%'],
-                'roseType': rose_type if rose_type in ['area','radius'] else False,
+                'roseType': rose_type if rose_type in ['area', 'radius'] else False,
                 'itemStyle': {
                     'borderRadius': 5
                 },
@@ -924,7 +924,7 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
         'title': {'text': title},
         'tooltip': {
             'trigger': 'axis',
-            'axisPointer':{'type':'cross'}
+            'axisPointer': {'type': 'cross'}
         },
         'legend': {
             'data': list(df[theme].unique())
@@ -1233,7 +1233,7 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
     :return:
     """
     options = {
-        'title': {'text': title,'left':50},
+        'title': {'text': title, 'left': 50},
         'tooltip': {},
         'xAxis3D': {
             'type': 'value'
@@ -1318,8 +1318,7 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
-    return Echarts(options,with_gl=True, height=height, width=width)
-
+    return Echarts(options, with_gl=True, height=height, width=width)
 
 
 def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, color: str = None,
@@ -1344,7 +1343,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
     :return:
     """
     options = {
-        'title': {'text': title,'left':20},
+        'title': {'text': title, 'left': 20},
         'tooltip': {},
         'xAxis3D': {
             'type': 'value'
@@ -1382,7 +1381,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
             'itemStyle': {
                 'color': '#900'
             },
-            'label':{'show':False}
+            'label': {'show': False}
         }
     }
     if color is not None:
@@ -1418,7 +1417,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
-    return Echarts(options,with_gl=True, height=height, width=width)
+    return Echarts(options, with_gl=True, height=height, width=width)
 
 
 def bullet_g2plot(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
@@ -1523,7 +1522,8 @@ def wordcloud_g2plot(df, word_field: str = None, weight_field: str = None, width
     }, width=width, height=height)
 
 
-def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%',
+def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None,
+                             show_label: bool = True, width='100%',
                              height='500px'):
     """
     柱状图百分比堆叠，查看组成部分，占比随时间变化，x_field时间，y_field比例，series_field 类别
@@ -1531,27 +1531,59 @@ def bar_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, serie
     :param x_field:
     :param y_field:
     :param series_field:
+    :param show_label: 图形上是否显示标签
     :param width:
     :param height:
     :return:
     """
-    return G2PLOT(df, plot_type="Column", options={
+    options = {
         'xField': x_field,
         'yField': y_field,
         'seriesField': series_field,
         'isPercent': True,
         'isStack': True,
-        'label': {
-            'position': 'middle',
-            'content': Js(Tools.wrap_template("""
-                function(item){
-                  return (item['{{y_field}}'] * 100).toFixed(2);
-                }
-            """,y_field=y_field))
-        },
         'tooltip': False,
         'interactions': [{'type': 'element-highlight-by-color'}, {'type': 'element-link'}]
-    }, width=width, height=height)
+    }
+    if show_label:
+        options['label'] = {
+            'position': 'middle',
+            'content': Js(Tools.wrap_template("""
+                    function(item){
+                      return (item['{{y_field}}'] * 100).toFixed(2);
+                    }
+                """, y_field=y_field))
+        }
+    return G2PLOT(df, plot_type="Column", options=options, width=width, height=height)
+
+
+def bar_stack_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, show_label: bool = True,
+                     width='100%',
+                     height='500px'):
+    """
+    柱状图堆叠，查看组成部分，占比随时间变化，x_field时间，y_field比例，series_field 类别
+    :param df:
+    :param x_field:
+    :param y_field:
+    :param series_field:
+    :param show_label: 是否数据上显示标签
+    :param width:
+    :param height:
+    :return:
+    """
+    options = {
+        'xField': x_field,
+        'yField': y_field,
+        'seriesField': series_field,
+        'isStack': True,
+        'tooltip': {
+            'shared': False
+        },
+        'interactions': [{'type': 'element-highlight-by-color'}, {'type': 'element-link'}]
+    }
+    if show_label:
+        options['label'] = {'position': 'middle'}
+    return G2PLOT(df, plot_type="Column", options=options, width=width, height=height)
 
 
 def area_g2plot(df, x_field: str = None, y_field: str = None, series_field: str = None, width='100%', height='500px'):
