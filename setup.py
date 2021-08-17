@@ -23,7 +23,7 @@ def get_install_requires():
 
 setup(
     name="chartspy",
-    version="1.2.6",
+    version="1.2.7",
     url="https://chartspy.icopy.site/",
     description="echarts&g2plot python wrapper",
     keywords='echarts g2plot python ',
