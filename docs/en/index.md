@@ -4,9 +4,9 @@ Help users to use echarts,g2plot drawing in python environment
 
 Unlike pyecharts, it does not perform python mapping and secondary abstraction of echarts concepts and attributes, ensuring that the library does not depend on a specific echarts version
 
-* Implemented **two-way conversion** of python configuration<=>JavaScript configuration
+* implemented **two-way conversion** of python configuration<=>JavaScript configuration
 
-* At the same time, drawing on **plotly.express** to encapsulate simple chart type visualization functions
+* offer simple visualization functions like plotly.express
 
 
 
