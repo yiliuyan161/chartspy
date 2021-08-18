@@ -794,7 +794,7 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[name] + parallel_axis].copy()
+    df = data_frame[list(set([name] + parallel_axis))].copy()
     options = {
         'title': {'text': title},
         'legend': {
@@ -829,8 +829,13 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
         data_min = df[parallel_axis[i]].min()
         data_max = df[parallel_axis[i]].max()
         if 'int' in str(df[parallel_axis[i]].dtype) or 'float' in str(df[parallel_axis[i]].dtype):
-            col = {'dim': i, 'name': parallel_axis[i], 'type': 'value', 'min': data_min - (data_max - data_min) * 0.1,
-                   'max': data_max + (data_max - data_min) * 0.1}
+            col = {
+                'dim': i,
+                'name': parallel_axis[i],
+                'type': 'value',
+                'min': round(data_min - (data_max - data_min) * 0.1, 2),
+                'max': round(data_max + (data_max - data_min) * 0.1, 2)
+            }
         else:
             col = {'dim': i, 'name': parallel_axis[i], 'type': 'category',
                    'data': sorted(df[parallel_axis[i]].unique())}
@@ -872,8 +877,8 @@ def sankey_echarts(data_frame: pd.DataFrame, source: str = None, target: str = N
     :return:
     """
     df = data_frame[[source, target, value]].copy()
-    df.columns = ['source', 'target', 'value']
     names = list(set(df[source].unique()).union(set(df[target].unique())))
+    df.columns = ['source', 'target', 'value']
     options = {
         'title': {
             'text': title,
@@ -888,6 +893,7 @@ def sankey_echarts(data_frame: pd.DataFrame, source: str = None, target: str = N
                 'curveness': 0.5
             },
             'emphasis': {
+                'focus': 'adjacency',
                 'itemStyle': {
                     'borderColor': "#333",
                     'borderWidth': 1,
@@ -927,6 +933,7 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
             'axisPointer': {'type': 'cross'}
         },
         'legend': {
+            'top': 40,
             'data': list(df[theme].unique())
         },
         'singleAxis': {
@@ -1236,12 +1243,16 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
         'title': {'text': title, 'left': 50},
         'tooltip': {},
         'xAxis3D': {
+            'name': x,
             'type': 'value'
+
         },
         'yAxis3D': {
+            'name': y,
             'type': 'value'
         },
         'zAxis3D': {
+            'name': z,
             'type': 'value'
         },
         'grid3D': {
@@ -1346,12 +1357,16 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
         'title': {'text': title, 'left': 20},
         'tooltip': {},
         'xAxis3D': {
+            'name': x,
             'type': 'value'
+
         },
         'yAxis3D': {
+            'name': y,
             'type': 'value'
         },
         'zAxis3D': {
+            'name': z,
             'type': 'value'
         },
         'grid3D': {
