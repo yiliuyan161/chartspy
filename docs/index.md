@@ -16,13 +16,13 @@
 直接选择合适的图表类型，展示DataFrame
 
 ```python
-import chartspy.express as ex
+from  chartspy import *
 
-ex.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter')
+express.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter')
 
-ex.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px')
+express.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px')
 
-ex.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
+express.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
 ```
 !!! note ""
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
@@ -42,7 +42,7 @@ ex.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
 [g2plot官方文档](https://g2plot.antv.vision/zh/docs/manual/plots/line)
 
 ```python
-from chartspy import Echarts, Tools
+from chartspy import *
 
 # Echarts
 options = {
@@ -63,7 +63,7 @@ options = {
 Echarts(options, height='600px', title='散点图测试').render_notebook()
 ```
 ```python
-from chartspy import G2PLOT, Tools
+from chartspy import *
 
 # G2PLOT
 df= ...
@@ -83,7 +83,7 @@ G2PLOT(df,plot_type='Line',options=options).render_notebook()
 convert_js_to_dict(js_str,**print_dict=True**) 会在控制台打印python 配置, 方便拷贝粘贴后进行二次加工
 
 ```python
-from chartspy import Echarts, Tools, Js
+from chartspy import *
 
 js_str = """
 {

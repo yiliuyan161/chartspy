@@ -361,7 +361,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
     :param clo: close列名
     :param vol: volume列名
     :param mas: 均线组
-    :param log_y: y轴 log分布 低为1.1 一个格子对应10%
+    :param log_y: y轴 log分布 底为1.1 一个格子对应10%
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%

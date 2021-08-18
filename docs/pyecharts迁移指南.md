@@ -41,7 +41,7 @@ js_str=Bar(init_opts=opts.InitOpts(theme=ThemeType.LIGHT)).add_xaxis([1, 2, 3, 4
 打印python配置
 
 ```python
-from chartspy import Echarts, Tools, Js
+from chartspy import *
 
 options = Tools.convert_js_to_dict(js_str, print_dict=False)
 
