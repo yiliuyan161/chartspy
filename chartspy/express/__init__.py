@@ -115,10 +115,10 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 
 
 def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-                    size_max: int = 30, color: str = None,
+                    size_range=[2, 30], color: str = None,
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
-                    opacity=0.5, title: str = "",
+                    opacity=0.5, tooltip_trigger="axis", title: str = "",
                     width: str = "100%",
                     height: str = "500px") -> Echarts:
     """
@@ -129,11 +129,12 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     :param y: 必填 y轴映射的列
     :param symbol: 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none',image://dataURI(), path://(svg)
     :param size: 可选 原点大小列
-    :param size_max: 可选
+    :param size_range: 可选 点大小区间
     :param info: 额外信息tooltip显示
     :param color:颜色映射的列
     :param color_sequence:
     :param opacity:
+    :param tooltip_trigger: tooltip 触发类型 axis和 item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -161,39 +162,97 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                 'borderColor': "#333",
                 'borderWidth': 1,
                 'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                'shadowBlur': 15
+                'shadowBlur': 5
             }
         }
     }
+    if tooltip_trigger == 'item':
+        del options['axisPointer']
+        options['tooltip'] = {
+            'trigger': 'item',
+            'borderWidth': 1,
+            'borderColor': '#ccc',
+            'padding': 10,
+            'formatter': Js("""
+                        function(params){
+                            window.params=params;
+                            var labels = [];
+                            const param = params;
+                            var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
+                            var dimensionNames=param['dimensionNames'];
+                            if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
+                                label.push("<br/>");
+                                for (let j = 0; j <param['data'].length; j++) {
+                                    var value= param['value'][j];
+                                    if (typeof(value)=='number'){
+                                        if (value%1==0 || value>100000){
+                                            label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
+                                        }else{
+                                            label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
+                                        }
+                                    }else{
+                                        label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
+                                    }
+                                }
+                            }else if(typeof(param['value'])=='number'){
+                                if (param['value']%1==0){
+                                    label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                                }else{
+                                    label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                                }
+                            }else if(param['value']){
+                                label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                            }else{
+                                label.push("<br/>");
+                            }
+                            var cardStr= label.join('');
+                            labels.push(cardStr);
+                            return labels.join('');
+                        }"""),
+            'textStyle': {'color': '#000'}
+        }
     if symbol is not None:
         series['symbol'] = symbol
     series['dimensions'] = [x, y]
     series['data'] = df[[x, y]].values.tolist()
+    if size is not None or color is not None:
+        options['visualMap'] = []
     if size is not None:
         max_size_value = df[size].max()
-        series['symbolSize'] = Js(Tools.wrap_template("""
-                        function(val) {
-                            return val[2]/{{max_size_value}}*{{size_max}};
-                        }
-                    """, **locals()))
+        min_size_value = df[size].min()
         series['dimensions'].append(size)
         size_list = df[size].tolist()
         for i in range(0, len(size_list)):
             series['data'][i].append(size_list[i])
-    if info is not None:
-        series['dimensions'].append(info)
-        info_list = df[info].tolist()
-        for i in range(0, len(info_list)):
-            series['data'][i].append(info_list[i])
+        visual_map_size = {
+            'show': True,
+            'orient': 'horizontal',
+            'left': 'left',
+            'bottom': 0,
+            'calculable': True,
+            'text': ['大', '小'],
+            'dimension': len(series['dimensions']) - 1,
+            'inRange': {
+                'symbolSize': size_range
+            }
+        }
+        if "date" in str(df[color].dtype) or "object" in str(df[color].dtype):
+            visual_map_size['type'] = 'piecewise'
+        else:
+            visual_map_size['type'] = 'continuous'
+            visual_map_size['min'] = min_size_value
+            visual_map_size['max'] = max_size_value
+        options['visualMap'].append(visual_map_size)
+
     if color is not None:
         series['dimensions'].append(color)
         color_list = df[color].tolist()
         for i in range(0, len(color_list)):
             series['data'][i].append(color_list[i])
-        visual_map = {
+        visual_map_color = {
             'show': True,
             'orient': 'horizontal',
-            'left': 'center',
+            'left': 'right',
             'bottom': 0,
             'calculable': True,
             'text': ['高', '低'],
@@ -203,25 +262,31 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
             }
         }
         if "date" in str(df[color].dtype) or "object" in str(df[color].dtype):
-            visual_map['type'] = 'piecewise'
+            visual_map_color['type'] = 'piecewise'
         else:
-            visual_map['type'] = 'continuous'
-            visual_map['min'] = df[color].min()
-            visual_map['max'] = df[color].max()
-        options['visualMap'] = [visual_map]
+            visual_map_color['type'] = 'continuous'
+            visual_map_color['min'] = df[color].min()
+            visual_map_color['max'] = df[color].max()
+        options['visualMap'].append(visual_map_color)
 
+    if info is not None:
+        series['dimensions'].append(info)
+        info_list = df[info].tolist()
+        for i in range(0, len(info_list)):
+            series['data'][i].append(info_list[i])
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
 
 
-def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, title: str = "",
+def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, tooltip_trigger="axis", title: str = "",
                  width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
+    :param tooltip_trigger: axis item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
@@ -244,13 +309,58 @@ def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, title: 
             'shadowBlur': 15
         }
     }}
+    if tooltip_trigger == 'item':
+        del options['axisPointer']
+        options['tooltip'] = {
+            'trigger': 'item',
+            'borderWidth': 1,
+            'borderColor': '#ccc',
+            'padding': 10,
+            'formatter': Js("""
+                                function(params){
+                                    window.params=params;
+                                    var labels = [];
+                                    const param = params;
+                                    var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
+                                    var dimensionNames=param['dimensionNames'];
+                                    if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
+                                        label.push("<br/>");
+                                        for (let j = 0; j <param['data'].length; j++) {
+                                            var value= param['value'][j];
+                                            if (typeof(value)=='number'){
+                                                if (value%1==0 || value>100000){
+                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
+                                                }else{
+                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
+                                                }
+                                            }else{
+                                                label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
+                                            }
+                                        }
+                                    }else if(typeof(param['value'])=='number'){
+                                        if (param['value']%1==0){
+                                            label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                                        }else{
+                                            label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                                        }
+                                    }else if(param['value']){
+                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                                    }else{
+                                        label.push("<br/>");
+                                    }
+                                    var cardStr= label.join('');
+                                    labels.push(cardStr);
+                                    return labels.join('');
+                                }"""),
+            'textStyle': {'color': '#000'}
+        }
     options['legend']['data'].append(title)
     options['series'].append(series)
 
     return Echarts(options=options, width=width, height=height)
 
 
-def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all",
+def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all", tooltip_trigger="axis",
                 title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -259,10 +369,11 @@ def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
     :param stack:堆叠分组
+    :param tooltip_trigger: axis item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :return:
+    :return:Echarts
     """
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     df = data_frame.copy()
@@ -282,6 +393,51 @@ def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
                       'shadowBlur': 15
                   }
               }}
+    if tooltip_trigger == 'item':
+        del options['axisPointer']
+        options['tooltip'] = {
+            'trigger': 'item',
+            'borderWidth': 1,
+            'borderColor': '#ccc',
+            'padding': 10,
+            'formatter': Js("""
+                                function(params){
+                                    window.params=params;
+                                    var labels = [];
+                                    const param = params;
+                                    var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
+                                    var dimensionNames=param['dimensionNames'];
+                                    if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
+                                        label.push("<br/>");
+                                        for (let j = 0; j <param['data'].length; j++) {
+                                            var value= param['value'][j];
+                                            if (typeof(value)=='number'){
+                                                if (value%1==0 || value>100000){
+                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
+                                                }else{
+                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
+                                                }
+                                            }else{
+                                                label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
+                                            }
+                                        }
+                                    }else if(typeof(param['value'])=='number'){
+                                        if (param['value']%1==0){
+                                            label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                                        }else{
+                                            label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                                        }
+                                    }else if(param['value']){
+                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                                    }else{
+                                        label.push("<br/>");
+                                    }
+                                    var cardStr= label.join('');
+                                    labels.push(cardStr);
+                                    return labels.join('');
+                                }"""),
+            'textStyle': {'color': '#000'}
+        }
     options['series'].append(series)
     options['legend']['data'].append(title)
     return Echarts(options=options, width=width, height=height)
@@ -648,55 +804,84 @@ def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list =
     return Echarts(options=options, width=width, height=height)
 
 
-def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, value: str = None, title: str = "",
+def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None,
+                    x_axis_data: list = None,
+                    y_axis_data: list = None,
+                    color: str = None,
+                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
+                                            "#fdae61", "#f46d43", "#d73027", "#a50026"],
+                    label: str = None, label_show=True, label_font_size=8,
+                    title: str = "",
                     width: str = "100%", height: str = "500px") -> Echarts:
     """
     二维热度图
+
     :param data_frame: 必填 DataFrame
     :param x: 必填 x轴映射的列
     :param y: 必填 y轴映射的列
-    :param value: 可选 分组列，不同颜色表示
+    :param y_axis_data: x轴顺序 不提供直接按值排序
+    :param x_axis_data: y轴顺序 不提供直接按值排序
+    :param color: color映射列
+    :param color_sequence: color色卡序列
+    :param label: label映射列
+    :param label_font_size:
+    :param label_show: 是否显示label
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[x, y, value]].copy()
+    label = color if label is None else label
+    df = data_frame[[x, y, label, color]].copy()
+    df[x]=df[x].astype(str)
+    df[y]=df[y].astype(str)
+    df.columns = [x, y, label + '_label', color + '_color']
     options = {
         'title': {'text': title},
-        'tooltip': {'position': 'top'},
-        'grid': {
-            'height': '50%',
-            'top': '10%'
+        'tooltip': {
+            'position': 'top',
+            'formatter':"{c}"
         },
-        'xAxis': {
-            'type': 'category',
-            'data': sorted(df[x].tolist()),
+        'xAxis': [{
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[x].unique())] if x_axis_data is None else x_axis_data,
             'splitArea': {
                 'show': True
             }
-        },
+        }, {
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[x].unique())] if x_axis_data is None else x_axis_data,
+            'splitArea': {
+                'show': True
+            }
+        }],
         'yAxis': {
-            'type': 'category',
-            'data': sorted(df[y].tolist()),
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[y].unique())] if y_axis_data is None else y_axis_data,
             'splitArea': {
                 'show': True
             }
         },
         'visualMap': {
-            'min': 0,
-            'max': 10,
+            'min': df[color + '_color'].min(),
+            'max': df[color + '_color'].max(),
             'calculable': True,
             'orient': 'horizontal',
             'left': 'center',
-            'bottom': '15%'
+            'bottom': '0',
+            'dimension': 3,
+            'inRange': {
+                'color': color_sequence
+            }
+
         },
         'series': [{
-            'name': 'Punch Card',
+            'name': title,
             'type': 'heatmap',
-            'data': df[[x, y, value]].values.tolist(),
+            'data': df.values.tolist(),
             'label': {
-                'show': True
+                'show': label_show,
+                'fontSize': label_font_size
             },
             'emphasis': {
                 'itemStyle': {
@@ -706,6 +891,11 @@ def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, valu
             }
         }]
     }
+    if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
+        options['xAxis'][0]['type'] = 'category'
+        options['xAxis'][1]['type'] = 'category'
+    if "date" in str(df[y].dtype) or "object" in str(df[y].dtype):
+        options['yAxis']['type'] = 'category'
     return Echarts(options=options, width=width, height=height)
 
 
@@ -967,7 +1157,7 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
 
 
 def sunburst_echarts(data_frame: pd.DataFrame, category_cols: list = [], value_col: str = None, title: str = "",
-                     font_size: int = 8,
+                     font_size: int = 8, node_click=False,
                      width: str = "100%", height: str = "500px") -> Echarts:
     data = Tools.df2tree(data_frame, category_cols, value_col)
     options = {
@@ -977,19 +1167,20 @@ def sunburst_echarts(data_frame: pd.DataFrame, category_cols: list = [], value_c
         'tooltip': {
             'trigger': 'item',
             'formatter': Js("""
-            function(params){
-                var pathInfo= params['treePathInfo'];
-                var labels = [];
-                for(var i=0; i<pathInfo.length; i++){
-                    labels.push(pathInfo[i].name +':'+ pathInfo[i].value + '<br/>');
+                function(params){
+                    var pathInfo= params['treePathInfo'];
+                    var labels = [];
+                    for(var i=0; i<pathInfo.length; i++){
+                        labels.push(pathInfo[i].name +':'+ pathInfo[i].value + '<br/>');
+                    }
+                    return labels.join('');
                 }
-                return labels.join('');
-            }
         """)
 
         },
         'series': {
             'type': 'sunburst',
+            'nodeClick': node_click,
             'label': {'fontSize': font_size},
             'data': data,
             'radius': [0, '95%'],

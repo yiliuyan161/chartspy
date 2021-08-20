@@ -218,7 +218,7 @@ def json_type_convert(o: object):
             return o1.strftime("%Y-%m-%d")
         else:
             return o1.isoformat()
-    elif isinstance(o, np.bool):
+    elif isinstance(o, np.bool_):
         return bool(o)
     elif isinstance(o, np.integer):
         return int(o)
