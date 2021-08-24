@@ -138,7 +138,8 @@ class Tools(object):
     @staticmethod
     def convert_js_to_dict(js_code: str, print_dict: bool = True) -> dict:
         """
-        true、false替换，字段名单引号，函数变Js函数包裹
+        转换JavaScript Object 成 python dict
+        基础类常量替换,去除注释，字段名加单引号，函数变Js函数包裹
         :param js_code:
         :param print_dict: 是否控制台打印
         :return: dict
@@ -192,6 +193,33 @@ class Tools(object):
             print(dict_str)
         dict_options = eval(dict_str)
         return dict_options
+
+    @staticmethod
+    def convert_dict_to_js(options):
+        """
+        转换 python dict 成 JavaScript Object
+        先simplejson序列化,再特殊处理函数
+        :return: JavaScript 对象的字符串表示
+        """
+        json_str = simplejson.dumps(options, indent=2, default=json_type_convert, ignore_nan=True)
+        segs = []
+        function_start = 0
+        # 找到所有函数声明的起止位置,处理双引号转移，再把包裹函数的特征串删除
+        mask_length = len(FUNCTION_BOUNDARY_MARK)
+        for i in range(mask_length, len(json_str)):
+            if json_str[i - mask_length - 1:i] == '"' + FUNCTION_BOUNDARY_MARK:
+                function_start = i - mask_length
+            elif json_str[i - mask_length - 1:i] == FUNCTION_BOUNDARY_MARK + '"':
+                segs.append([function_start, i])
+        left_index = 0
+        parts = []
+        for seg in segs:
+            parts.append(json_str[left_index:seg[0]])
+            parts.append(json_str[seg[0]:(seg[1] + 1)].replace('\\"', '"'))
+            left_index = seg[1] + 1
+        parts.append(json_str[left_index:])
+        dict_str = "".join(parts)
+        return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
 
 
 json_encoder = simplejson.JSONEncoder()

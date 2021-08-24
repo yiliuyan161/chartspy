@@ -265,14 +265,14 @@ class Echarts(object):
             series_count = len(dict_options['series'])
             for i in range(0, series_count):
                 dict_options['series'][i]['data'] = []
-        Tools.convert_js_to_dict(self.convert_to_js_options(dict_options), print_dict=True)
+        Tools.convert_js_to_dict(Tools.convert_dict_to_js(dict_options), print_dict=True)
 
     def dump_options(self):
         """
          导出 js option字符串表示
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         return self.js_options
 
     def render_notebook(self) -> Html:
@@ -280,7 +280,7 @@ class Echarts(object):
         在jupyter notebook 环境输出
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -289,7 +289,7 @@ class Echarts(object):
         在jupyterlab 环境输出
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -299,40 +299,20 @@ class Echarts(object):
         :param path:
         :return: 文件路径
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
         abs_path = os.path.abspath(path)
         return Html("<p>{path}</p>".format(path=abs_path))
-
-    @staticmethod
-    def convert_to_js_options(options):
-        json_str = simplejson.dumps(options, indent=2, default=json_type_convert, ignore_nan=True)
-        segs = []
-        function_start = 0
-        mask_length = len(FUNCTION_BOUNDARY_MARK)
-        for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length - 1:i] == '"' + FUNCTION_BOUNDARY_MARK:
-                function_start = i - mask_length
-            elif json_str[i - mask_length - 1:i] == FUNCTION_BOUNDARY_MARK + '"':
-                segs.append([function_start, i])
-        left_index = 0
-        parts = []
-        for seg in segs:
-            parts.append(json_str[left_index:seg[0]])
-            parts.append(json_str[seg[0]:(seg[1] + 1)].replace('\\"', '"'))
-            left_index = seg[1] + 1
-        parts.append(json_str[left_index:])
-        dict_str = "".join(parts)
-        return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
+   
 
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         return html
 
@@ -341,7 +321,7 @@ class Echarts(object):
         渲染html 片段，方便一个网页输出多个图表
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
         return html
 
@@ -350,6 +330,6 @@ class Echarts(object):
         jupyter 环境，直接输出
         :return:
         """
-        self.js_options = self.convert_to_js_options(self.options)
+        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
         return Html(html).data
