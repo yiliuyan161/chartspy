@@ -823,8 +823,8 @@ def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None,
     :param x_axis_data: y轴顺序 不提供直接按值排序
     :param color: color映射列
     :param color_sequence: color色卡序列
-    :param label: label映射列
-    :param label_font_size:
+    :param label: label映射列 必须是数字类型
+    :param label_font_size: 8
     :param label_show: 是否显示label
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
