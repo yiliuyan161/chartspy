@@ -236,7 +236,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                 'symbolSize': size_range
             }
         }
-        if "date" in str(df[color].dtype) or "object" in str(df[color].dtype):
+        if "date" in str(df[size].dtype) or "object" in str(df[size].dtype):
             visual_map_size['type'] = 'piecewise'
         else:
             visual_map_size['type'] = 'continuous'
