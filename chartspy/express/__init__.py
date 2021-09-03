@@ -1297,7 +1297,7 @@ def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
                        label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
                        label_font_color: str = 'inherit', label_background_color: str = "transparent"):
     """
-    在现有图表上叠加线段，不能单独显示
+    在现有图表上叠加标签，不能单独显示
     :param data_frame:
     :param x: 左上方顶点x坐标对应列
     :param y: 左上方顶点y坐标对应列
