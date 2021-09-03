@@ -247,9 +247,9 @@ class Echarts(object):
                 for i in range(0, len(chart_option["visualMap"])):
                     if "seriesIndex" in chart_option["visualMap"][i].keys():
                         chart_option["visualMap"][i]['seriesIndex'] = chart_option["visualMap"][i][
-                                                                          'seriesIndex'] + i + old_series_count
+                                                                          'seriesIndex'] + old_series_count
                     else:
-                        chart_option["visualMap"][i]['seriesIndex'] = i + old_series_count
+                        chart_option["visualMap"][i]['seriesIndex'] = old_series_count
                 this_options["visualMap"].extend(chart_option["visualMap"])
 
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
