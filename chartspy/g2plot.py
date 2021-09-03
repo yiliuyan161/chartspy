@@ -228,27 +228,6 @@ class G2PLOT(object):
         abs_path = os.path.abspath(path)
         return Html("<p>{path}</p>".format(path=abs_path))
 
-    @staticmethod
-    def convert_to_js_options(options):
-        json_str = simplejson.dumps(options, indent=2, default=json_type_convert, ignore_nan=True)
-        segs = []
-        function_start = 0
-        mask_length = len(FUNCTION_BOUNDARY_MARK)
-        for i in range(mask_length, len(json_str)):
-            if json_str[i - mask_length-1:i] == '"' + FUNCTION_BOUNDARY_MARK:
-                function_start = i - mask_length
-            elif json_str[i - mask_length-1:i] == FUNCTION_BOUNDARY_MARK + '"':
-                segs.append([function_start, i])
-        left_index = 0
-        parts = []
-        for seg in segs:
-            parts.append(json_str[left_index:seg[0]])
-            parts.append(json_str[seg[0]:(seg[1] + 1)].replace('\\"', '"'))
-            left_index = seg[1] + 1
-        parts.append(json_str[left_index:])
-        dict_str = "".join(parts)
-        return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
-
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
