@@ -560,17 +560,23 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
                         if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
                             label.push("<br/>");
                             for (let j = 1; j <dimensionNames.length; j++) {
-                                var value= param['value'][j];
-                                if (typeof(value)=='number'){
-                                    if (value%1==0 || value>100000){
-                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
+                                    var value= param['data'][j];
+                                    if (typeof(value)=='number'){
+                                        if (value%1==0 || value>100000){
+                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
+                                        }else{
+                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
+                                        }
                                     }else{
-                                        label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
+                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
                                     }
-                                }else{
-                                    label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
-                                }
                             }
+                        }else if(param['seriesType']=="candlestick"){
+                                label.push("<br/>");
+                                label.push("<span>open:&nbsp;"+param['data'][1].toFixed(2)+"</span><br/>");
+                                label.push("<span>close:&nbsp;"+param['data'][2].toFixed(2)+"</span><br/>");
+                                label.push("<span>high:&nbsp;"+param['data'][3].toFixed(2)+"</span><br/>");
+                                label.push("<span>low:&nbsp;"+param['data'][4].toFixed(2)+"</span><br/>");   
                         }else if(typeof(param['value'])=='number'){
                             if (param['value']%1==0){
                                 label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
