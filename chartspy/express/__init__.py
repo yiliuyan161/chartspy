@@ -1250,9 +1250,10 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
 
 
 def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
+                         show_label:bool = False,
                          label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
                          label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
-                         line_color: str = 'inherit', line_width: int = 2, line_type: str = "solid"):
+                         line_width: int = 2, line_type: str = "solid"):
     """
     在现有图表上叠加线段，不能单独显示
 
@@ -1263,6 +1264,7 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     :param y2: 右下方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
+    :param show_label: 是否显示label
     :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance: 10
     :param label_font_color:inherit
@@ -1275,19 +1277,23 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     :return:
     """
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
-    rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
-    data = [[{'name': str(row[label]), 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    if show_label:
+        rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
+        data = [[{'name': str(row[label]), 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    else:
+        rows = data_frame[[x1, y1, x2, y2]].to_dict(orient='records')
+        data = [[{'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+
     base_mark_line_options = {
         'symbol': [symbol_start, symbol_end],
         'label': {
-            'show': True,
+            'show': show_label,
             'position': label_position,
             'distance': label_distance,
             'fontSize': label_font_size,
             'color': label_font_color
         },
         'lineStyle': {
-            'color': line_color,
             'width': line_width,
             'type': line_type
         },
