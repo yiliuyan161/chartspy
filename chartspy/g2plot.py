@@ -25,7 +25,7 @@ JUPYTER_ALL_TEMPLATE = """
 <div id="{{ plot.plot_id }}"></div>
 <script>
   {{plot.extra_js}}
-  var options = {{ plot.js_options }}
+  var options_{{ plot.plot_id }} = {{ plot.js_options }}
   if (typeof require !== 'undefined'){
       require.config({
         paths: {
@@ -33,7 +33,7 @@ JUPYTER_ALL_TEMPLATE = """
         }
       });
       require(['G2Plot'], function (G2Plot) {
-        var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", options); 
+        var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", options_{{ plot.plot_id }}); 
         plot_{{ plot.plot_id }}.render();
       });
   }else{
@@ -44,7 +44,7 @@ JUPYTER_ALL_TEMPLATE = """
       script.src = "{{plot.js_url}}";
       document.head.appendChild(script);
     }).then(() => {
-       var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", options); 
+       var plot_{{ plot.plot_id }} = new G2Plot.{{plot.plot_type}}("{{ plot.plot_id }}", options_{{ plot.plot_id }}); 
        plot_{{ plot.plot_id }}.render();
     });
   }

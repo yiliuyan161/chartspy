@@ -26,7 +26,7 @@ JUPYTER_ALL_TEMPLATE = """
 <div id="{{ plot.plot_id }}"></div>
 <script>
   {{plot.extra_js}}
-  var options = {{ plot.js_options }};
+  var options_{{ plot.plot_id }} = {{ plot.js_options }};
   if (typeof require !== 'undefined'){
     {% if plot.with_gl %}
       require.config({
@@ -37,7 +37,7 @@ JUPYTER_ALL_TEMPLATE = """
       });
       require(['echarts','echartsgl'], function (echarts,echartsgl) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        plot_{{ plot.plot_id }}.setOption(options)
+        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
       });
     {% else %}
       require.config({
@@ -47,7 +47,7 @@ JUPYTER_ALL_TEMPLATE = """
       });
       require(['echarts'], function (echarts) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        plot_{{ plot.plot_id }}.setOption(options)
+        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
       });
     {% endif %}
     
@@ -69,7 +69,7 @@ JUPYTER_ALL_TEMPLATE = """
 
     }).then(() => {
        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-       plot_{{ plot.plot_id }}.setOption(options)
+       plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
     });
   }
 
@@ -97,8 +97,8 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
       require(['echarts','echartsgl'], function (echarts,echartsgl) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
         {{plot.extra_js}}
-        var options = {{ plot.js_options }};
-        plot_{{ plot.plot_id }}.setOption(options)
+        var options_{{ plot.plot_id }} = {{ plot.js_options }};
+        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
       });
     {% else %}
       require.config({
@@ -109,8 +109,8 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
       require(['echarts'], function (echarts) {
         var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
         {{plot.extra_js}}
-        var options = {{ plot.js_options }};
-        plot_{{ plot.plot_id }}.setOption(options)
+        var options_{{ plot.plot_id }} = {{ plot.js_options }};
+        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
       });
     {% endif %}
 </script>
