@@ -839,14 +839,14 @@ def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None,
     """
     label = color if label is None else label
     df = data_frame[[x, y, label, color]].copy()
-    df[x]=df[x].astype(str)
-    df[y]=df[y].astype(str)
+    df[x] = df[x].astype(str)
+    df[y] = df[y].astype(str)
     df.columns = [x, y, label + '_label', color + '_color']
     options = {
         'title': {'text': title},
         'tooltip': {
             'position': 'top',
-            'formatter':"{c}"
+            'formatter': "{c}"
         },
         'xAxis': [{
             'type': 'value',
@@ -1250,7 +1250,7 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
 
 
 def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
-                         show_label:bool = False,
+                         show_label: bool = False,
                          label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
                          label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
                          line_width: int = 2, line_type: str = "solid"):
