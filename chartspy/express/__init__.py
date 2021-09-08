@@ -704,7 +704,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
             {
                 'name': title,
                 'type': 'candlestick',
-                'data': df[[opn, clo, high, low]].values.tolist(),
+                'data': df[[opn, clo, low, high]].values.tolist(),
                 'emphasis': {
                     'itemStyle': {
                         'borderColor': "#333",
