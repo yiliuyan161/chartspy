@@ -1231,7 +1231,6 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
     base_mark_area_options = {
         'itemStyle': {
-            'color': fill_color,
             'opacity': fill_opacity
         },
         'label': {
