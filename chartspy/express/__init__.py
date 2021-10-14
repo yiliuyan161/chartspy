@@ -1913,6 +1913,13 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
     return G2PLOT(df, plot_type='Violin', options=options, width=width, height=height)
 
 
+def drawdown_echarts(data_frame:pd.DataFrame,time:str,price:str,code:str, width="100%",height='500px'):
+    df = data_frame[[time, price,code]].copy()
+    df_pivot= df.pivot(index=time,columns=code,values=price)
+    df_return=df_pivot.pct_change().cumprod().fillna(0)
+    df_drawdown=df_return.cummax()-df_return
+
+
 __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
            'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts',
            'theme_river_echarts',
