@@ -1914,7 +1914,18 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
 
 
 def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str, title="", width="100%",
-                     height='500px'):
+                     height='500px')-> Echarts:
+    """
+    回撤图
+    :param data_frame: pd.DataFrame
+    :param time: 时间列名
+    :param price: 价格列名
+    :param code: 资产编码列名
+    :param title: 标题
+    :param width: 宽度
+    :param height: 高度
+    :return:
+    """
     df = data_frame[[time, price, code]].copy()
     df_pivot = df.pivot_table(index=time, columns=code, values=price)
     df_return = ((df_pivot.pct_change()+1).cumprod().fillna(1)-1)*100
