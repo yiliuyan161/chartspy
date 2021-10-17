@@ -1913,11 +1913,121 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
     return G2PLOT(df, plot_type='Violin', options=options, width=width, height=height)
 
 
-def drawdown_echarts(data_frame:pd.DataFrame,time:str,price:str,code:str, width="100%",height='500px'):
-    df = data_frame[[time, price,code]].copy()
-    df_pivot= df.pivot(index=time,columns=code,values=price)
-    df_return=df_pivot.pct_change().cumprod().fillna(0)
-    df_drawdown=df_return.cummax()-df_return
+def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str, title="", width="100%",
+                     height='500px'):
+    df = data_frame[[time, price, code]].copy()
+    df_pivot = df.pivot_table(index=time, columns=code, values=price)
+    df_return = ((df_pivot.pct_change()+1).cumprod().fillna(1)-1)*100
+    df_drawdown = df_return-df_return.cummax()
+    sorted_date = sorted(df[time].unique())
+    codes = df[code].unique()
+    colors = ['red', 'blue', 'orange', 'pink', 'green', 'yellow', 'purple', 'sliver', 'gold', 'black']
+    color_index = 0
+    options = {
+        'title': {'text': title},
+        'legend': [{
+            'type': "scroll",
+            'data': list(df[code].unique())
+        }],
+        'tooltip': {
+            'trigger': 'axis', 'axisPointer': {'type': 'cross'},
+            'borderWidth': 1,
+            'borderColor': '#ccc',
+            'padding': 10,
+            'formatter': Js("""function (params) {
+                const x_value = params[0]['axisValue'];
+                const labels = [];
+                labels.push('<b><span>时间:&nbsp;</span></b>' + x_value + '<br/>');
+                params.sort(function (a, b) {
+                  if (a.seriesId.substr(-1, 1) < b.seriesId.substr(-1, 1)) {
+                    return -1;
+                  } else if (a.seriesId.substr(-1, 1) > b.seriesId.substr(-1, 1)) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                });
+                labels.push('<b><span>收益:</span></b><br/>');
+                for (let i = 0; i < params.length; i++) {
+                  const param = params[i];
+                  if (param.seriesId.substr(-1, 1) == '0') {
+                    const label = ['<span><b>' + param['seriesName'] + '</b>:' + (param['value'][1]?(param['value'][1]).toFixed(2):"") + '%</span><br/>'];
+                    labels.push(label);
+                  }
+                }
+                labels.push('<b><span>回撤:</span></b><br/>');
+                for (let i = 0; i < params.length; i++) {
+                  const param = params[i];
+                  if (param.seriesId.substr(-1, 1) == '1') {
+                    const label = ['<span><b>' + param['seriesName'] + '</b>:' + (param['value'][1]?(-param['value'][1]).toFixed(2):"")+ '%</span><br/>'];
+                    labels.push(label);
+                  }
+                }
+                return labels.join('');
+            
+            }""")
+        },
+        'axisPointer': {
+            'link': {'xAxisIndex': 'all'},
+            'label': {'backgroundColor': '#777'}
+        },
+        'xAxis': [
+            {
+                'type': 'category',
+                'data': sorted_date,
+                'scale': True,
+                'boundaryGap': False,
+                'axisLine': {'onZero': False, 'show': True},
+                'axisLabel': {'show': True},
+                'axisTick': {'show': True},
+                'splitLine': {'show': True},
+                'splitNumber': 20,
+                'min': 'dataMin',
+                'max': 'dataMax'
+            }
+        ],
+        'yAxis': [
+            {
+                'scale': True,
+                'type': 'value',
+                'splitNumber': 10,
+                'axisLabel': {
+                    'show': True
+                },
+                'axisLine': {'show': False},
+                'axisTick': {'show': True},
+                'splitLine': {'show': True}
+            }
+        ],
+        'dataZoom': [
+            {
+                'type': 'inside',
+                'xAxisIndex': [0, 1],
+                'start': 0,
+                'end': 100
+            }
+        ],
+        'series': []
+    }
+    for item in codes:
+        return_series = {
+            "name": item,
+            'itemStyle': {'color': colors[color_index]},
+            'type': 'line',
+            'data': df_return[item].to_frame().reset_index().values.tolist()
+             }
+        drawdown_series = {
+            'name': item,
+            'type': 'line',
+            'areaStyle': {'opacity': 0.3},
+            'itemStyle': {'color': colors[color_index]},
+            'lineStyle': {'width':1,'type':'dotted'},
+            'data': df_drawdown[item].to_frame().reset_index().values.tolist()
+            }
+        options['series'].append(return_series)
+        options['series'].append(drawdown_series)
+        color_index = (color_index + 1) % len(colors)
+    return Echarts(options, height=height, width=width)
 
 
 __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
@@ -1927,5 +2037,5 @@ __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'can
            'mark_label_echarts', 'mark_segment_echarts', 'mark_vertical_line_echarts',
            'mark_horizontal_line_echarts', 'mark_area_echarts',
            'bullet_g2plot', 'chord_g2plot', 'waterfall_g2plot', 'liquid_g2plot', 'wordcloud_g2plot',
-           'bar_stack_percent_g2plot', 'violin_g2plot', 'area_percent_g2plot', 'treemap_g2plot'
+           'bar_stack_percent_g2plot', 'violin_g2plot', 'area_percent_g2plot', 'treemap_g2plot','drawdown_echarts'
            ]
