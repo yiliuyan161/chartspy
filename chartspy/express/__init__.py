@@ -1914,7 +1914,7 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
 
 
 def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str, title="", width="100%",
-                     height='500px')-> Echarts:
+                     height='500px') -> Echarts:
     """
     回撤图
     :param data_frame: pd.DataFrame
@@ -1928,8 +1928,9 @@ def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str,
     """
     df = data_frame[[time, price, code]].copy()
     df_pivot = df.pivot_table(index=time, columns=code, values=price)
-    df_return = ((df_pivot.pct_change()+1).cumprod().fillna(1)-1)*100
-    df_drawdown = df_return-df_return.cummax()
+    df_return = (df_pivot / df_pivot.iloc[0]) - 1
+    df_cummax = df_pivot.cummax()
+    df_drawdown = (df_pivot-df_cummax) / df_cummax
     sorted_date = sorted(df[time].unique())
     codes = df[code].unique()
     colors = ['red', 'blue', 'orange', 'pink', 'green', 'yellow', 'purple', 'sliver', 'gold', 'black']
@@ -2026,15 +2027,15 @@ def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str,
             'itemStyle': {'color': colors[color_index]},
             'type': 'line',
             'data': df_return[item].to_frame().reset_index().values.tolist()
-             }
+        }
         drawdown_series = {
             'name': item,
             'type': 'line',
             'areaStyle': {'opacity': 0.3},
             'itemStyle': {'color': colors[color_index]},
-            'lineStyle': {'width':1,'type':'dotted'},
+            'lineStyle': {'width': 1, 'type': 'dotted'},
             'data': df_drawdown[item].to_frame().reset_index().values.tolist()
-            }
+        }
         options['series'].append(return_series)
         options['series'].append(drawdown_series)
         color_index = (color_index + 1) % len(colors)
@@ -2048,5 +2049,5 @@ __all__ = ["scatter_echarts", 'line_echarts', 'bar_echarts', 'pie_echarts', 'can
            'mark_label_echarts', 'mark_segment_echarts', 'mark_vertical_line_echarts',
            'mark_horizontal_line_echarts', 'mark_area_echarts',
            'bullet_g2plot', 'chord_g2plot', 'waterfall_g2plot', 'liquid_g2plot', 'wordcloud_g2plot',
-           'bar_stack_percent_g2plot', 'violin_g2plot', 'area_percent_g2plot', 'treemap_g2plot','drawdown_echarts'
+           'bar_stack_percent_g2plot', 'violin_g2plot', 'area_percent_g2plot', 'treemap_g2plot', 'drawdown_echarts'
            ]
