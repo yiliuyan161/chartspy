@@ -133,3 +133,6 @@ g2plot.G2PLOT_JS_URL = "..."
 ```
 
 ## 其他说明参见[chartspy文档](https://chartspy.icopy.site)
+
+## 感谢Jetbrain
+![JetBrains 徽标（主要） logo](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png)
