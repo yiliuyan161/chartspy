@@ -1927,10 +1927,10 @@ def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str,
     :return:
     """
     df = data_frame[[time, price, code]].copy()
-    df_pivot = df.pivot_table(index=time, columns=code, values=price)
-    df_return = (df_pivot / df_pivot.iloc[0]) - 1
+    df_pivot = df.pivot_table(index=time, columns=code, values=price).fillna(method='bfill').fillna(method='ffill')
+    df_return = (((df_pivot / df_pivot.iloc[0]) - 1) * 100).round(2)
     df_cummax = df_pivot.cummax()
-    df_drawdown = (df_pivot-df_cummax) / df_cummax
+    df_drawdown = (((df_pivot - df_cummax) / df_cummax) * 100).round(2)
     sorted_date = sorted(df[time].unique())
     codes = df[code].unique()
     colors = ['red', 'blue', 'orange', 'pink', 'green', 'yellow', 'purple', 'sliver', 'gold', 'black']
@@ -2022,18 +2022,45 @@ def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str,
         'series': []
     }
     for item in codes:
+        end_time = df_drawdown[item].idxmin()
+        begin_time = \
+            df_drawdown[item][(df_drawdown[item] >= 0) & (df_drawdown[item].index < df_drawdown[item].idxmin())].index[
+                -1]
+
         return_series = {
             "name": item,
             'itemStyle': {'color': colors[color_index]},
             'type': 'line',
-            'data': df_return[item].to_frame().reset_index().values.tolist()
+            'data': df_return[item].to_frame().reset_index().values.tolist(),
+            'markPoint': {
+                'data': [{'type': 'max', 'name': '最大值'}],
+                'label': {
+                    'formatter': '{c}%',
+                    'position': 'top',
+                },
+            },
+            'markArea': {
+                'itemStyle': {'borderWidth': 2, 'borderType': 'dashed', 'opacity': 1, 'color': 'rgba(0, 0, 0, 0)'},
+                'data': [
+                    [
+                        {
+                            'name': item + '最大回撤区间' + str(round(-df_drawdown[item].min(), 2)) + '%',
+                            'coord': [
+                                begin_time, df_return[item].loc[begin_time]
+                            ],
+                        },
+                        {
+                            'coord': [end_time, df_return[item].loc[end_time]],
+                        },
+                    ],
+                ],
+            }
         }
         drawdown_series = {
             'name': item,
             'type': 'line',
-            'areaStyle': {'opacity': 0.3},
-            'itemStyle': {'color': colors[color_index]},
-            'lineStyle': {'width': 1, 'type': 'dotted'},
+            'areaStyle': {'opacity': 0.3, 'color': colors[color_index]},
+            'lineStyle': {'opacity': 0},
             'data': df_drawdown[item].to_frame().reset_index().values.tolist()
         }
         options['series'].append(return_series)
