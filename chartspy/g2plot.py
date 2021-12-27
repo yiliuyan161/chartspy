@@ -12,7 +12,6 @@ from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_
 
 G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.1/g2plot.min.js"
 
-
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """
 
@@ -150,10 +149,9 @@ HTML_FRAGMENT_TEMPLATE = """
 """
 
 
-
 class G2PLOT(object):
     """
-    echarts
+    g2plot
     """
 
     def __init__(self, data=None, plot_type: str = None, options: dict = None, extra_js: str = "", width: str = "100%",
@@ -175,6 +173,119 @@ class G2PLOT(object):
         self.plot_id = "u" + uuid.uuid4().hex
         self.js_url = G2PLOT_JS_URL
         self.extra_js = extra_js
+
+    def line(self, x_field=None, y_field=None, series_field=None):
+        self.plot_type = "Line"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if series_field is not None:
+            self.options['seriesField'] = series_field
+        return self
+
+    def scatter(self, x_field=None, y_field=None, color_field=None, size_field=None, shape_field=None):
+        self.plot_type = "Scatter"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if color_field is not None:
+            self.options['colorField'] = color_field
+        if size_field is not None:
+            self.options['sizeField'] = size_field
+        if shape_field is not None:
+            self.options['shapeField'] = shape_field
+        return self
+
+    def area(self, x_field=None, y_field=None, series_field=None):
+        self.plot_type = "Area"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if series_field is not None:
+            self.options['seriesField'] = series_field
+        return self
+
+    def column(self, x_field=None, y_field=None, series_field=None, is_stack=False, is_group=False, is_range=False):
+        self.plot_type = "Column"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if series_field is not None:
+            self.options['seriesField'] = series_field
+        if is_stack:
+            self.options['isStack'] = True
+        elif is_group:
+            self.options['isGroup'] = True
+        elif is_range:
+            self.options['isRange'] = True
+        return self
+
+    def rose(self, x_field=None, y_field=None, series_field=None, is_stack=False, is_group=False):
+        self.plot_type = "Rose"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if series_field is not None:
+            self.options['seriesField'] = series_field
+        if is_stack:
+            self.options['isStack'] = True
+        elif is_group:
+            self.options['isGroup'] = True
+        return self
+
+    def pie(self, angle_field=None, color_field=None):
+        self.plot_type = "Pie"
+        self.options['angleField'] = angle_field
+        self.options['colorField'] = color_field
+        return self
+
+    def gauge(self, percent=0.25):
+        self.plot_type = "Gauge"
+        self.options['percent'] = percent
+        return self
+
+    def liquid(self, percent=0.25):
+        self.plot_type = "Liquid"
+        self.options['percent'] = percent
+        return self
+
+    def bullet(self, measure_field=[100], range_field=[60, 80, 90], target_field=100, title=""):
+        self.plot_type = "Bullet"
+        self.options['measureField'] = measure_field
+        self.options['rangeField'] = range_field
+        self.options['targetField'] = target_field
+        self.options['xField'] = title
+        return self
+
+    def sankey(self, source_field=None, target_field=None, weight_field=None):
+        self.plot_type = "Sankey"
+        self.options['sourceField'] = source_field
+        self.options['targetField'] = target_field
+        self.options['weightField'] = weight_field
+        return self
+
+    def chord(self, source_field=None, target_field=None, weight_field=None):
+        self.plot_type = "Chord"
+        self.options['sourceField'] = source_field
+        self.options['targetField'] = target_field
+        self.options['weightField'] = weight_field
+        return self
+
+    def heatmap(self, x_field=None, y_field=None, color_field=None):
+        self.plot_type = "Heatmap"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        self.options['colorField'] = color_field
+        self.options["meta"]: {
+            x_field: {
+                'type': 'cat'
+            },
+            y_field: {
+                'type': 'cat'
+            },
+        }
+        return self
+
+    def radar(self, x_field=None, y_field=None):
+        self.plot_type = "Radar"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        self.options['area'] = {}
 
     def print_options(self, drop_data=False):
         """
