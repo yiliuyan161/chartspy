@@ -154,7 +154,7 @@ class G2PLOT(object):
     g2plot
     """
 
-    def __init__(self, data=None, plot_type: str = None, options: dict = None, extra_js: str = "", width: str = "100%",
+    def __init__(self, data=None, plot_type: str = None, options: dict = {}, extra_js: str = "", width: str = "100%",
                  height: str = "500px"):
         """
         :param options: python词典类型的echarts option
@@ -286,6 +286,40 @@ class G2PLOT(object):
         self.options['xField'] = x_field
         self.options['yField'] = y_field
         self.options['area'] = {}
+        return self
+
+    def funnel(self, x_field=None, y_field=None):
+        self.plot_type = "Funnel"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        return self
+
+    def waterfall(self, x_field=None, y_field=None):
+        self.plot_type = "Waterfall"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        return self
+
+    def wordcloud(self, word_field=None, weight_field=None, color_field=None):
+        self.plot_type = "WordCloud"
+        self.options['wordField'] = word_field
+        self.options['weightField'] = weight_field
+        self.options['colorField'] = color_field
+        return self
+
+    def histogram(self, bin_field=None, bin_width=None):
+        self.plot_type = "Histogram"
+        self.options['binField'] = bin_field
+        self.options['binWidth'] = bin_width
+        return self
+
+    def violin(self, x_field=None, y_field=None, series_field=None):
+        self.plot_type = "Violin"
+        self.options['xField'] = x_field
+        self.options['yField'] = y_field
+        if series_field is not None:
+            self.options['seriesField'] = series_field
+        return self
 
     def print_options(self, drop_data=False):
         """
