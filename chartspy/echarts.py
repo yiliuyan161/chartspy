@@ -251,7 +251,6 @@ class Echarts(object):
                     else:
                         chart_option["visualMap"][i]['seriesIndex'] = old_series_count
                 this_options["visualMap"].extend(chart_option["visualMap"])
-
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
     def print_options(self, drop_data=False):
