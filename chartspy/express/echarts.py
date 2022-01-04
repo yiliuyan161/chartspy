@@ -526,6 +526,11 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
     df = data_frame.copy()
     if time not in data_frame.columns:  # 使用index作为时间
         df[time] = df.index
+    df[clo]=df[clo].fillna(method="ffill")
+    df[opn]=df[opn].fillna(df[clo])
+    df[high]=df[high].fillna(df[clo])
+    df[low]=df[low].fillna(df[clo])
+    df[vol]=df[vol].fillna(0)
     volumes = (df[vol]).round(2).tolist()
     vol_filter = (df[vol]).quantile([0.05, 0.95]).values
     bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
