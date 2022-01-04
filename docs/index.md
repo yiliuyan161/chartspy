@@ -16,13 +16,14 @@
 直接选择合适的图表类型，展示DataFrame
 
 ```python
-from  chartspy import *
+from chartspy import *
 
-express.scatter_echarts(df, x='数量', y='价格', size='数量', group='水果', size_max=50, height='250px', title='scatter')
+express.scatter_echarts(df, x_field='数量', y_field='价格', size_field='数量', size_max=50, height='250px',
+                        title='scatter')
 
-express.pie_echarts(df, name='水果', value='数量', rose_type='area', title="pie2", height='350px')
+express.pie_echarts(df, name_field='水果', value_field='数量', rose_type='area', title="pie2", height='350px')
 
-express.candlestick_echarts(df, left='5%', mas=[5, 10, 30], title='平安银行')
+express.candlestick_echarts(df, left_padding='5%', mas=[5, 10, 30], title='平安银行')
 ```
 !!! note ""
     ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)

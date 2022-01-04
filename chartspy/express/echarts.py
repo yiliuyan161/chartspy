@@ -113,8 +113,9 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 }
 
 
-def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symbol: str = None, size: str = None,
-                    size_range=[2, 30], color: str = None,
+def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, size_field: str = None,
+                    color_field: str = None, symbol: str = None,
+                    size_range=[2, 30],
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
                     opacity=0.5, tooltip_trigger="axis", title: str = "",
@@ -124,13 +125,13 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     scatter chart
 
     :param data_frame: 必填 DataFrame
-    :param x: 必填 x轴映射的列
-    :param y: 必填 y轴映射的列
+    :param x_field: 必填 x轴映射的列
+    :param y_field: 必填 y轴映射的列
+    :param size_field: 可选 原点大小列
+    :param color_field:颜色映射的列
     :param symbol: 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none',image://dataURI(), path://(svg)
-    :param size: 可选 原点大小列
     :param size_range: 可选 点大小区间
     :param info: 额外信息tooltip显示
-    :param color:颜色映射的列
     :param color_sequence:
     :param opacity:
     :param tooltip_trigger: tooltip 触发类型 axis和 item
@@ -140,16 +141,16 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     :return:
     """
     df = data_frame.copy()
-    if x is None:
+    if x_field is None:
         df["x_col_echartspy"] = df.index
-        x = "x_col_echartspy"
+        x_field = "x_col_echartspy"
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     options['title'] = {"text": title}
-    if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
+    if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
-    if "date" in str(df[y].dtype) or "object" in str(df[y].dtype):
+    if "date" in str(df[y_field].dtype) or "object" in str(df[y_field].dtype):
         options['yAxis']['type'] = 'category'
-    title = y if title == '' else title
+    title = y_field if title == '' else title
     series = {
         'type': 'scatter',
         'itemStyle': {
@@ -212,15 +213,15 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
         }
     if symbol is not None:
         series['symbol'] = symbol
-    series['dimensions'] = [x, y]
-    series['data'] = df[[x, y]].values.tolist()
-    if size is not None or color is not None:
+    series['dimensions'] = [x_field, y_field]
+    series['data'] = df[[x_field, y_field]].values.tolist()
+    if size_field is not None or color_field is not None:
         options['visualMap'] = []
-    if size is not None:
-        max_size_value = df[size].max()
-        min_size_value = df[size].min()
-        series['dimensions'].append(size)
-        size_list = df[size].tolist()
+    if size_field is not None:
+        max_size_value = df[size_field].max()
+        min_size_value = df[size_field].min()
+        series['dimensions'].append(size_field)
+        size_list = df[size_field].tolist()
         for i in range(0, len(size_list)):
             series['data'][i].append(size_list[i])
         visual_map_size = {
@@ -235,7 +236,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                 'symbolSize': size_range
             }
         }
-        if "date" in str(df[size].dtype) or "object" in str(df[size].dtype):
+        if "date" in str(df[size_field].dtype) or "object" in str(df[size_field].dtype):
             visual_map_size['type'] = 'piecewise'
         else:
             visual_map_size['type'] = 'continuous'
@@ -243,9 +244,9 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
             visual_map_size['max'] = max_size_value
         options['visualMap'].append(visual_map_size)
 
-    if color is not None:
-        series['dimensions'].append(color)
-        color_list = df[color].tolist()
+    if color_field is not None:
+        series['dimensions'].append(color_field)
+        color_list = df[color_field].tolist()
         for i in range(0, len(color_list)):
             series['data'][i].append(color_list[i])
         visual_map_color = {
@@ -260,12 +261,12 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
                 'color': color_sequence
             }
         }
-        if "date" in str(df[color].dtype) or "object" in str(df[color].dtype):
+        if "date" in str(df[color_field].dtype) or "object" in str(df[color_field].dtype):
             visual_map_color['type'] = 'piecewise'
         else:
             visual_map_color['type'] = 'continuous'
-            visual_map_color['min'] = df[color].min()
-            visual_map_color['max'] = df[color].max()
+            visual_map_color['min'] = df[color_field].min()
+            visual_map_color['max'] = df[color_field].max()
         options['visualMap'].append(visual_map_color)
 
     if info is not None:
@@ -278,13 +279,14 @@ def scatter_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, symb
     return Echarts(options=options, width=width, height=height)
 
 
-def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, tooltip_trigger="axis", title: str = "",
+def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, tooltip_trigger="axis",
+                 title: str = "",
                  width: str = "100%", height: str = "500px") -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
-    :param x: 必填 x轴映射的列
-    :param y: 必填 y轴映射的列
+    :param x_field: 必填 x轴映射的列
+    :param y_field: 必填 y轴映射的列
     :param tooltip_trigger: axis item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
@@ -292,22 +294,23 @@ def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, tooltip
     :return:
     """
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
-    title = y if title == '' else title
+    title = y_field if title == '' else title
     df = data_frame.copy()
-    if x is None:
+    if x_field is None:
         df["x_col_echartspy"] = df.index
-        x = "x_col_echartspy"
+        x_field = "x_col_echartspy"
     options['title'] = {"text": title}
-    if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
+    if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'line', 'dimensions': [x, y], 'data': df[[x, y]].values.tolist(), 'emphasis': {
-        'itemStyle': {
-            'borderColor': "#333",
-            'borderWidth': 1,
-            'shadowColor': 'rgba(0, 0, 0, 0.5)',
-            'shadowBlur': 15
-        }
-    }}
+    series = {'name': title, 'type': 'line', 'dimensions': [x_field, y_field],
+              'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
+            'itemStyle': {
+                'borderColor': "#333",
+                'borderWidth': 1,
+                'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                'shadowBlur': 15
+            }
+        }}
     if tooltip_trigger == 'item':
         del options['axisPointer']
         options['tooltip'] = {
@@ -359,14 +362,15 @@ def line_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, tooltip
     return Echarts(options=options, width=width, height=height)
 
 
-def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: str = "all", tooltip_trigger="axis",
+def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, stack: str = "all",
+                tooltip_trigger="axis",
                 title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame: 必填 DataFrame
-    :param x: 必填 x轴映射的列
-    :param y: 必填 y轴映射的列
+    :param x_field: 必填 x轴映射的列
+    :param y_field: 必填 y轴映射的列
     :param stack:堆叠分组
     :param tooltip_trigger: axis item
     :param title: 可选标题
@@ -376,14 +380,15 @@ def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
     """
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     df = data_frame.copy()
-    title = y if title == '' else title
-    if x is None:
+    title = y_field if title == '' else title
+    if x_field is None:
         df["x_col_echartspy"] = df.index
-        x = "x_col_echartspy"
+        x_field = "x_col_echartspy"
     options['title'] = {"text": title}
-    if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
+    if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x, y], 'data': df[[x, y]].values.tolist(),
+    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x_field, y_field],
+              'data': df[[x_field, y_field]].values.tolist(),
               'emphasis': {
                   'itemStyle': {
                       'borderColor': "#333",
@@ -442,20 +447,21 @@ def bar_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, stack: s
     return Echarts(options=options, width=width, height=height)
 
 
-def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, rose_type: str = None, title: str = "",
+def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: str = None, rose_type: str = None,
+                title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
     饼图
     :param data_frame: 必填 DataFrame
-    :param name: name列名
-    :param value: value列名
+    :param name_field: name列名
+    :param value_field: value列名
     :param rose_type: radius/area/None
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[name, value]].sort_values(name, ascending=True).copy()
+    df = data_frame[[name_field, value_field]].sort_values(name_field, ascending=True).copy()
     df.columns = ['name', 'value']
     options = {
         'title': {
@@ -501,38 +507,41 @@ def pie_echarts(data_frame: pd.DataFrame, name: str = None, value: str = None, r
     return Echarts(options=options, width=width, height=height)
 
 
-def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str = "open", high: str = 'high',
-                        low: str = 'low',
-                        clo: str = 'close',
-                        vol: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
-                        width: str = "100%", height: str = "600px", left: str = '10%') -> Echarts:
+def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open_field: str = "open",
+                        high_field: str = 'high',
+                        low_field: str = 'low',
+                        close_field: str = 'close',
+                        volume_field: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
+                        width: str = "100%", height: str = "600px", left_padding: str = '5%',
+                        right_padding: str = '3%') -> Echarts:
     """
     绘制K线
     :param data_frame:
-    :param time: 时间列名, 如果指定的列不存在，使用index作为time
-    :param opn: open列名
-    :param high: high列名
-    :param low: low列名
-    :param clo: close列名
-    :param vol: volume列名
+    :param time_field: 时间列名, 如果指定的列不存在，使用index作为time
+    :param open_field: open列名
+    :param high_field: high列名
+    :param low_field: low列名
+    :param close_field: close列名
+    :param volume_field: volume列名
     :param mas: 均线组
     :param log_y: y轴 log分布 底为1.1 一个格子对应10%
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :param left: 左侧padding宽度
+    :param left_padding: 左侧padding宽度
+    :param right_padding: 右侧padding宽度
     :return:
     """
     df = data_frame.copy()
-    if time not in data_frame.columns:  # 使用index作为时间
-        df[time] = df.index
-    df[clo]=df[clo].fillna(method="ffill")
-    df[opn]=df[opn].fillna(df[clo])
-    df[high]=df[high].fillna(df[clo])
-    df[low]=df[low].fillna(df[clo])
-    df[vol]=df[vol].fillna(0)
-    volumes = (df[vol]).round(2).tolist()
-    vol_filter = (df[vol]).quantile([0.05, 0.95]).values
+    if time_field not in data_frame.columns:  # 使用index作为时间
+        df[time_field] = df.index
+    df[close_field] = df[close_field].fillna(method="ffill")
+    df[open_field] = df[open_field].fillna(df[close_field])
+    df[high_field] = df[high_field].fillna(df[close_field])
+    df[low_field] = df[low_field].fillna(df[close_field])
+    df[volume_field] = df[volume_field].fillna(0)
+    volumes = (df[volume_field]).round(2).tolist()
+    vol_filter = (df[volume_field]).quantile([0.05, 0.95]).values
     bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
         {"value": vol, "itemStyle": {"color": "red"}} if vol > vol_filter[1] else {"value": vol,
                                                                                    "itemStyle": {"color": "green"}}))
@@ -611,13 +620,13 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
             'label': {'backgroundColor': '#777'}
         },
         'grid': [
-            {'left': left, 'right': '3%', 'height': '70%'},
-            {'left': left, 'right': '3%', 'top': '71%', 'height': '16%'}
+            {'left': left_padding, 'right': right_padding, 'height': '70%'},
+            {'left': left_padding, 'right': right_padding, 'top': '71%', 'height': '16%'}
         ],
         'xAxis': [
             {
                 'type': 'category',
-                'data': df[time].tolist(),
+                'data': df[time_field].tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'show': False},
@@ -634,7 +643,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
             {
                 'type': 'category',
                 'gridIndex': 1,
-                'data': df[time].tolist(),
+                'data': df[time_field].tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'onZero': False, 'show': True},
@@ -708,7 +717,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
             {
                 'name': title,
                 'type': 'candlestick',
-                'data': df[[opn, clo, low, high]].values.tolist(),
+                'data': df[[open_field, close_field, low_field, high_field]].values.tolist(),
                 'emphasis': {
                     'itemStyle': {
                         'borderColor': "#333",
@@ -737,7 +746,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
     }
     for ma_len in mas:
         name = "MA" + str(ma_len)
-        df[name] = df[clo].rolling(ma_len).mean().round(2)
+        df[name] = df[close_field].rolling(ma_len).mean().round(2)
         series_ma = {
             'name': name,
             'type': 'line',
@@ -751,14 +760,110 @@ def candlestick_echarts(data_frame: pd.DataFrame, time: str = 'time', opn: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list = None, fill: bool = True,
+def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, color_field: str = None,
+                    label_field: str = None,
+                    x_axis_data: list = None,
+                    y_axis_data: list = None,
+                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
+                                            "#fdae61", "#f46d43", "#d73027", "#a50026"],
+                    label_show=True, label_font_size=8,
+                    title: str = "",
+                    width: str = "100%", height: str = "500px") -> Echarts:
+    """
+    二维热度图
+
+    :param data_frame: 必填 DataFrame
+    :param x_field: 必填 x轴映射的列
+    :param y_field: 必填 y轴映射的列
+    :param color_field: color映射列
+    :param label_field: label映射列 必须是数字类型
+    :param y_axis_data: x轴顺序 不提供直接按值排序
+    :param x_axis_data: y轴顺序 不提供直接按值排序
+    :param color_sequence: color色卡序列
+    :param label_font_size: 8
+    :param label_show: 是否显示label
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    label_field = color_field if label_field is None else label_field
+    df = data_frame[[x_field, y_field, label_field, color_field]].copy()
+    df[x_field] = df[x_field].astype(str)
+    df[y_field] = df[y_field].astype(str)
+    df.columns = [x_field, y_field, label_field + '_label', color_field + '_color']
+    options = {
+        'title': {'text': title},
+        'tooltip': {
+            'position': 'top',
+            'formatter': "{c}"
+        },
+        'xAxis': [{
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[x_field].unique())] if x_axis_data is None else x_axis_data,
+            'splitArea': {
+                'show': True
+            }
+        }, {
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[x_field].unique())] if x_axis_data is None else x_axis_data,
+            'splitArea': {
+                'show': True
+            }
+        }],
+        'yAxis': {
+            'type': 'value',
+            'data': [str(v) for v in sorted(df[y_field].unique())] if y_axis_data is None else y_axis_data,
+            'splitArea': {
+                'show': True
+            }
+        },
+        'visualMap': {
+            'min': df[color_field + '_color'].min(),
+            'max': df[color_field + '_color'].max(),
+            'calculable': True,
+            'orient': 'horizontal',
+            'left': 'center',
+            'bottom': '0',
+            'dimension': 3,
+            'inRange': {
+                'color': color_sequence
+            }
+
+        },
+        'series': [{
+            'name': title,
+            'type': 'heatmap',
+            'data': df.values.tolist(),
+            'label': {
+                'show': label_show,
+                'fontSize': label_font_size
+            },
+            'emphasis': {
+                'itemStyle': {
+                    'shadowBlur': 15,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    }
+    if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
+        options['xAxis'][0]['type'] = 'category'
+        options['xAxis'][1]['type'] = 'category'
+    if "date" in str(df[y_field].dtype) or "object" in str(df[y_field].dtype):
+        options['yAxis']['type'] = 'category'
+    return Echarts(options=options, width=width, height=height)
+
+
+def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_field_list: list = None,
+                  fill: bool = True,
                   title: str = "",
                   width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
-    :param name: name列
-    :param indicators: indicators所有列名list
+    :param name_field: name列
+    :param indicator_field_list: indicators所有列名list
     :param fill: 是否填充背景色
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
@@ -799,135 +904,40 @@ def radar_echarts(data_frame: pd.DataFrame, name: str = None, indicators: list =
             'data': []
         }]
     }
-    df = data_frame[[name] + indicators].copy()
+    df = data_frame[[name_field] + indicator_field_list].copy()
     if fill:
         options['series'][0]['areaStyle'] = {'opacity': 0.1}
-    indicator_max_dict = df[indicators].max().to_dict()
+    indicator_max_dict = df[indicator_field_list].max().to_dict()
     options['radar']['indicator'] = [{'name': key, "max": indicator_max_dict[key]} for key in indicator_max_dict.keys()]
     for record in df.to_dict(orient='records'):
         data = {
-            'value': [record[indicator] for indicator in indicators],
-            'name': record[name]
+            'value': [record[indicator] for indicator in indicator_field_list],
+            'name': record[name_field]
         }
         options['series'][0]['data'].append(data)
-        options['legend']['data'].append(record[name])
+        options['legend']['data'].append(record[name_field])
     return Echarts(options=options, width=width, height=height)
 
 
-def heatmap_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None,
-                    x_axis_data: list = None,
-                    y_axis_data: list = None,
-                    color: str = None,
-                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
-                                            "#fdae61", "#f46d43", "#d73027", "#a50026"],
-                    label: str = None, label_show=True, label_font_size=8,
-                    title: str = "",
-                    width: str = "100%", height: str = "500px") -> Echarts:
-    """
-    二维热度图
-
-    :param data_frame: 必填 DataFrame
-    :param x: 必填 x轴映射的列
-    :param y: 必填 y轴映射的列
-    :param y_axis_data: x轴顺序 不提供直接按值排序
-    :param x_axis_data: y轴顺序 不提供直接按值排序
-    :param color: color映射列
-    :param color_sequence: color色卡序列
-    :param label: label映射列 必须是数字类型
-    :param label_font_size: 8
-    :param label_show: 是否显示label
-    :param title: 可选标题
-    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
-    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :return:
-    """
-    label = color if label is None else label
-    df = data_frame[[x, y, label, color]].copy()
-    df[x] = df[x].astype(str)
-    df[y] = df[y].astype(str)
-    df.columns = [x, y, label + '_label', color + '_color']
-    options = {
-        'title': {'text': title},
-        'tooltip': {
-            'position': 'top',
-            'formatter': "{c}"
-        },
-        'xAxis': [{
-            'type': 'value',
-            'data': [str(v) for v in sorted(df[x].unique())] if x_axis_data is None else x_axis_data,
-            'splitArea': {
-                'show': True
-            }
-        }, {
-            'type': 'value',
-            'data': [str(v) for v in sorted(df[x].unique())] if x_axis_data is None else x_axis_data,
-            'splitArea': {
-                'show': True
-            }
-        }],
-        'yAxis': {
-            'type': 'value',
-            'data': [str(v) for v in sorted(df[y].unique())] if y_axis_data is None else y_axis_data,
-            'splitArea': {
-                'show': True
-            }
-        },
-        'visualMap': {
-            'min': df[color + '_color'].min(),
-            'max': df[color + '_color'].max(),
-            'calculable': True,
-            'orient': 'horizontal',
-            'left': 'center',
-            'bottom': '0',
-            'dimension': 3,
-            'inRange': {
-                'color': color_sequence
-            }
-
-        },
-        'series': [{
-            'name': title,
-            'type': 'heatmap',
-            'data': df.values.tolist(),
-            'label': {
-                'show': label_show,
-                'fontSize': label_font_size
-            },
-            'emphasis': {
-                'itemStyle': {
-                    'shadowBlur': 15,
-                    'shadowColor': 'rgba(0, 0, 0, 0.5)'
-                }
-            }
-        }]
-    }
-    if "date" in str(df[x].dtype) or "object" in str(df[x].dtype):
-        options['xAxis'][0]['type'] = 'category'
-        options['xAxis'][1]['type'] = 'category'
-    if "date" in str(df[y].dtype) or "object" in str(df[y].dtype):
-        options['yAxis']['type'] = 'category'
-    return Echarts(options=options, width=width, height=height)
-
-
-def calendar_heatmap_echarts(data_frame: pd.DataFrame, date: str = None, value: str = None,
+def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, value_field: str = None,
                              title: str = "",
                              width: str = "100%", height: str = "300px") -> Echarts:
     """
     日历热度图，显示日期热度
     :param data_frame:
-    :param date: 日期列
-    :param value: 值列
+    :param date_field: 日期列
+    :param value_field: 值列
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[date, value]].copy()
-    value_max = df[value].max()
-    value_min = df[value].min()
-    date_start = pd.to_datetime(df[date].min()).strftime("%Y-%m-%d")
-    date_end = pd.to_datetime(df[date].max()).strftime("%Y-%m-%d")
-    df[date] = pd.to_datetime(df[date]).dt.strftime("%Y-%m-%d")
+    df = data_frame[[date_field, value_field]].copy()
+    value_max = df[value_field].max()
+    value_min = df[value_field].min()
+    date_start = pd.to_datetime(df[date_field].min()).strftime("%Y-%m-%d")
+    date_end = pd.to_datetime(df[date_field].max()).strftime("%Y-%m-%d")
+    df[date_field] = pd.to_datetime(df[date_field]).dt.strftime("%Y-%m-%d")
     options = {
         'title': {
             'text': title
@@ -975,26 +985,26 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date: str = None, value: 
                     'shadowBlur': 15
                 }
             },
-            'data': df[[date, value]].values.tolist()
+            'data': df[[date_field, value_field]].values.tolist()
         }
     }
     return Echarts(options=options, width=width, height=height)
 
 
-def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: list = [],
+def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_field_list: list = [],
                      title: str = "",
                      width: str = "100%", height: str = "500px") -> Echarts:
     """
     平行坐标图,要求name列每行唯一 比如：显示每个报告期各财务指标
     :param data_frame:
-    :param name: name列
-    :param parallel_axis: 数据维度列list
+    :param name_field: name列
+    :param indicator_field_list: 数据维度列list
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[list(set([name] + parallel_axis))].copy()
+    df = data_frame[list(set([name_field] + indicator_field_list))].copy()
     options = {
         'title': {'text': title},
         'legend': {
@@ -1013,7 +1023,7 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
                         labels.push('<span>'+dims[i]+":"+params['value'][i]+'</span><br/>');
                     }
                     return labels.join("");
-            }""", dims=str(parallel_axis))),
+            }""", dims=str(indicator_field_list))),
             'position': Js("""
                 function (pos, params, el, elRect, size){
                     var obj = {top: 20};
@@ -1025,25 +1035,25 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
         'series': []
     }
     value_dict_list = df.to_dict(orient='records')
-    for i in range(0, len(parallel_axis)):
-        data_min = df[parallel_axis[i]].min()
-        data_max = df[parallel_axis[i]].max()
-        if 'int' in str(df[parallel_axis[i]].dtype) or 'float' in str(df[parallel_axis[i]].dtype):
+    for i in range(0, len(indicator_field_list)):
+        data_min = df[indicator_field_list[i]].min()
+        data_max = df[indicator_field_list[i]].max()
+        if 'int' in str(df[indicator_field_list[i]].dtype) or 'float' in str(df[indicator_field_list[i]].dtype):
             col = {
                 'dim': i,
-                'name': parallel_axis[i],
+                'name': indicator_field_list[i],
                 'type': 'value',
                 'min': round(data_min - (data_max - data_min) * 0.1, 2),
                 'max': round(data_max + (data_max - data_min) * 0.1, 2)
             }
         else:
-            col = {'dim': i, 'name': parallel_axis[i], 'type': 'category',
-                   'data': sorted(df[parallel_axis[i]].unique())}
+            col = {'dim': i, 'name': indicator_field_list[i], 'type': 'category',
+                   'data': sorted(df[indicator_field_list[i]].unique())}
 
         options['parallelAxis'].append(col)
     for value_dict in value_dict_list:
         series = {
-            'name': value_dict[name],
+            'name': value_dict[name_field],
             'type': 'parallel',
             'lineStyle': {'width': 2},
             'emphasis': {
@@ -1055,29 +1065,30 @@ def parallel_echarts(data_frame: pd.DataFrame, name: str = None, parallel_axis: 
                     'shadowBlur': 15
                 }
             },
-            'data': [[value_dict[col] for col in parallel_axis]]
+            'data': [[value_dict[col] for col in indicator_field_list]]
         }
 
         options['series'].append(series)
-        options['legend']['data'].append(value_dict[name])
+        options['legend']['data'].append(value_dict[name_field])
     return Echarts(options=options, width=width, height=height)
 
 
-def sankey_echarts(data_frame: pd.DataFrame, source: str = None, target: str = None, value: str = None, title: str = "",
+def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_field: str = None,
+                   value_field: str = None, title: str = "",
                    width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
-    :param source: source列
-    :param target: target列
-    :param value: value列
+    :param source_field: source列
+    :param target_field: target列
+    :param value_field: value列
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[source, target, value]].copy()
-    names = list(set(df[source].unique()).union(set(df[target].unique())))
+    df = data_frame[[source_field, target_field, value_field]].copy()
+    names = list(set(df[source_field].unique()).union(set(df[target_field].unique())))
     df.columns = ['source', 'target', 'value']
     options = {
         'title': {
@@ -1111,21 +1122,22 @@ def sankey_echarts(data_frame: pd.DataFrame, source: str = None, target: str = N
     return Echarts(options=options, width=width, height=height)
 
 
-def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str = None, theme: str = None,
+def theme_river_echarts(data_frame: pd.DataFrame, date_field: str = None, value_field: str = None,
+                        theme_field: str = None,
                         title: str = "",
                         width: str = "100%", height: str = "500px") -> Echarts:
     """
 
     :param data_frame:
-    :param date: date列
-    :param value: value列
-    :param theme: theme列
+    :param date_field: date列
+    :param value_field: value列
+    :param theme_field: theme列
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[date, value, theme]].copy()
+    df = data_frame[[date_field, value_field, theme_field]].copy()
     options = {
         'title': {'text': title},
         'tooltip': {
@@ -1134,7 +1146,7 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
         },
         'legend': {
             'top': 40,
-            'data': list(df[theme].unique())
+            'data': list(df[theme_field].unique())
         },
         'singleAxis': {
             'top': 50,
@@ -1166,10 +1178,11 @@ def theme_river_echarts(data_frame: pd.DataFrame, date: str = None, value: str =
     return Echarts(options=options, width=width, height=height)
 
 
-def sunburst_echarts(data_frame: pd.DataFrame, category_cols: list = [], value_col: str = None, title: str = "",
+def sunburst_echarts(data_frame: pd.DataFrame, category_field_list: list = [], value_field: str = None,
+                     title: str = "",
                      font_size: int = 8, node_click=False,
                      width: str = "100%", height: str = "500px") -> Echarts:
-    data = Tools.df2tree(data_frame, category_cols, value_col)
+    data = Tools.df2tree(data_frame, category_field_list, value_field)
     options = {
         'title': {
             'text': title,
@@ -1421,8 +1434,9 @@ def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, t
     return Echarts(options)
 
 
-def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, size: str = None,
-                      size_range: list = [2, 10], color: str = None,
+def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, z_field: str = None,
+                      size_field: str = None, color_field: str = None,
+                      size_range: list = [2, 10],
                       color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                                               "#fee090",
                                               "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
@@ -1432,12 +1446,12 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
     """
     3d 气泡图
     :param data_frame:
-    :param x:
-    :param y:
-    :param z:
-    :param size: size对应列，数值类型
-    :param size_range: [1,10]
-    :param color: 颜色列
+    :param x_field:
+    :param y_field:
+    :param z_field:
+    :param size_field: size对应列，数值类型
+    :param size_range: [2,10]
+    :param color_field: 颜色列
     :param color_sequence:
     :param info: 额外信息
     :param title:
@@ -1449,41 +1463,41 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
         'title': {'text': title, 'left': 50},
         'tooltip': {},
         'xAxis3D': {
-            'name': x,
+            'name': x_field,
             'type': 'value'
 
         },
         'yAxis3D': {
-            'name': y,
+            'name': y_field,
             'type': 'value'
         },
         'zAxis3D': {
-            'name': z,
+            'name': z_field,
             'type': 'value'
         },
         'grid3D': {
         }
     }
-    if "date" in str(data_frame[x].dtype) or "object" in str(data_frame[x].dtype):
+    if "date" in str(data_frame[x_field].dtype) or "object" in str(data_frame[x_field].dtype):
         options['xAxis3D']['type'] = 'category'
-        options['xAxis3D']['data'] = sorted(list(data_frame[x].unique()))
-    if "date" in str(data_frame[y].dtype) or "object" in str(data_frame[y].dtype):
+        options['xAxis3D']['data'] = sorted(list(data_frame[x_field].unique()))
+    if "date" in str(data_frame[y_field].dtype) or "object" in str(data_frame[y_field].dtype):
         options['yAxis3D']['type'] = 'category'
-        options['yAxis3D']['data'] = sorted(list(data_frame[y].unique()))
-    if "date" in str(data_frame[z].dtype) or "object" in str(data_frame[z].dtype):
+        options['yAxis3D']['data'] = sorted(list(data_frame[y_field].unique()))
+    if "date" in str(data_frame[z_field].dtype) or "object" in str(data_frame[z_field].dtype):
         options['zAxis3D']['type'] = 'category'
-        options['zAxis3D']['data'] = sorted(list(data_frame[z].unique()))
+        options['zAxis3D']['data'] = sorted(list(data_frame[z_field].unique()))
     series = {
         'type': 'scatter3D',
         'name': title,
-        'dimensions': [x, y, z],
-        'data': data_frame[[x, y, z]].values.tolist()
+        'dimensions': [x_field, y_field, z_field],
+        'data': data_frame[[x_field, y_field, z_field]].values.tolist()
     }
-    if (color is not None) or (size is not None):
+    if (color_field is not None) or (size_field is not None):
         options['visualMap'] = []
-    if size is not None:
-        series['dimensions'].append(size)
-        size_list = data_frame[size].tolist()
+    if size_field is not None:
+        series['dimensions'].append(size_field)
+        size_list = data_frame[size_field].tolist()
         for i in range(0, len(size_list)):
             series['data'][i].append(size_list[i])
         visual_map = {
@@ -1498,14 +1512,14 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
                 'symbolSize': size_range,
             },
             'type': 'continuous',
-            'min': data_frame[size].min(),
-            'max': data_frame[size].max()
+            'min': data_frame[size_field].min(),
+            'max': data_frame[size_field].max()
         }
         options['visualMap'].append(visual_map)
 
-    if color is not None:
-        series['dimensions'].append(color)
-        color_list = data_frame[color].tolist()
+    if color_field is not None:
+        series['dimensions'].append(color_field)
+        color_list = data_frame[color_field].tolist()
         for i in range(0, len(color_list)):
             series['data'][i].append(color_list[i])
         visual_map = {
@@ -1520,13 +1534,13 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
                 'color': color_sequence
             }
         }
-        if "date" in str(data_frame[color].dtype) or "object" in str(data_frame[color].dtype):
+        if "date" in str(data_frame[color_field].dtype) or "object" in str(data_frame[color_field].dtype):
             visual_map['type'] = 'piecewise'
-            visual_map['categories'] = list(data_frame[color].unique())
+            visual_map['categories'] = list(data_frame[color_field].unique())
         else:
             visual_map['type'] = 'continuous'
-            visual_map['min'] = data_frame[color].min()
-            visual_map['max'] = data_frame[color].max()
+            visual_map['min'] = data_frame[color_field].min()
+            visual_map['max'] = data_frame[color_field].max()
         options['visualMap'].append(visual_map)
 
     if info is not None:
@@ -1538,7 +1552,8 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z:
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
-def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str = None, color: str = None,
+def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, z_field: str = None,
+                  color_field: str = None,
                   color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                                           "#fee090",
                                           "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
@@ -1548,10 +1563,10 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
     """
     3d bar
     :param data_frame:
-    :param x:
-    :param y:
-    :param z:
-    :param color:
+    :param x_field:
+    :param y_field:
+    :param z_field:
+    :param color_field:
     :param color_sequence:
     :param info:
     :param title:
@@ -1563,35 +1578,35 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
         'title': {'text': title, 'left': 20},
         'tooltip': {},
         'xAxis3D': {
-            'name': x,
+            'name': x_field,
             'type': 'value'
 
         },
         'yAxis3D': {
-            'name': y,
+            'name': y_field,
             'type': 'value'
         },
         'zAxis3D': {
-            'name': z,
+            'name': z_field,
             'type': 'value'
         },
         'grid3D': {
         }
     }
-    if "date" in str(data_frame[x].dtype) or "object" in str(data_frame[x].dtype):
+    if "date" in str(data_frame[x_field].dtype) or "object" in str(data_frame[x_field].dtype):
         options['xAxis3D']['type'] = 'category'
-        options['xAxis3D']['data'] = sorted(list(data_frame[x].unique()))
-    if "date" in str(data_frame[y].dtype) or "object" in str(data_frame[y].dtype):
+        options['xAxis3D']['data'] = sorted(list(data_frame[x_field].unique()))
+    if "date" in str(data_frame[y_field].dtype) or "object" in str(data_frame[y_field].dtype):
         options['yAxis3D']['type'] = 'category'
-        options['yAxis3D']['data'] = sorted(list(data_frame[x].unique()))
-    if "date" in str(data_frame[z].dtype) or "object" in str(data_frame[z].dtype):
+        options['yAxis3D']['data'] = sorted(list(data_frame[x_field].unique()))
+    if "date" in str(data_frame[z_field].dtype) or "object" in str(data_frame[z_field].dtype):
         options['zAxis3D']['type'] = 'category'
-        options['zAxis3D']['data'] = sorted(list(data_frame[x].unique()))
+        options['zAxis3D']['data'] = sorted(list(data_frame[x_field].unique()))
     series = {
         'type': 'bar3D',
         'name': title,
-        'dimensions': [x, y, z],
-        'data': data_frame[[x, y, z]].values.tolist(),
+        'dimensions': [x_field, y_field, z_field],
+        'data': data_frame[[x_field, y_field, z_field]].values.tolist(),
         'label': {
             'show': False
         },
@@ -1605,10 +1620,10 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
             'label': {'show': False}
         }
     }
-    if color is not None:
+    if color_field is not None:
         options['visualMap'] = []
-        series['dimensions'].append(color)
-        color_list = data_frame[color].tolist()
+        series['dimensions'].append(color_field)
+        color_list = data_frame[color_field].tolist()
         for i in range(0, len(color_list)):
             series['data'][i].append(color_list[i])
         visual_map = {
@@ -1623,13 +1638,13 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
                 'color': color_sequence
             }
         }
-        if "date" in str(data_frame[color].dtype) or "object" in str(data_frame[color].dtype):
+        if "date" in str(data_frame[color_field].dtype) or "object" in str(data_frame[color_field].dtype):
             visual_map['type'] = 'piecewise'
-            visual_map['categories'] = list(data_frame[color].unique())
+            visual_map['categories'] = list(data_frame[color_field].unique())
         else:
             visual_map['type'] = 'continuous'
-            visual_map['min'] = data_frame[color].min()
-            visual_map['max'] = data_frame[color].max()
+            visual_map['min'] = data_frame[color_field].min()
+            visual_map['max'] = data_frame[color_field].max()
         options['visualMap'] = [visual_map]
 
     if info is not None:
@@ -1641,33 +1656,35 @@ def bar3d_echarts(data_frame: pd.DataFrame, x: str = None, y: str = None, z: str
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
-def drawdown_echarts(data_frame: pd.DataFrame, time: str, price: str, code: str, title="", width="100%",
+def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str, code_field: str, title="",
+                     width="100%",
                      height='500px') -> Echarts:
     """
     回撤图
     :param data_frame: pd.DataFrame
-    :param time: 时间列名
-    :param price: 价格列名
-    :param code: 资产编码列名
+    :param time_field: 时间列名
+    :param value_field: 价格列名
+    :param code_field: 资产编码列名
     :param title: 标题
     :param width: 宽度
     :param height: 高度
     :return:
     """
-    df = data_frame[[time, price, code]].copy()
-    df_pivot = df.pivot_table(index=time, columns=code, values=price).fillna(method='bfill').fillna(method='ffill')
+    df = data_frame[[time_field, value_field, code_field]].copy()
+    df_pivot = df.pivot_table(index=time_field, columns=code_field, values=value_field).fillna(method='bfill').fillna(
+        method='ffill')
     df_return = (((df_pivot / df_pivot.iloc[0]) - 1) * 100).round(2)
     df_cummax = df_pivot.cummax()
     df_drawdown = (((df_pivot - df_cummax) / df_cummax) * 100).round(2)
-    sorted_date = sorted(df[time].unique())
-    codes = df[code].unique()
+    sorted_date = sorted(df[time_field].unique())
+    codes = df[code_field].unique()
     colors = ['red', 'blue', 'orange', 'pink', 'green', 'yellow', 'purple', 'sliver', 'gold', 'black']
     color_index = 0
     options = {
         'title': {'text': title},
         'legend': [{
             'type': "scroll",
-            'data': list(df[code].unique())
+            'data': list(df[code_field].unique())
         }],
         'tooltip': {
             'trigger': 'axis', 'axisPointer': {'type': 'cross'},

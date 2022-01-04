@@ -213,18 +213,18 @@ def area_percent_g2plot(df, x_field: str = None, y_field: str = None, series_fie
     return G2PLOT(df, plot_type="Area", options=options, width=width, height=height)
 
 
-def treemap_g2plot(df, category_cols: list = [], value_col: str = None, width="100%",
+def treemap_g2plot(df, category_field_list: list = [], value_field: str = None, width="100%",
                    height='500px'):
     """
     treemap
     :param df: cat1,cat2,...,catN,value
-    :param category_cols:类别列表
-    :param value_col:值列表
+    :param category_field_list:类别列表
+    :param value_field:值列表
     :param width:
     :param height:
     :return:
     """
-    data = Tools.df2tree(df, category_cols=category_cols, value_col=value_col)
+    data = Tools.df2tree(df, category_cols=category_field_list, value_col=value_field)
     root = {
         'name': 'root',
         'children': data
@@ -279,6 +279,9 @@ def violin_g2plot(df, x_field: str = None, y_field: str = None, series_field: st
 
 
 def line_g2plot(df, x_field=None, y_field=None, series_field=None, width='100%', height='500px'):
+    """
+    线图
+    """
     options = {'xField': x_field, 'yField': y_field}
     if series_field is not None:
         options['seriesField'] = series_field
@@ -287,6 +290,9 @@ def line_g2plot(df, x_field=None, y_field=None, series_field=None, width='100%',
 
 def scatter_g2plot(df, x_field=None, y_field=None, color_field=None, size_field=None, shape_field=None, width='100%',
                    height='500px'):
+    """
+    点图
+    """
     options = {'xField': x_field, 'yField': y_field}
     if color_field is not None:
         options['colorField'] = color_field
@@ -299,6 +305,9 @@ def scatter_g2plot(df, x_field=None, y_field=None, color_field=None, size_field=
 
 def column_g2plot(df, x_field=None, y_field=None, series_field=None, is_stack=False, is_group=False, is_range=False,
                   width='100%', height='500px'):
+    """
+    柱状图
+    """
     options = {'xField': x_field, 'yField': y_field}
     if series_field is not None:
         options['seriesField'] = series_field
@@ -313,6 +322,9 @@ def column_g2plot(df, x_field=None, y_field=None, series_field=None, is_stack=Fa
 
 def rose_g2plot(df, x_field=None, y_field=None, series_field=None, is_stack=False, is_group=False, width='100%',
                 height='500px'):
+    """
+    玫瑰图
+    """
     options = {'xField': x_field, 'yField': y_field}
     if series_field is not None:
         options['seriesField'] = series_field
@@ -324,6 +336,9 @@ def rose_g2plot(df, x_field=None, y_field=None, series_field=None, is_stack=Fals
 
 
 def pie_g2plot(df, angle_field=None, color_field=None, width='100%', height='500px'):
+    """
+    饼图
+    """
     options = {'angleField': angle_field, 'colorField': color_field}
     return G2PLOT(df, plot_type='Pie', options=options, width=width, height=height)
 
