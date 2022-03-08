@@ -276,6 +276,13 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             series['data'][i].append(info_list[i])
     options['series'].append(series)
     options['legend']['data'].append(title)
+    options['toolbox'] = {
+        'show': True,
+        'feature': {
+            'restore': {},
+            'saveAsImage': {}
+        }
+    }
     return Echarts(options=options, width=width, height=height)
 
 
@@ -358,6 +365,13 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         }
     options['legend']['data'].append(title)
     options['series'].append(series)
+    options['toolbox'] = {
+        'show': True,
+        'feature': {
+            'restore': {},
+            'saveAsImage': {}
+        }
+    }
 
     return Echarts(options=options, width=width, height=height)
 
@@ -444,6 +458,13 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
         }
     options['series'].append(series)
     options['legend']['data'].append(title)
+    options['toolbox'] = {
+        'show': True,
+        'feature': {
+            'restore': {},
+            'saveAsImage': {}
+        }
+    }
     return Echarts(options=options, width=width, height=height)
 
 
@@ -470,6 +491,13 @@ def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: s
         'tooltip': {
             'trigger': 'item',
             'formatter': '{a} <br/>{b} : {c} ({d}%)'
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
         },
         'legend': {
             'left': 'center',
@@ -618,6 +646,13 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
         'axisPointer': {
             'link': {'xAxisIndex': 'all'},
             'label': {'backgroundColor': '#777'}
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
         },
         'grid': [
             {'left': left_padding, 'right': right_padding, 'height': '70%'},
@@ -798,6 +833,13 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'position': 'top',
             'formatter': "{c}"
         },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
         'xAxis': [{
             'type': 'value',
             'data': [str(v) for v in sorted(df[x_field].unique())] if x_axis_data is None else x_axis_data,
@@ -887,6 +929,13 @@ def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_fi
         'tooltip': {
 
         },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
         'series': [{
             'name': title,
             'type': 'radar',
@@ -943,6 +992,13 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, v
             'text': title
         },
         'tooltip': {'formatter': "{c}"},
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
         'visualMap': {
             'text': ['高', '低'],
             'min': value_min,
@@ -1011,6 +1067,13 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
             'top': '20',
             'type': 'scroll',
             'data': []
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
         },
         'parallel': {'top': 80},
         'tooltip': {
@@ -1095,6 +1158,13 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
             'text': title,
             'left': 'center'
         },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
         'series': [{
             'type': 'sankey',
             'data': [{'name': name} for name in names],
@@ -1143,6 +1213,13 @@ def theme_river_echarts(data_frame: pd.DataFrame, date_field: str = None, value_
         'tooltip': {
             'trigger': 'axis',
             'axisPointer': {'type': 'cross'}
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
         },
         'legend': {
             'top': 40,
@@ -1200,6 +1277,13 @@ def sunburst_echarts(data_frame: pd.DataFrame, category_field_list: list = [], v
                 }
         """)
 
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
         },
         'series': {
             'type': 'sunburst',
@@ -1549,6 +1633,13 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
+    options['toolbox'] = {
+        'show': True,
+        'feature': {
+            'restore': {},
+            'saveAsImage': {}
+        }
+    }
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
@@ -1653,6 +1744,13 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
         for i in range(0, len(info_list)):
             series['data'][i].append(info_list[i])
     options['series'] = [series]
+    options['toolbox'] = {
+        'show': True,
+        'feature': {
+            'restore': {},
+            'saveAsImage': {}
+        }
+    }
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
@@ -1810,6 +1908,13 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
         }
         options['series'].append(return_series)
         options['series'].append(drawdown_series)
+        options['toolbox'] = {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        }
         color_index = (color_index + 1) % len(colors)
     return Echarts(options, height=height, width=width)
 
