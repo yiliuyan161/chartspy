@@ -116,6 +116,7 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, size_field: str = None,
                     color_field: str = None, symbol: str = None,
                     size_range=[2, 30],
+                    size_min_max=[None, None],
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
                     opacity=0.5, tooltip_trigger="axis", title: str = "",
@@ -218,8 +219,8 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     if size_field is not None or color_field is not None:
         options['visualMap'] = []
     if size_field is not None:
-        max_size_value = df[size_field].max()
-        min_size_value = df[size_field].min()
+        max_size_value = df[size_field].max() if size_min_max[1] is None else size_min_max[1]
+        min_size_value = df[size_field].min() if size_min_max[0] is None else size_min_max[0]
         series['dimensions'].append(size_field)
         size_list = df[size_field].tolist()
         for i in range(0, len(size_list)):
@@ -1521,6 +1522,7 @@ def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, t
 def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, z_field: str = None,
                       size_field: str = None, color_field: str = None,
                       size_range: list = [2, 10],
+                      size_min_max=[None, None],
                       color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                                               "#fee090",
                                               "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
@@ -1596,8 +1598,8 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
                 'symbolSize': size_range,
             },
             'type': 'continuous',
-            'min': data_frame[size_field].min(),
-            'max': data_frame[size_field].max()
+            'min': data_frame[size_field].min() if size_min_max[0] is None else size_min_max[0],
+            'max': data_frame[size_field].max() if size_min_max[1] is None else size_min_max[1]
         }
         options['visualMap'].append(visual_map)
 
