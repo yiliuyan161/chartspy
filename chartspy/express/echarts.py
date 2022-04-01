@@ -287,7 +287,8 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     return Echarts(options=options, width=width, height=height)
 
 
-def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, tooltip_trigger="axis",
+def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, series_field: str = None,
+                 tooltip_trigger="axis",
                  title: str = "",
                  width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -295,6 +296,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
     :param data_frame: 必填 DataFrame
     :param x_field: 必填 x轴映射的列
     :param y_field: 必填 y轴映射的列
+    :param series_field: 可选 series映射的列
     :param tooltip_trigger: axis item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
@@ -310,23 +312,40 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
     options['title'] = {"text": title}
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'line', 'dimensions': [x_field, y_field],
-              'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
-            'itemStyle': {
-                'borderColor': "#333",
-                'borderWidth': 1,
-                'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                'shadowBlur': 15
-            }
-        }}
+    if series_field is not None:
+        series_list = list(df[series_field].unique())
+        for s in series_list:
+            series = {'name': s, 'type': 'line', 'dimensions': [x_field, y_field],
+                      'data': df[df[series_field] == s][[x_field, y_field]].values.tolist(), 'emphasis': {
+                    'itemStyle': {
+                        'borderColor': "#333",
+                        'borderWidth': 1,
+                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                        'shadowBlur': 15
+                    }
+                }}
+            options['legend']['data'].append(s)
+            options['series'].append(series)
+    else:
+        series = {'name': title, 'type': 'line', 'dimensions': [x_field, y_field],
+                  'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
+                'itemStyle': {
+                    'borderColor': "#333",
+                    'borderWidth': 1,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                    'shadowBlur': 15
+                }
+            }}
+        options['legend']['data'].append(title)
+        options['series'].append(series)
     if tooltip_trigger == 'item':
         del options['axisPointer']
-        options['tooltip'] = {
-            'trigger': 'item',
-            'borderWidth': 1,
-            'borderColor': '#ccc',
-            'padding': 10,
-            'formatter': Js("""
+    options['tooltip'] = {
+        'trigger': 'item',
+        'borderWidth': 1,
+        'borderColor': '#ccc',
+        'padding': 10,
+        'formatter': Js("""
                                 function(params){
                                     window.params=params;
                                     var labels = [];
@@ -362,10 +381,8 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
                                     labels.push(cardStr);
                                     return labels.join('');
                                 }"""),
-            'textStyle': {'color': '#000'}
-        }
-    options['legend']['data'].append(title)
-    options['series'].append(series)
+        'textStyle': {'color': '#000'}
+    }
     options['toolbox'] = {
         'show': True,
         'feature': {
@@ -377,7 +394,8 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
     return Echarts(options=options, width=width, height=height)
 
 
-def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, stack: str = "all",
+def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, series_field: str = None,
+                stack: str = "all",
                 tooltip_trigger="axis",
                 title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
@@ -386,6 +404,7 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
     :param data_frame: 必填 DataFrame
     :param x_field: 必填 x轴映射的列
     :param y_field: 必填 y轴映射的列
+    :param series_field: 选填 series 对应列
     :param stack:堆叠分组
     :param tooltip_trigger: axis item
     :param title: 可选标题
@@ -402,16 +421,32 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
     options['title'] = {"text": title}
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
-    series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x_field, y_field],
-              'data': df[[x_field, y_field]].values.tolist(),
-              'emphasis': {
-                  'itemStyle': {
-                      'borderColor': "#333",
-                      'borderWidth': 1,
-                      'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                      'shadowBlur': 15
-                  }
-              }}
+    if series_field is not None:
+        series_list = list(df[series_field].unique())
+        for s in series_list:
+            series = {'name': s, 'type': 'bar', 'stack': stack, 'dimensions': [x_field, y_field], 'sampling': 'lttb',
+                      'data': df[df[series_field] == s][[x_field, y_field]].values.tolist(), 'emphasis': {
+                    'itemStyle': {
+                        'borderColor': "#333",
+                        'borderWidth': 1,
+                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                        'shadowBlur': 15
+                    }
+                }}
+            options['legend']['data'].append(s)
+            options['series'].append(series)
+    else:
+        series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x_field, y_field], 'sampling': 'lttb',
+                  'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
+                'itemStyle': {
+                    'borderColor': "#333",
+                    'borderWidth': 1,
+                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
+                    'shadowBlur': 15
+                }
+            }}
+        options['legend']['data'].append(title)
+        options['series'].append(series)
     if tooltip_trigger == 'item':
         del options['axisPointer']
         options['tooltip'] = {
@@ -457,8 +492,6 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
                                 }"""),
             'textStyle': {'color': '#000'}
         }
-    options['series'].append(series)
-    options['legend']['data'].append(title)
     options['toolbox'] = {
         'show': True,
         'feature': {
