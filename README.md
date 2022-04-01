@@ -60,7 +60,7 @@ options = {
         'type': 'scatter'
     }]
 }
-Echarts(options, height='600px', title='散点图测试').render_notebook()
+Echarts(options, height='600px').render_notebook()
 
 ```
 
