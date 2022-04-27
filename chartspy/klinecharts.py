@@ -32,7 +32,7 @@ JUPYTER_ALL_TEMPLATE = """
         }
       });
       require(['klinecharts'], function (klinecharts) {
-        var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+        var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
         var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
         var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
         chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
@@ -47,7 +47,7 @@ JUPYTER_ALL_TEMPLATE = """
       script.src = "{{plot.js_url}}";
       document.head.appendChild(script);
     }).then(() => {
-       var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+       var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
        var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
        var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
        chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
@@ -79,7 +79,7 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
   {{plot.extra_js}}
   var data_{{ plot.plot_id }} = {{ plot.data}}
   require(['klinecharts'], function (klinecharts) {
-    var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+    var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
     var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
     var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
     chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
@@ -111,7 +111,7 @@ new Promise(function(resolve, reject) {
   document.head.appendChild(script);
 }).then(() => {
   var data_{{ plot.plot_id }} = {{ plot.data}};  
-  var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+  var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
   var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
   var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
   chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
@@ -141,7 +141,7 @@ HTML_TEMPLATE = """
   <script>
      {{plot.extra_js}}
      var data_{{ plot.plot_id }} = {{ plot.data}};  
-     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
      var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
      var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
      chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
@@ -167,7 +167,7 @@ HTML_FRAGMENT_TEMPLATE = """
   <script>
     {{plot.extra_js}}
      var data_{{ plot.plot_id }} = {{ plot.data}};  
-     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}");
+     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
      chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
      chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
      var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
