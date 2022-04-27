@@ -1,6 +1,6 @@
 # chartspy
 
-Help users to use echarts,g2plot drawing in python environment
+Help users to use echarts,g2plot,KLineChart drawing in python environment
 
 Unlike pyecharts, it does not perform python mapping and secondary abstraction of echarts concepts and attributes, ensuring that the library does not depend on a specific echarts version
 
@@ -73,6 +73,14 @@ options = {
     'yField':'close'
 }
 G2PLOT(df,plot_type='Line',options=options).render_notebook()
+```
+
+```python
+from chartspy import KlineCharts
+import tushare as ts
+df=ts.pro_bar(ts_code="000001.SZ",adj='qfq')
+df.rename(columns={'trade_date':'timestamp','vol':'volume'},inplace=True)
+KlineCharts(df,height='800px')
 ```
 
 #### semi-automatic

@@ -3,7 +3,7 @@
 [English documents](https://chartspy.icopy.site/en/)
 [中文文档](https://chartspy.icopy.site)
 
-帮助用户在python环境使用echarts  g2plot 绘图
+帮助用户在python环境使用echarts  g2plot KlineChart 绘图
 
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
@@ -75,6 +75,14 @@ options = {
     'yField':'close'
 }
 G2PLOT(df,plot_type='Line',options=options).render_notebook()
+```
+
+```python
+from chartspy import KlineCharts
+import tushare as ts
+df=ts.pro_bar(ts_code="000001.SZ",adj='qfq')
+df.rename(columns={'trade_date':'timestamp','vol':'volume'},inplace=True)
+KlineCharts(df,height='800px')
 ```
 
 

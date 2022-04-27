@@ -23,10 +23,10 @@ def get_install_requires():
 
 setup(
     name="chartspy",
-    version="1.5.2",
+    version="1.5.3",
     url="https://chartspy.icopy.site/",
-    description="echarts&g2plot python wrapper",
-    keywords='echarts g2plot python ',
+    description="echarts&g2plot&klinechart python wrapper",
+    keywords='echarts g2plot klinechart python ',
     packages=find_packages(exclude=("tests", "tests.*")),
     author="yiliuyan",
     author_email="yiliuyan161@126.com",
