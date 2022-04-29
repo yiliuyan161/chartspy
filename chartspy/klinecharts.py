@@ -20,8 +20,8 @@ SEGMENT = """
         {% for mi in plot.main_indicators %}
           chart_{{ plot.plot_id }}.createTechnicalIndicator('{{mi}}', true,{id:"candle_pane"})
         {% endfor %}
-        {% if mas|length>0 %}
-            chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: {{str(mas)}}},"candle_pane")
+        {% if plot.mas|length>0 %}
+            chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: {{plot.mas|string}}},"candle_pane")
         {% endif %}
         chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
 """
