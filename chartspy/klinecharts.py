@@ -8,9 +8,23 @@ import uuid
 import pandas as pd
 import simplejson
 
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
+from .base import Tools, GLOBAL_ENV, Html, json_type_convert
 
 KlineCharts_JS_URL: str = "https://cdn.jsdelivr.net/npm/klinecharts@latest/dist/klinecharts.min.js"
+# language=jinja2
+SEGMENT = """
+        var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{grid: { show: true, horizontal: { show: true, size: 2, color: '#CFCFCF', style: 'dash'}, vertical: { show: true, size: 2, color: '#CFCFCF',  style: 'dash'} },'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
+        {% for bt in plot.bottom_indicators %}
+           var btm_{{bt}}_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('{{bt}}', false)
+        {% endfor %}
+        {% for mi in plot.main_indicators %}
+          chart_{{ plot.plot_id }}.createTechnicalIndicator('{{mi}}', true,{id:"candle_pane"})
+        {% endfor %}
+        {% if mas|length>0 %}
+            chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: {{str(mas)}}},"candle_pane")
+        {% endif %}
+        chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
+"""
 
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """
@@ -32,29 +46,19 @@ JUPYTER_ALL_TEMPLATE = """
         }
       });
       require(['klinecharts'], function (klinecharts) {
-        var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-        var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-        var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-        chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-        chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-        chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
-      });
-  }else{
-    new Promise(function(resolve, reject) {
-      var script = document.createElement("script");
-      script.onload = resolve;
-      script.onerror = reject;
-      script.src = "{{plot.js_url}}";
-      document.head.appendChild(script);
-    }).then(() => {
-       var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-       var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-       var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-       chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-       chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-       chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
-    });
-  }
+        """ + SEGMENT + """
+     });
+     }else{
+       new Promise(function(resolve, reject) {
+         var script = document.createElement("script");
+         script.onload = resolve;
+         script.onerror = reject;
+         script.src = "{{plot.js_url}}";
+         document.head.appendChild(script);
+       }).then(() => {
+         """ + SEGMENT + """
+       });
+     }
 
 </script>
 """
@@ -79,12 +83,7 @@ JUPYTER_NOTEBOOK_TEMPLATE = """
   {{plot.extra_js}}
   var data_{{ plot.plot_id }} = {{ plot.data}}
   require(['klinecharts'], function (klinecharts) {
-    var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-    var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-    var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-    chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-    chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-    chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
+    """ + SEGMENT + """
   });
 </script>
 
@@ -110,13 +109,7 @@ new Promise(function(resolve, reject) {
   script.src = "{{plot.js_url}}";
   document.head.appendChild(script);
 }).then(() => {
-  var data_{{ plot.plot_id }} = {{ plot.data}};  
-  var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-  var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-  var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-  chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-  chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-  chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
+  """ + SEGMENT + """
 });
 </script>
 """
@@ -140,13 +133,7 @@ HTML_TEMPLATE = """
   <div id="{{ plot.plot_id }}" ></div>
   <script>
      {{plot.extra_js}}
-     var data_{{ plot.plot_id }} = {{ plot.data}};  
-     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-     var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-     var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-     chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-     chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-     chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
+""" + SEGMENT + """
      
   </script>
 </body>
@@ -166,13 +153,7 @@ HTML_FRAGMENT_TEMPLATE = """
  <div id="{{ plot.plot_id }}" ></div>
   <script>
     {{plot.extra_js}}
-     var data_{{ plot.plot_id }} = {{ plot.data}};  
-     var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-     chart_{{ plot.plot_id }}.createTechnicalIndicator('MA', false,{id:"candle_pane"})
-     chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: [5,10,30,60,120,250]},"candle_pane")
-     var btm_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('VOL', false)
-     var btm1_paneId_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('MACD', false)
-     chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
+""" + SEGMENT + """
   </script>
 </div>
 """
@@ -183,54 +164,40 @@ class KlineCharts(object):
     g2plot
     """
 
-    def __init__(self, df: pd.DataFrame, options: dict = {}, extra_js: str = "", width: str = "100%",
+    def __init__(self, df: pd.DataFrame, mas=[5, 10, 30, 60, 120, 250], main_indicators=["MA"],
+                 bottom_indicators=["VOL", "MACD"],
+                 extra_js: str = "", width: str = "100%",
                  height: str = "500px"):
         """
-        :param options: python词典类型的echarts option
-        :param df:[open,high,low,close,volume,turnover,timestamp]
-        :param extra_js: 复杂图表需要声明定义额外js函数的，通过这个字段传递
-        :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
-        :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+        k线图
+        :param df: [open,high,low,close,volume,turnover,timestamp]
+        :param mas: [5, 10, 30, 60, 120, 250]
+        :param main_indicators: 主图显示的指标列表 MA,EMA,SMA,BOLL,SAR,BBI
+        :param bottom_indicators:副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
+        :param extra_js:
+        :param width:
+        :param height:
         """
         data = df.copy()
         data['timestamp'] = (pd.to_datetime(data['timestamp']) - pd.Timedelta(hours=8)).astype("i8") // 10 ** 6
         data = data.sort_values(by=['timestamp'])
+        if len(mas) > 0 and "MA" not in main_indicators:
+            main_indicators.append("MA")
         self.data = Tools.convert_dict_to_js(data.to_dict(orient='records'))
-        self.options = options
-        self.js_options = ""
+        self.mas = mas
+        self.main_indicators = main_indicators
+        self.bottom_indicators = bottom_indicators
         self.width = width
         self.height = height
         self.plot_id = "u" + uuid.uuid4().hex
         self.js_url = KlineCharts_JS_URL
         self.extra_js = extra_js
 
-    def print_options(self, drop_data=False):
-        """
-        格式化打印options 方便二次修改
-        :param drop_data: 是否过滤掉data，减小打印长度，方便粘贴
-        :return:
-        """
-        dict_options = copy.deepcopy(self.options)
-        if drop_data:
-            series_count = len(dict_options['series'])
-            for i in range(0, series_count):
-                dict_options['series'][i]['data'] = []
-        Tools.convert_js_to_dict(Tools.convert_dict_to_js(dict_options), print_dict=True)
-
-    def dump_options(self):
-        """
-         导出 js option字符串表示
-        :return:
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        return self.js_options
-
     def render_notebook(self) -> Html:
         """
         在jupyter notebook 环境输出
         :return:
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -239,7 +206,6 @@ class KlineCharts(object):
         在jupyterlab 环境输出
         :return:
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
         return Html(html)
 
@@ -249,7 +215,6 @@ class KlineCharts(object):
         :param path:
         :return: 文件路径
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
@@ -261,7 +226,6 @@ class KlineCharts(object):
         渲染html字符串，可以用于 streamlit
         :return:
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
         return html
 
@@ -270,7 +234,6 @@ class KlineCharts(object):
         渲染html 片段，方便一个网页输出多个图表
         :return:
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
         return html
 
@@ -279,6 +242,5 @@ class KlineCharts(object):
         jupyter 环境，直接输出
         :return:
         """
-        self.js_options = Tools.convert_dict_to_js(self.options)
         html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
         return Html(html).data
