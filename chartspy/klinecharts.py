@@ -179,7 +179,7 @@ class KlineCharts(object):
         :param height:
         """
         data = df.copy()
-        data['timestamp'] = (pd.to_datetime(data['timestamp']) - pd.Timedelta(hours=8)).astype("i8") // 10 ** 6
+        data['timestamp'] = (pd.to_datetime(data['timestamp']) - pd.Timedelta(hours=8)).view("i8") // 10 ** 6
         data = data.sort_values(by=['timestamp'])
         if len(mas) > 0 and "MA" not in main_indicators:
             main_indicators.append("MA")
