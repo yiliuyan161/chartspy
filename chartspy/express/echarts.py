@@ -695,7 +695,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
         'xAxis': [
             {
                 'type': 'category',
-                'data': df[time_field].tolist(),
+                'data': pd.to_datetime(df[time_field]).dt.strftime("%Y-%m-%dT%H:%M").tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'show': False},
@@ -712,7 +712,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             {
                 'type': 'category',
                 'gridIndex': 1,
-                'data': df[time_field].tolist(),
+                'data': pd.to_datetime(df[time_field]).dt.strftime("%Y-%m-%dT%H:%M").tolist(),
                 'scale': True,
                 'boundaryGap': False,
                 'axisLine': {'onZero': False, 'show': True},
@@ -1363,7 +1363,8 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     """
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
-    data = [[{'name': row[label], 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+    data = [[{'name': row[label], 'coord': [pd.to_datetime(row[x1]).strftime('%Y-%m-%dT%H:%M'), row[y1]]},
+             {'coord': [pd.to_datetime(row[x2]).strftime('%Y-%m-%dT%H:%M'), row[y2]]}] for row in rows]
     base_mark_area_options = {
         'itemStyle': {
             'opacity': fill_opacity
@@ -1413,10 +1414,12 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     if show_label:
         rows = data_frame[[x1, y1, x2, y2, label]].to_dict(orient='records')
-        data = [[{'name': str(row[label]), 'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+        data = [[{'name': str(row[label]), 'coord': [pd.to_datetime(row[x1]).strftime('%Y-%m-%dT%H:%M'), row[y1]]},
+                 {'coord': [pd.to_datetime(row[x2]).strftime('%Y-%m-%dT%H:%M'), row[y2]]}] for row in rows]
     else:
         rows = data_frame[[x1, y1, x2, y2]].to_dict(orient='records')
-        data = [[{'coord': [row[x1], row[y1]]}, {'coord': [row[x2], row[y2]]}] for row in rows]
+        data = [[{'coord': [pd.to_datetime(row[x1]).strftime('%Y-%m-%dT%H:%M'), row[y1]]},
+                 {'coord': [pd.to_datetime(row[x2]).strftime('%Y-%m-%dT%H:%M'), row[y2]]}] for row in rows]
 
     base_mark_line_options = {
         'symbol': [symbol_start, symbol_end],
@@ -1458,7 +1461,7 @@ def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
     """
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x, y, label]].to_dict(orient='records')
-    data = [{'value': row[label], 'coord': [row[x], row[y]]} for row in rows]
+    data = [{'value': row[label], 'coord': [pd.to_datetime(row[x]).strftime('%Y-%m-%dT%H:%M'), row[y]]} for row in rows]
     base_mark_point_options = {
         'symbol': 'circle',
         'symbolSize': 0,
@@ -1497,7 +1500,7 @@ def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, tit
     """
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
     rows = data_frame[[x, label]].to_dict(orient='records')
-    data = [{'name': row[label], 'xAxis': row[x]} for row in rows]
+    data = [{'name': row[label], 'xAxis': pd.to_datetime(row[x]).strftime('%Y-%m-%dT%H:%M')} for row in rows]
     base_mark_line_options = {
         'label': {
             'position': label_position,
