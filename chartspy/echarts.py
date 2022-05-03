@@ -9,7 +9,7 @@ import simplejson
 
 from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
 
-ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.2.2/echarts.min.js"
+ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"
 ECHARTS_GL_JS_URL = "https://cdn.staticfile.org/echarts-gl/2.0.8/echarts-gl.min.js"
 
 # language=HTML

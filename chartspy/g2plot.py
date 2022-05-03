@@ -10,7 +10,7 @@ import simplejson
 
 from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
 
-G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.1/g2plot.min.js"
+G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.16/g2plot.min.js"
 
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """
