@@ -4,8 +4,8 @@ import copy
 
 import pandas as pd
 
-from chartspy import Echarts
-from chartspy.base import Js, Tools
+from .. import Echarts
+from ..base import Js, Tools
 
 # 二维坐标系统基础配置适用  scatter,bar,line
 ECHARTS_BASE_GRID_OPTIONS = {

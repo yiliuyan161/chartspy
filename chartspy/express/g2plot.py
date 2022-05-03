@@ -1,5 +1,5 @@
-from chartspy.g2plot import G2PLOT
-from chartspy.base import Js, Tools
+from ..g2plot import G2PLOT
+from ..base import Js, Tools
 
 
 def bullet_g2plot(title: str = "", range_field: list = [], measure_field: list = [], target_field: int = None,
