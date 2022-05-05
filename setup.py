@@ -23,7 +23,7 @@ def get_install_requires():
 
 setup(
     name="chartspy",
-    version="1.5.9",
+    version="1.6.0",
     url="https://chartspy.icopy.site/",
     description="echarts&g2plot&klinechart python wrapper",
     keywords='echarts g2plot klinechart python ',

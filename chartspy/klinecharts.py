@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
-import copy
 import os
-import re
 import uuid
 
 import pandas as pd
-import simplejson
 
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert
+from .base import Tools, GLOBAL_ENV, Html
 
 KlineCharts_JS_URL: str = "https://cdn.jsdelivr.net/npm/klinecharts@latest/dist/klinecharts.min.js"
 # language=jinja2
@@ -22,6 +19,11 @@ SEGMENT = """
         {% endfor %}
         {% if plot.mas|length>0 %}
             chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: {{plot.mas|string}}},"candle_pane")
+        {% endif %}
+        {% if plot.segments|length>0 %}
+            {% for seg in plot.segments %}
+              chart_{{ plot.plot_id }}.createShape({name: 'segment',points:[{timestamp:{{seg['start_time']}},value:{{seg['start_price']}}},{timestamp:{{seg['end_time']}},value:{{seg['end_price']}}}]},"candle_pane")
+            {% endfor %}
         {% endif %}
         chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
 """
@@ -165,7 +167,7 @@ class KlineCharts(object):
     """
 
     def __init__(self, df: pd.DataFrame, mas=[5, 10, 30, 60, 120, 250], main_indicators=["MA"],
-                 bottom_indicators=["VOL", "MACD"],
+                 bottom_indicators=["VOL", "MACD"], df_segments: pd.DataFrame = None,
                  extra_js: str = "", width: str = "100%",
                  height: str = "500px"):
         """
@@ -174,6 +176,7 @@ class KlineCharts(object):
         :param mas: [5, 10, 30, 60, 120, 250]
         :param main_indicators: 主图显示的指标列表 MA,EMA,SMA,BOLL,SAR,BBI
         :param bottom_indicators:副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
+        :param df_segments:[start_time,start_price,end_time,end_price]
         :param extra_js:
         :param width:
         :param height:
@@ -184,6 +187,14 @@ class KlineCharts(object):
         if len(mas) > 0 and "MA" not in main_indicators:
             main_indicators.append("MA")
         self.data = Tools.convert_dict_to_js(data.to_dict(orient='records'))
+        if df_segments is not None:
+            df_seg = df_segments.copy()
+            df_seg['start_time'] = (pd.to_datetime(df_seg['start_time']) - pd.Timedelta(hours=8)).view(
+                "i8") // 10 ** 6
+            df_seg['end_time'] = (pd.to_datetime(df_seg['end_time']) - pd.Timedelta(hours=8)).view("i8") // 10 ** 6
+            self.segments = df_seg.to_dict(orient='records')
+        else:
+            self.segments = []
         self.mas = mas
         self.main_indicators = main_indicators
         self.bottom_indicators = bottom_indicators
