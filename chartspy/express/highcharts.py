@@ -29,9 +29,9 @@ def streamgraph_highcharts(data_frame: pd.DataFrame, time_field: str = None, ser
                'yAxis': {'visible': False, 'startOnTick': False, 'endOnTick': False}, 'legend': {'enabled': False},
                'series': []}
     for col in df.columns:
-        data = df[col].values
+        data = list(df[col].values)
         options['series'].append({'name': col, 'data': data})
-    return HighCharts(options)
+    return HighCharts(options, height=height)
 
 
 def dependency_wheel_highcharts(data_frame: pd.DataFrame, from_field=None, to_field=None, weight_field=None,
