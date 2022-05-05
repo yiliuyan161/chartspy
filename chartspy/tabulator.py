@@ -265,12 +265,14 @@ class Tabulator(object):
     g2plot
     """
 
-    def __init__(self, df: pd.DataFrame, sparkline_dict=None, width_dict=None, height: str = "500"):
+    def __init__(self, df: pd.DataFrame, sparkline_dict=None, width_dict=None, formatter_dict=None,
+                 height: str = "500"):
         """
         tabulator
         :param df: []
         :param sparkline_dict: {'col':'line/bar/tristate/discrete/bullet/pie/box'}
         :param width_dict: {'col':'120'}
+        :param formatter_dict: {'col':'progress/star/tickCross/color'}
         :param height:500
         """
         self.tabledata = Tools.convert_dict_to_js(df.to_dict(orient='records'))
@@ -281,6 +283,10 @@ class Tabulator(object):
                 column['formatter'] = Js(sparkline_dict[col] + "Formatter")
             if width_dict is not None and col in width_dict.keys():
                 column['width'] = width_dict[col]
+            if formatter_dict is not None and col in formatter_dict.keys():
+                column['formatter'] = formatter_dict[col]
+                if formatter_dict[col] == 'progress':
+                    column['formatterParams'] = {"color": ["green", "orange", "red"]}
             cols.append(column)
         self.columns = Tools.convert_dict_to_js(cols)
         self.height = height
