@@ -1806,7 +1806,7 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
     :param height: 高度
     :return:
     """
-    df = data_frame[[time_field, value_field, code_field]].copy()
+    df = data_frame[[time_field, value_field, code_field]].copy().sort_values(time_field, ascending=True).reset_index()
     df_pivot = df.pivot_table(index=time_field, columns=code_field, values=value_field).fillna(method='bfill').fillna(
         method='ffill')
     df_return = (((df_pivot / df_pivot.iloc[0]) - 1) * 100).round(2)
@@ -1890,6 +1890,17 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
                 'axisLine': {'show': False},
                 'axisTick': {'show': True},
                 'splitLine': {'show': True}
+            },
+            {
+                'scale': True,
+                'type': 'value',
+                'splitNumber': 10,
+                'axisLabel': {
+                    'show': True
+                },
+                'axisLine': {'show': False},
+                'axisTick': {'show': True},
+                'splitLine': {'show': True}
             }
         ],
         'dataZoom': [
@@ -1942,6 +1953,7 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
             'type': 'line',
             'areaStyle': {'opacity': 0.3, 'color': colors[color_index]},
             'lineStyle': {'opacity': 0},
+            'yAxisIndex': 1,
             'data': df_drawdown[item].to_frame().reset_index().values.tolist()
         }
         options['series'].append(return_series)
