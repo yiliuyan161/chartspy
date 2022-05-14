@@ -213,6 +213,29 @@ def area_percent_g2plot(df, x_field: str = None, y_field: str = None, series_fie
     return G2PLOT(df, plot_type="Area", options=options, width=width, height=height)
 
 
+def circle_packing_g2plot(df, category_field_list: list = [], value_field: str = None, width="100%",
+                          height='500px'):
+    data = Tools.df2tree(df, category_cols=category_field_list, value_col=value_field)
+    root = {
+        'name': 'root',
+        'children': data
+    }
+    options = {
+        'autoFit': True,
+        'padding': 0,
+        'sizeField': value_field,
+        'colorField': value_field,
+        'label': False,
+        'drilldown': {
+            'enabled': True,
+            'breadCrumb': {
+                'position': 'top-left',
+            },
+        },
+    }
+    return G2PLOT(root, plot_type='CirclePacking', options=options, width=width, height=height)
+
+
 def treemap_g2plot(df, category_field_list: list = [], value_field: str = None, width="100%",
                    height='500px'):
     """
@@ -235,14 +258,14 @@ def treemap_g2plot(df, category_field_list: list = [], value_field: str = None, 
         },
         'tooltip': {
             'formatter': Js("""
-                function(v){
-                    var root = v.path[v.path.length - 1];
-                    return {
-                        name: v.name,
-                        value: v.value+'(总占比'+((v.value / root.value) * 100).toFixed(2)+')'
-                    };
-                }
-            """)
+            function(v){
+                var root = v.path[v.path.length - 1];
+                return {
+                    name: v.name,
+                    value: v.value+'(总占比'+((v.value / root.value) * 100).toFixed(2)+')'
+                };
+            }
+        """)
         },
         'interactions': [{'type': 'treemap-drill-down'}],
         'animation': {},
@@ -288,7 +311,8 @@ def line_g2plot(df, x_field=None, y_field=None, series_field=None, width='100%',
     return G2PLOT(df, plot_type='Line', options=options, width=width, height=height)
 
 
-def scatter_g2plot(df, x_field=None, y_field=None, color_field=None, size_field=None, shape_field=None, width='100%',
+def scatter_g2plot(df, x_field=None, y_field=None, color_field=None, size_field=None, shape_field=None,
+                   width='100%',
                    height='500px'):
     """
     点图
@@ -343,6 +367,13 @@ def pie_g2plot(df, angle_field=None, color_field=None, width='100%', height='500
     return G2PLOT(df, plot_type='Pie', options=options, width=width, height=height)
 
 
+def radial_bar_g2plot(df, x_field=None, y_field=None, color_field=None, width='100%', height='500px'):
+    options = {'xField': x_field, 'yField': y_field, 'colorField': color_field, 'tooltip': {'showMarkers': True},
+               'type': 'line'}
+
+    return G2PLOT(df, plot_type='RadialBar', options=options, width=width, height=height)
+
+
 def gauge_g2plot(df, percent=0.25, width='100%', height='500px'):
     options = {'percent': percent}
     return G2PLOT(df, plot_type='Gauge', options=options, width=width, height=height)
@@ -382,7 +413,8 @@ def histogram_g2plot(df, bin_field=None, bin_width=None, width='100%', height='5
 
 
 __all__ = ['bullet_g2plot', 'chord_g2plot', 'waterfall_g2plot', 'liquid_g2plot', 'wordcloud_g2plot',
-           'column_stack_percent_g2plot', 'column_stack_g2plot', 'area_g2plot', 'area_percent_g2plot', 'treemap_g2plot',
+           'column_stack_percent_g2plot', 'column_stack_g2plot', 'area_g2plot', 'area_percent_g2plot',
+           'treemap_g2plot',
            'violin_g2plot', 'line_g2plot', 'scatter_g2plot', 'column_g2plot', 'rose_g2plot', 'pie_g2plot',
            'gauge_g2plot', 'sankey_g2plot', 'heatmap_g2plot', 'radar_g2plot', 'funnel_g2plot', 'histogram_g2plot']
 
