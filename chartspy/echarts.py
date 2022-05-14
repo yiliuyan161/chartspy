@@ -2,13 +2,9 @@
 # coding=utf-8
 import copy
 import os
-import re
 import uuid
 
-import simplejson
-from typing import List
-
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
+from .base import Tools, GLOBAL_ENV, Html
 
 ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"
 ECHARTS_GL_JS_URL = "https://cdn.staticfile.org/echarts-gl/2.0.8/echarts-gl.min.js"

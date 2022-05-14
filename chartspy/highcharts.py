@@ -2,12 +2,9 @@
 # coding=utf-8
 import copy
 import os
-import re
 import uuid
 
-import simplejson
-
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
+from .base import Tools, GLOBAL_ENV, Html
 
 # language=HTML
 JUPYTER_ALL_TEMPLATE = """

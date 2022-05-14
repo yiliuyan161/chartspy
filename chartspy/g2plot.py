@@ -2,13 +2,11 @@
 # coding=utf-8
 import copy
 import os
-import re
 import uuid
 
 import pandas as pd
-import simplejson
 
-from .base import Tools, GLOBAL_ENV, Html, json_type_convert, FUNCTION_BOUNDARY_MARK
+from .base import Tools, GLOBAL_ENV, Html
 
 G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.16/g2plot.min.js"
 

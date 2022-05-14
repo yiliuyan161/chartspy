@@ -6,7 +6,7 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-import simplejson
+import json
 from jinja2 import Environment, BaseLoader
 
 # jinja2模板引擎env
@@ -198,10 +198,10 @@ class Tools(object):
     def convert_dict_to_js(options):
         """
         转换 python dict 成 JavaScript Object
-        先simplejson序列化,再特殊处理函数
+        先json序列化,再特殊处理函数
         :return: JavaScript 对象的字符串表示
         """
-        json_str = simplejson.dumps(options, indent=2, default=json_type_convert, ignore_nan=True)
+        json_str = json.dumps(options, indent=2, default=json_type_convert)
         segs = []
         function_start = 0
         # 找到所有函数声明的起止位置,处理双引号转移，再把包裹函数的特征串删除
@@ -222,13 +222,13 @@ class Tools(object):
         return re.sub('"?' + FUNCTION_BOUNDARY_MARK + '"?', "", dict_str)
 
 
-json_encoder = simplejson.JSONEncoder()
+json_encoder = json.JSONEncoder()
 
 
 def json_type_convert(o: object):
     """
     python 类型转换成js类型
-    :param o: simplejson序列化不了的对象
+    :param o: json序列化不支持的类型
     :return:
     """
     if isinstance(o, datetime.datetime):
@@ -256,6 +256,8 @@ def json_type_convert(o: object):
         return float(o)
     elif isinstance(o, np.character):
         return str(o)
+    elif isinstance(o, np.nan):
+        return None
     else:
         return json_encoder.default(o)
 

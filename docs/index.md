@@ -8,11 +8,10 @@
 
 * 同时借鉴**plotly.express** 封装了简单图表类型可视化函数
 
-
-
 ## 使用说明
 
-### 简单模式   
+### 简单模式
+
 直接选择合适的图表类型，展示DataFrame
 
 ```python
@@ -25,14 +24,15 @@ express.pie_echarts(df, name_field='水果', value_field='数量', rose_type='ar
 
 express.candlestick_echarts(df, left_padding='5%', mas=[5, 10, 30], title='平安银行')
 ```
-!!! note ""
-    ![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
 
 !!! note ""
-    ![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true)
+![scatter](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true)
 
 !!! note ""
-    ![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
+![line](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true)
+
+!!! note ""
+![kline](https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true)
 
 ### 高级模式
 
@@ -63,27 +63,28 @@ options = {
 }
 Echarts(options, height='600px').render_notebook()
 ```
+
 ```python
 from chartspy import *
 
 # G2PLOT
-df= ...
+df = ...
 # Echarts
 options = {
-    'xField':'time',
-    'yField':'close'
+    'xField': 'time',
+    'yField': 'close'
 }
-G2PLOT(df,plot_type='Line',options=options).render_notebook()
+G2PLOT(df, plot_type='Line', options=options).render_notebook()
 ```
 
 ```python
 from chartspy import KlineCharts
 import tushare as ts
-df=ts.pro_bar(ts_code="000001.SZ",adj='qfq')
-df.rename(columns={'trade_date':'timestamp','vol':'volume'},inplace=True)
+
+df = ts.pro_bar(ts_code="000001.SZ", adj='qfq')
+df.rename(columns={'trade_date': 'timestamp', 'vol': 'volume'}, inplace=True)
 KlineCharts(df, main_indicators=['MA', 'SAR'], mas=[5, 10, 30, 60, 120, 250])
 ```
-
 
 #### 半自动JavaScript配置->Python配置
 
