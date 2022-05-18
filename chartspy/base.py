@@ -10,6 +10,7 @@ import json
 from jinja2 import Environment, BaseLoader
 
 # jinja2模板引擎env
+
 GLOBAL_ENV = Environment(loader=BaseLoader)
 FUNCTION_BOUNDARY_MARK = "FUNCTION_BOUNDARY_MARK"
 
@@ -256,7 +257,9 @@ def json_type_convert(o: object):
         return float(o)
     elif isinstance(o, np.character):
         return str(o)
-    elif isinstance(o, np.nan):
+    elif isinstance(o, np.ndarray):
+        return list(o)
+    elif pd.isna(o):
         return None
     else:
         return json_encoder.default(o)
