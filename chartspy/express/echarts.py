@@ -1208,15 +1208,18 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    names = list(set(data_frame[source_field].unique()).union(set(data_frame[target_field].unique())))
+    names = list(
+        set(data_frame[source_field].dropna().unique()).union(set(data_frame[target_field].dropna().unique())))
     depth_dict = {}
     if source_depth_field is not None:
         depth_dict.update(
-            data_frame[[source_field, source_depth_field]].drop_duplicates(subset=[source_field]).set_index(
+            data_frame[[source_field, source_depth_field]].drop_duplicates(subset=[source_field]).dropna(
+                subset=[source_field]).set_index(
                 source_field)[source_depth_field].to_dict())
     if target_depth_field is not None:
         depth_dict.update(
-            data_frame[[target_field, target_depth_field]].drop_duplicates(subset=[target_field]).set_index(
+            data_frame[[target_field, target_depth_field]].drop_duplicates(subset=[target_field]).dropna(
+                subset=[target_field]).set_index(
                 target_field)[target_depth_field].to_dict())
 
     df = data_frame.rename(columns={source_field: "source", target_field: 'target', value_field: 'value'})
@@ -1235,8 +1238,8 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
         'series': [{
             'type': 'sankey',
             'data': [{'name': name} for name in names] if len(depth_dict) == 0 else [
-                {'name': name, 'depth': depth_dict[name]} for name in names],
-            'links': df[['source', 'target', 'value']].to_dict(orient='records'),
+                {'name': name, 'depth': depth_dict[name] if name in depth_dict else 0} for name in names],
+            'links': df[['source', 'target', 'value']].dropna().to_dict(orient='records'),
             'lineStyle': {
                 'color': 'source',
                 'curveness': 0.5
