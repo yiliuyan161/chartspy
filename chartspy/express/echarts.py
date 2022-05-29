@@ -119,11 +119,18 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
                     size_min_max=[None, None],
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
+                    x_field_type: str = "value",
+                    x_field_log_base: int = 10,
+                    x_field_scale: bool = False,
+                    y_field_type: str = "value",
+                    y_field_log_base: int = 10,
+                    y_field_scale: bool = False,
                     opacity=0.5, tooltip_trigger="axis", title: str = "",
                     width: str = "100%",
                     height: str = "500px") -> Echarts:
     """
     scatter chart
+
 
     :param data_frame: 必填 DataFrame
     :param x_field: 必填 x轴映射的列
@@ -134,6 +141,12 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     :param size_range: 可选 点大小区间
     :param info: 额外信息tooltip显示
     :param color_sequence:
+    :param x_field_type:
+    :param x_field_log_base:
+    :param x_field_scale:
+    :param y_field_type:
+    :param y_field_log_base:
+    :param y_field_scale:
     :param opacity:
     :param tooltip_trigger: tooltip 触发类型 axis和 item
     :param title: 可选标题
@@ -147,6 +160,13 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
         x_field = "x_col_echartspy"
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     options['title'] = {"text": title}
+    options['xAxis']['type'] = x_field_type
+    options['xAxis']['logBase'] = x_field_log_base
+    options['xAxis']['scale'] = x_field_scale
+    options['yAxis']['type'] = y_field_type
+    options['yAxis']['logBase'] = y_field_log_base
+    options['yAxis']['scale'] = y_field_scale
+
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
     if "date" in str(df[y_field].dtype) or "object" in str(df[y_field].dtype):
@@ -341,7 +361,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
     if tooltip_trigger == 'item':
         del options['axisPointer']
     options['tooltip'] = {
-        'trigger': 'item',
+        'trigger': 'axis',
         'borderWidth': 1,
         'borderColor': '#ccc',
         'padding': 10,
@@ -1171,22 +1191,35 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
 
 
 def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_field: str = None,
-                   value_field: str = None, title: str = "",
+                   value_field: str = None, source_depth_field: str = None, target_depth_field: str = None,
+                   title: str = "",
                    width: str = "100%", height: str = "500px") -> Echarts:
     """
+
 
     :param data_frame:
     :param source_field: source列
     :param target_field: target列
     :param value_field: value列
+    :param source_depth_field:
+    :param target_depth_field:
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
     :return:
     """
-    df = data_frame[[source_field, target_field, value_field]].copy()
-    names = list(set(df[source_field].unique()).union(set(df[target_field].unique())))
-    df.columns = ['source', 'target', 'value']
+    names = list(set(data_frame[source_field].unique()).union(set(data_frame[target_field].unique())))
+    depth_dict = {}
+    if source_depth_field is not None:
+        depth_dict.update(
+            data_frame[[source_field, source_depth_field]].drop_duplicates(subset=[source_field]).set_index(
+                source_field)[source_depth_field].to_dict())
+    if target_depth_field is not None:
+        depth_dict.update(
+            data_frame[[target_field, target_depth_field]].drop_duplicates(subset=[target_field]).set_index(
+                target_field)[target_depth_field].to_dict())
+
+    df = data_frame.rename(columns={source_field: "source", target_field: 'target', value_field: 'value'})
     options = {
         'title': {
             'text': title,
@@ -1201,8 +1234,9 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
         },
         'series': [{
             'type': 'sankey',
-            'data': [{'name': name} for name in names],
-            'links': df.to_dict(orient='records'),
+            'data': [{'name': name} for name in names] if len(depth_dict) == 0 else [
+                {'name': name, 'depth': depth_dict[name]} for name in names],
+            'links': df[['source', 'target', 'value']].to_dict(orient='records'),
             'lineStyle': {
                 'color': 'source',
                 'curveness': 0.5
@@ -1562,11 +1596,22 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
                       color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf",
                                               "#fee090",
                                               "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
+                      x_field_type: str = "value",
+                      y_field_type: str = "value",
+                      z_field_type: str = "value",
+                      x_field_log_base: int = 10,
+                      y_field_log_base: int = 10,
+                      z_field_log_base: int = 10,
+                      x_field_scale: bool = False,
+                      y_field_scale: bool = False,
+                      z_field_scale: bool = False,
                       title: str = "",
                       width: str = "100%",
                       height: str = "500px"):
     """
     3d 气泡图
+
+
     :param data_frame:
     :param x_field:
     :param y_field:
@@ -1576,6 +1621,15 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
     :param color_field: 颜色列
     :param color_sequence:
     :param info: 额外信息
+    :param z_field_type: value/log/category/time
+    :param y_field_type:
+    :param x_field_type:
+    :param z_field_scale:
+    :param y_field_scale:
+    :param x_field_scale:
+    :param z_field_log_base:
+    :param y_field_log_base:
+    :param x_field_log_base:
     :param title:
     :param width:
     :param height:
@@ -1586,16 +1640,22 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
         'tooltip': {},
         'xAxis3D': {
             'name': x_field,
-            'type': 'value'
+            'type': x_field_type,
+            'scale': x_field_scale,
+            'logBase': x_field_log_base,
 
         },
         'yAxis3D': {
             'name': y_field,
-            'type': 'value'
+            'type': y_field_type,
+            'scale': y_field_scale,
+            'logBase': y_field_log_base,
         },
         'zAxis3D': {
             'name': z_field,
-            'type': 'value'
+            'type': z_field_type,
+            'scale': z_field_scale,
+            'logBase': z_field_log_base,
         },
         'grid3D': {
         }
