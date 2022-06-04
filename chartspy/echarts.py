@@ -315,23 +315,29 @@ class Echarts(object):
 
         return Echarts(options=options)
 
-    def overlap_series(self, other_chart_options: list = []):
+    def overlap_series(self, other_chart_options: list = [], add_yaxis=False, add_yaxis_grid_index=0):
         """
         叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
         :param other_chart_options:要叠加的Echarts对象列表，或者options列表
+        :param add_yaxis: 是否增加一个Y轴
+        :param add_yaxis_grid_index: 0
         :return:
         """
         this_options = copy.deepcopy(self.options)
+        if add_yaxis:
+            this_options['yAxis'].append({'scale': True, 'type': 'value', 'gridIndex': add_yaxis_grid_index})
         if this_options["legend"]["data"] is None:
             this_options["legend"]["data"] = []
         if this_options["series"] is None:
             this_options["series"] = []
-
         for chart_option in other_chart_options:
             if isinstance(chart_option, Echarts):
                 chart_option = chart_option.options
             old_series_count = len(this_options["series"])
             this_options["legend"]["data"].extend(chart_option["legend"]["data"])
+            if add_yaxis:
+                for seriesIndex in range(len(chart_option["series"])):
+                    chart_option["series"][seriesIndex]['yAxisIndex'] = len(this_options['yAxis']) - 1
             this_options["series"].extend(chart_option["series"])
             if "visualMap" in chart_option.keys():
                 if "visualMap" not in this_options.keys():
