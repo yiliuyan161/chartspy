@@ -291,7 +291,8 @@ class Echarts(object):
                 })
                 if 'visualMap' in charts_dict[keys[i]].keys() and 'visualMap' in options['baseOption'].keys():
                     if isinstance(charts_dict[keys[i]]['visualMap'], list) and isinstance(
-                            options['baseOption']['visualMap'], list) and len(charts_dict[keys[i]]['visualMap']) == len(options['baseOption']['visualMap']):
+                            options['baseOption']['visualMap'], list) and len(charts_dict[keys[i]]['visualMap']) == len(
+                        options['baseOption']['visualMap']):
                         for j in range(0, len(options['baseOption']['visualMap'])):
                             if 'min' in options['baseOption']['visualMap'][j].keys():
                                 options['baseOption']['visualMap'][j]['min'] = min(
