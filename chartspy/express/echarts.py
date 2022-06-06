@@ -119,10 +119,10 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
                     size_min_max=[None, None],
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
-                    x_field_type: str = "value",
+                    x_field_type: str = None,
                     x_field_log_base: int = 10,
                     x_field_scale: bool = False,
-                    y_field_type: str = "value",
+                    y_field_type: str = None,
                     y_field_log_base: int = 10,
                     y_field_scale: bool = False,
                     opacity=0.5, tooltip_trigger="axis", title: str = "",
@@ -160,12 +160,15 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
         x_field = "x_col_echartspy"
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     options['title'] = {"text": title}
-    options['xAxis']['type'] = x_field_type
+    options['xAxis']['type'] = x_field_type if x_field_type is not None else (
+        "category" if "string" in str(df[x_field].dtype) or 'object' in str(df[x_field].dtype) else "value")
     options['xAxis']['logBase'] = x_field_log_base
     options['xAxis']['scale'] = x_field_scale
-    options['yAxis']['type'] = y_field_type
+    options['yAxis']['type'] = y_field_type if y_field_type is not None else (
+        "category" if "string" in str(df[y_field].dtype) or 'object' in str(df[y_field].dtype) else "value")
     options['yAxis']['logBase'] = y_field_log_base
     options['yAxis']['scale'] = y_field_scale
+
 
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
