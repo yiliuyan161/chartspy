@@ -448,6 +448,8 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
     options['title'] = {"text": title}
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
+    if "date" in str(df[x_field].dtype):
+        df[x_field] = pd.to_datetime(df[x_field]).dt.strftime("%Y-%m-%dT%H:%M")
     if series_field is not None:
         series_list = list(df[series_field].unique())
         for s in series_list:
