@@ -3,7 +3,7 @@
 import copy
 
 import pandas as pd
-
+import numpy as np
 from .. import Echarts
 from ..base import Js, Tools
 
@@ -168,7 +168,6 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
         "category" if "string" in str(df[y_field].dtype) or 'object' in str(df[y_field].dtype) else "value")
     options['yAxis']['logBase'] = y_field_log_base
     options['yAxis']['scale'] = y_field_scale
-
 
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
@@ -373,41 +372,55 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         'borderColor': '#ccc',
         'padding': 10,
         'formatter': Js("""
-                                function(params){
-                                    window.params=params;
-                                    var labels = [];
-                                    const param = params;
-                                    var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
-                                    var dimensionNames=param['dimensionNames'];
-                                    if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
-                                        label.push("<br/>");
-                                        for (let j = 0; j <param['data'].length; j++) {
-                                            var value= param['value'][j];
-                                            if (typeof(value)=='number'){
-                                                if (value%1==0 || value>100000){
-                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
-                                                }else{
-                                                    label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
-                                                }
-                                            }else{
-                                                label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
-                                            }
-                                        }
-                                    }else if(typeof(param['value'])=='number'){
-                                        if (param['value']%1==0){
-                                            label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                function(params){
+                    var dt = params[0]['axisValue'];
+                    var labels = [];
+                    labels.push('<b><span>时间:&nbsp;</span></b>' + dt + '<br/>');
+                    params.sort(function(a, b) {
+                      if (a.seriesName < b.seriesName ) {return -1;}
+                      else if (a.seriesName > b.seriesName ) {return 1;}
+                      else{ return 0;}
+                    });
+                    for (let i = 0; i < params.length; i++) {
+                        const param = params[i];
+                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
+                        var dimensionNames=param["dimensionNames"];
+                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
+                            label.push("<br/>");
+                            for (let j = 1; j <dimensionNames.length; j++) {
+                                    var value= param['data'][j];
+                                    if (typeof(value)=='number'){
+                                        if (value%1==0 || value>100000){
+                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
                                         }else{
-                                            label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
                                         }
-                                    }else if(param['value']){
-                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
                                     }else{
-                                        label.push("<br/>");
+                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
                                     }
-                                    var cardStr= label.join('');
-                                    labels.push(cardStr);
-                                    return labels.join('');
-                                }"""),
+                            }
+                        }else if(param['seriesType']=="candlestick"){
+                                label.push("<br/>");
+                                label.push("<span>open:&nbsp;"+param['data'][1].toFixed(2)+"</span><br/>");
+                                label.push("<span>close:&nbsp;"+param['data'][2].toFixed(2)+"</span><br/>");
+                                label.push("<span>high:&nbsp;"+param['data'][4].toFixed(2)+"</span><br/>");
+                                label.push("<span>low:&nbsp;"+param['data'][3].toFixed(2)+"</span><br/>");   
+                        }else if(typeof(param['value'])=='number'){
+                            if (param['value']%1==0){
+                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
+                            }else{
+                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                            }
+                        }else if(param['value']){
+                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
+                        }else{
+                            label.push("<br/>");
+                        }
+                        var cardStr= label.join('');
+                        labels.push(cardStr);
+                    }
+                    return labels.join('');
+                }"""),
         'textStyle': {'color': '#000'}
     }
     options['toolbox'] = {
@@ -2041,11 +2054,45 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
     return Echarts(options, height=height, width=width)
 
 
+def minute_echarts(data_frame: pd.DataFrame, time_field="time", price_field='price', volume_field="volume", title="",
+                   width="100%",
+                   height='500px'):
+    """
+
+    :param data_frame:
+    :param time_field:
+    :param price_field:
+    :param volume_field:
+    :param title:
+    :param width:
+    :param height:
+    :return:
+    """
+
+    def agg_ohlcv(x):
+        arr = x[price_field].values
+        names = {
+            'low': min(arr) if len(arr) > 0 else np.nan,
+            'high': max(arr) if len(arr) > 0 else np.nan,
+            'open': arr[0] if len(arr) > 0 else np.nan,
+            'close': arr[-1] if len(arr) > 0 else np.nan,
+            'volume': sum(x[volume_field].values) if len(x[volume_field].values) > 0 else 0,
+        }
+        return pd.Series(names)
+
+    df1min = data_frame.set_index(time_field).resample('1min').apply(agg_ohlcv)
+    df1min = df1min.ffill()
+    df1min['avg_price'] = (df1min['close'] * df1min['volume']).cumsum() / df1min['volume'].cumsum()
+    return candlestick_echarts(df1min[df1min['volume'] > 0], log_y=False, mas=[], title=title, width=width,
+                               height=height).overlap_series(
+        [line_echarts(df1min, y_field='avg_price')])
+
+
 __all__ = ['scatter_echarts', 'line_echarts', 'bar_echarts', 'pie_echarts', 'candlestick_echarts', 'radar_echarts',
            'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts', 'theme_river_echarts',
            'sunburst_echarts', 'mark_area_echarts', 'mark_segment_echarts', 'mark_label_echarts',
            'mark_vertical_line_echarts', 'mark_horizontal_line_echarts', 'scatter3d_echarts', 'bar3d_echarts',
-           'drawdown_echarts']
+           'drawdown_echarts', 'minute_echarts']
 
 if __name__ == "__main__":
     print([func for func in list(locals().keys()) if func[0:2] != '__'])
