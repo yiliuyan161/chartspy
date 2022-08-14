@@ -203,7 +203,7 @@ class Tools(object):
         :return: JavaScript 对象的字符串表示
         """
         json_str = json.dumps(options, indent=2, default=json_type_convert)
-        segs = []
+        code_segments = []
         function_start = 0
         # 找到所有函数声明的起止位置,处理双引号转移，再把包裹函数的特征串删除
         mask_length = len(FUNCTION_BOUNDARY_MARK)
@@ -211,10 +211,10 @@ class Tools(object):
             if json_str[i - mask_length - 1:i] == '"' + FUNCTION_BOUNDARY_MARK:
                 function_start = i - mask_length
             elif json_str[i - mask_length - 1:i] == FUNCTION_BOUNDARY_MARK + '"':
-                segs.append([function_start, i])
+                code_segments.append([function_start, i])
         left_index = 0
         parts = []
-        for seg in segs:
+        for seg in code_segments:
             parts.append(json_str[left_index:seg[0]])
             parts.append(json_str[seg[0]:(seg[1] + 1)].replace('\\"', '"'))
             left_index = seg[1] + 1
