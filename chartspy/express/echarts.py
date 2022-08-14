@@ -15,6 +15,8 @@ ECHARTS_BASE_GRID_OPTIONS = {
     'tooltip': {
         'trigger': 'axis', 'axisPointer': {'type': 'cross'},
         'borderWidth': 1,
+        'color': "black",
+        'backgroundColor': "rgba(255,255,255,0.8)",
         'borderColor': '#ccc',
         'padding': 10,
         'formatter': Js("""
@@ -196,6 +198,8 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'borderWidth': 1,
             'borderColor': '#ccc',
             'padding': 10,
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': Js("""
                         function(params){
                             window.params=params;
@@ -367,6 +371,8 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         'borderWidth': 1,
         'borderColor': '#ccc',
         'padding': 10,
+        'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
         'formatter': Js("""
                 function(params){
                     var dt = params[0]['axisValue'];
@@ -488,6 +494,8 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
         options['tooltip'] = {
             'trigger': 'item',
             'borderWidth': 1,
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'borderColor': '#ccc',
             'padding': 10,
             'formatter': Js("""
@@ -560,6 +568,8 @@ def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: s
         },
         'tooltip': {
             'trigger': 'item',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': '{a} <br/>{b} : {c} ({d}%)'
         },
         'toolbox': {
@@ -653,6 +663,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             'trigger': 'axis', 'axisPointer': {'type': 'cross'},
             'borderWidth': 1,
             'borderColor': '#ccc',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'padding': 10,
             'formatter': Js("""
                 function(params){
@@ -901,6 +913,8 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
         'title': {'text': title},
         'tooltip': {
             'position': 'top',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': "{c}"
         },
         'toolbox': {
@@ -997,7 +1011,8 @@ def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_fi
             'indicator': []
         },
         'tooltip': {
-
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
         },
         'toolbox': {
             'show': True,
@@ -1061,7 +1076,11 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, v
         'title': {
             'text': title
         },
-        'tooltip': {'formatter': "{c}"},
+        'tooltip': {
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
+            'formatter': "{c}"
+        },
         'toolbox': {
             'show': True,
             'feature': {
@@ -1148,6 +1167,8 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
         'parallel': {'top': 80},
         'tooltip': {
             'trigger': 'item',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': Js(Tools.wrap_template(""" function(params){
                     var dims={{dims}};
                     var value_dict={};
@@ -1244,6 +1265,10 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
             'text': title,
             'left': 'center'
         },
+        'tooltip':{
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)"
+        },
         'toolbox': {
             'show': True,
             'feature': {
@@ -1299,6 +1324,8 @@ def theme_river_echarts(data_frame: pd.DataFrame, date_field: str = None, value_
         'title': {'text': title},
         'tooltip': {
             'trigger': 'axis',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'axisPointer': {'type': 'cross'}
         },
         'toolbox': {
@@ -1353,6 +1380,8 @@ def sunburst_echarts(data_frame: pd.DataFrame, category_field_list: list = [], v
         },
         'tooltip': {
             'trigger': 'item',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': Js("""
                 function(params){
                     var pathInfo= params['treePathInfo'];
@@ -1421,6 +1450,10 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     base_mark_area_options = {
         'itemStyle': {
             'opacity': fill_opacity
+        },
+        'tooltip': {
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)"
         },
         'label': {
             'show': True,
@@ -1656,7 +1689,10 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
     """
     options = {
         'title': {'text': title, 'left': 50},
-        'tooltip': {},
+        'tooltip': {
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)"
+        },
         'xAxis3D': {
             'name': x_field,
             'type': x_field_type,
@@ -1784,7 +1820,10 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
     """
     options = {
         'title': {'text': title, 'left': 20},
-        'tooltip': {},
+        'tooltip': {
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
+        },
         'xAxis3D': {
             'name': x_field,
             'type': 'value'
@@ -1905,6 +1944,8 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
             'trigger': 'axis', 'axisPointer': {'type': 'cross'},
             'borderWidth': 1,
             'borderColor': '#ccc',
+            'backgroundColor': "rgba(255,255,255,0.8)",
+            'color': "black",
             'padding': 10,
             'formatter': Js("""function (params) {
                 const x_value = params[0]['axisValue'];
