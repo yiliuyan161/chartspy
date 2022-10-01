@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
 import copy
-import os
 import uuid
 
 from .base import Tools, Html
@@ -303,70 +302,6 @@ class Echarts(object):
               </script>
             """
             return Html(html)
-
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        plot = self
-        if self.with_gl:
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <title></title>
-                <style>
-                  #{plot.plot_id} {{
-                        width:{plot.width};
-                        height:{plot.height};
-                     }}
-                </style>
-               <script type="text/javascript" src="{plot.js_url}"></script>
-                <script type="text/javascript" src="{plot.js_url_gl}"></script>
-            </head>
-            <body>
-              <div id="{plot.plot_id}" ></div>
-              <script>
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                {plot.extra_js}
-                plot_{plot.plot_id}.setOption({plot.js_options})
-              </script>
-            </body>
-            </html>
-            """
-        else:
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <title></title>
-                <style>
-                  #{plot.plot_id} {{
-                        width:{ {plot.width} };
-                        height:{ {plot.height} };
-                     }}
-                </style>
-               <script type="text/javascript" src="{plot.js_url}"></script>
-            </head>
-            <body>
-              <div id="{plot.plot_id}" ></div>
-              <script>
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                {plot.extra_js}
-                plot_{plot.plot_id}.setOption({plot.js_options})
-              </script>
-            </body>
-            </html>
-            """
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
 
     def render_html(self) -> str:
         """

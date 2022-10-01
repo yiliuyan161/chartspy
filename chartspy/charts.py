@@ -3,7 +3,6 @@
 import copy
 import datetime
 import json
-import os
 import re
 import uuid
 
@@ -136,16 +135,12 @@ class Tools(object):
         js_code = js_code.strip()
 
         def rep1(match_obj):
-            return "'" + match_obj.group(1) + "':" + match_obj.group(2)
+            return '"' + match_obj.group(1) + '": ' + match_obj.group(2)
 
         # 去除注释
         js_code = re.sub(r"[\s]+//[^\n]+\n", "", js_code)
         # 对象key 增加单引号
         js_code = re.sub(r"([a-zA-Z0-9]+):\s*([\{'\"\[]|true|false|[\d\.]+|function)", rep1, js_code)
-        # true，false,null 替换
-        js_code = re.sub("true", "True", js_code)
-        js_code = re.sub("false", "False", js_code)
-        js_code = re.sub("null", "None", js_code)
         # 记录函数开始结束位置数组
         segs = []  # [start,end]
         function_start = 0
@@ -180,7 +175,7 @@ class Tools(object):
         dict_str = "".join(parts)
         if print_dict:
             print(dict_str)
-        dict_options = eval(dict_str)
+        dict_options = json.loads(dict_str)
         return dict_options
 
     @staticmethod
@@ -551,70 +546,6 @@ class Echarts(object):
             """
             return Html(html)
 
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        plot = self
-        if self.with_gl:
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <title></title>
-                <style>
-                  #{plot.plot_id} {{
-                        width:{plot.width};
-                        height:{plot.height};
-                     }}
-                </style>
-               <script type="text/javascript" src="{plot.js_url}"></script>
-                <script type="text/javascript" src="{plot.js_url_gl}"></script>
-            </head>
-            <body>
-              <div id="{plot.plot_id}" ></div>
-              <script>
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                {plot.extra_js}
-                plot_{plot.plot_id}.setOption({plot.js_options})
-              </script>
-            </body>
-            </html>
-            """
-        else:
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8">
-              <title></title>
-                <style>
-                  #{plot.plot_id} {{
-                        width:{ {plot.width} };
-                        height:{ {plot.height} };
-                     }}
-                </style>
-               <script type="text/javascript" src="{plot.js_url}"></script>
-            </head>
-            <body>
-              <div id="{plot.plot_id}" ></div>
-              <script>
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                {plot.extra_js}
-                plot_{plot.plot_id}.setOption({plot.js_options})
-              </script>
-            </body>
-            </html>
-            """
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
-
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
@@ -929,43 +860,6 @@ class G2PLOT(object):
             """
         return Html(html)
 
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        plot = self
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title></title>
-            <style>
-              #{plot.plot_id} {{
-                    width:{plot.width};
-                    height:{plot.height};
-                 }}
-            </style>
-           <script type="text/javascript" src="{plot.js_url}"></script>
-        </head>
-        <body>
-          <div id="{plot.plot_id}" ></div>
-          <script>
-             {plot.extra_js}
-             var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
-             plot_{plot.plot_id}.render();
-          </script>
-        </body>
-        </html>
-        """
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
-
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
@@ -1196,19 +1090,6 @@ class HighCharts(object):
               </script>
             """
         return Html(html)
-
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        html = self.render_html()
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
 
     def render_html(self) -> str:
         """
@@ -1526,18 +1407,6 @@ class KlineCharts(object):
         """
         return html
 
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        html = self.render_html()
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
-
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
@@ -1789,18 +1658,6 @@ class Tabulator(object):
             </script>
             """
         return Html(html)
-
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        html = self.render_html()
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
 
     def render_html(self) -> str:
         """

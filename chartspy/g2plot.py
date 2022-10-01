@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
 import copy
-import os
 import uuid
 
 import pandas as pd
@@ -125,43 +124,6 @@ class G2PLOT(object):
             </script>
             """
         return Html(html)
-
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        self.js_options = Tools.convert_dict_to_js(self.options)
-        plot = self
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title></title>
-            <style>
-              #{plot.plot_id} {{
-                    width:{plot.width};
-                    height:{plot.height};
-                 }}
-            </style>
-           <script type="text/javascript" src="{plot.js_url}"></script>
-        </head>
-        <body>
-          <div id="{plot.plot_id}" ></div>
-          <script>
-             {plot.extra_js}
-             var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
-             plot_{plot.plot_id}.render();
-          </script>
-        </body>
-        </html>
-        """
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
 
     def render_html(self) -> str:
         """

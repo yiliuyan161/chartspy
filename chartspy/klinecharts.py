@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding=utf-8
-import os
 import uuid
 
 import pandas as pd
@@ -181,18 +180,6 @@ class KlineCharts(object):
                 </html>
         """
         return html
-
-    def render_file(self, path: str = "plot.html") -> Html:
-        """
-        输出html到文件
-        :param path:
-        :return: 文件路径
-        """
-        html = self.render_html()
-        with open(path, "w+", encoding="utf-8") as html_file:
-            html_file.write(html)
-        abs_path = os.path.abspath(path)
-        return Html("<p>{path}</p>".format(path=abs_path))
 
     def render_html_fragment(self):
         """

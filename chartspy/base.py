@@ -28,7 +28,7 @@ class Html:
     在 jupyter notebook 或者 jupyterlab 中输出html内容需要用此对象包裹
     """
 
-    def __init__(self, data = None):
+    def __init__(self, data=None):
         self.data = data
 
     def _repr_html_(self):
@@ -74,7 +74,6 @@ class Tools(object):
         if index:
             df.index = pd.to_datetime(df.index)
         return df
-
 
     @staticmethod
     def df2tree(df: pd.DataFrame = None, category_cols=[], value_col="") -> list:
@@ -134,16 +133,12 @@ class Tools(object):
         js_code = js_code.strip()
 
         def rep1(match_obj):
-            return "'" + match_obj.group(1) + "':" + match_obj.group(2)
+            return '"' + match_obj.group(1) + '":' + match_obj.group(2)
 
         # 去除注释
         js_code = re.sub(r"[\s]+//[^\n]+\n", "", js_code)
         # 对象key 增加单引号
         js_code = re.sub(r"([a-zA-Z0-9]+):\s*([\{'\"\[]|true|false|[\d\.]+|function)", rep1, js_code)
-        # true，false,null 替换
-        js_code = re.sub("true", "True", js_code)
-        js_code = re.sub("false", "False", js_code)
-        js_code = re.sub("null", "None", js_code)
         # 记录函数开始结束位置数组
         segs = []  # [start,end]
         function_start = 0
@@ -178,7 +173,7 @@ class Tools(object):
         dict_str = "".join(parts)
         if print_dict:
             print(dict_str)
-        dict_options = eval(dict_str)
+        dict_options = json.loads(dict_str)
         return dict_options
 
     @staticmethod
