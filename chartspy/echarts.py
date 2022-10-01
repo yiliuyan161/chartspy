@@ -2,9 +2,8 @@
 # coding=utf-8
 import copy
 import os
-import string
 import uuid
-import string
+
 from .base import Tools, Html
 
 ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"

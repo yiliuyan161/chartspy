@@ -9,10 +9,11 @@ from .klinecharts import KlineCharts, KlineCharts_JS_URL
 from .highcharts import HighCharts
 from .tabulator import Tabulator
 from . import express
+from . import charts
 
 __all__ = ["Echarts", "G2PLOT", "KlineCharts", "HighCharts", "Tabulator", "Tools", "Js", "Html", "ECHARTS_JS_URL",
            "G2PLOT_JS_URL",
-           "KlineCharts_JS_URL", "express"]
+           "KlineCharts_JS_URL", "express", "charts"]
 
 if __name__ == "__main__":
     pass

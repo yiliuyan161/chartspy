@@ -8,7 +8,7 @@ import pandas as pd
 from .base import Tools, Html, Js
 
 
-def segment(plot):
+def tabulator_segment(plot):
     return f"""
         var lineFormatter = function(cell, formatterParams, onRendered){{
             onRendered(function(){{ 
@@ -136,7 +136,7 @@ class Tabulator(object):
                         element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
                         document.getElementsByTagName("head")[0].appendChild(element);
                 window.Tabulator=tabulator;
-                """ + segment(plot) + f"""
+                """ + tabulator_segment(plot) + f"""
             }});
         </script>
 
@@ -187,7 +187,7 @@ class Tabulator(object):
                 element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
                 document.getElementsByTagName("head")[0].appendChild(element);
             }}).then(() => {{
-              """ + segment(plot) + f"""
+              """ + tabulator_segment(plot) + f"""
             }});
             </script>
             """
@@ -237,7 +237,7 @@ class Tabulator(object):
               <div id="{plot.plot_id}" ></div>
               <script>
                  {plot.extra_js}
-            """ + segment(plot) + f"""
+            """ + tabulator_segment(plot) + f"""
             
               </script>
             </body>
@@ -270,7 +270,7 @@ class Tabulator(object):
              </style>
              <div id="{plot.plot_id}" ></div>
               <script>
-            """ + segment(plot) + f"""
+            """ + tabulator_segment(plot) + f"""
               </script>
             </div>
             """
@@ -312,7 +312,7 @@ class Tabulator(object):
                         element.setAttribute("type", "text/css");
                         element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
                         document.getElementsByTagName("head")[0].appendChild(element);
-                        """ + segment(plot) + f"""
+                        """ + tabulator_segment(plot) + f"""
                     }});
              }}else{{
                new Promise(function(resolve, reject) {{
@@ -337,7 +337,7 @@ class Tabulator(object):
                     element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
                     document.getElementsByTagName("head")[0].appendChild(element);
                 }}).then(() => {{
-                  """ + segment(plot) + f"""
+                  """ + tabulator_segment(plot) + f"""
                 }});
              }}
 

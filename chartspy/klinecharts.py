@@ -12,7 +12,7 @@ KlineCharts_JS_URL: str = "https://cdn.jsdelivr.net/npm/klinecharts@latest/dist/
 
 # language=jinja2
 
-def segment(plot):
+def kline_chart_segment(plot):
     parts = []
     parts.append(
         f"""var chart_{plot.plot_id} = klinecharts.init("{plot.plot_id}",
@@ -112,7 +112,7 @@ class KlineCharts(object):
           {plot.extra_js}
           var data_{plot.plot_id} = {plot.data}
           require(['klinecharts'], function (klinecharts) {{
-            """ + segment(plot) + f"""
+            """ + kline_chart_segment(plot) + f"""
           }});
         </script>
         
@@ -144,7 +144,7 @@ class KlineCharts(object):
               script.src = "{plot.js_url}";
               document.head.appendChild(script);
             }}).then(() => {{
-              """ + segment(plot) + f"""
+              """ + kline_chart_segment(plot) + f"""
             }});
             </script>
             """
@@ -174,7 +174,7 @@ class KlineCharts(object):
           <div id="{plot.plot_id}" ></div>
           <script>
              {plot.extra_js}
-        """ + segment(plot) + f"""
+        """ + kline_chart_segment(plot) + f"""
 
                   </script>
                 </body>
@@ -212,7 +212,7 @@ class KlineCharts(object):
          <div id="{plot.plot_id}" ></div>
           <script>
             {plot.extra_js}
-        """ + segment(plot) + f"""
+        """ + kline_chart_segment(plot) + f"""
           </script>
         </div>
         """
@@ -242,7 +242,7 @@ class KlineCharts(object):
                 }}
               }});
               require(['klinecharts'], function (klinecharts) {{
-                """ + segment(plot) + f"""
+                """ + kline_chart_segment(plot) + f"""
              }});
              }}else{{
                new Promise(function(resolve, reject) {{
@@ -252,7 +252,7 @@ class KlineCharts(object):
                  script.src = "{plot.js_url}";
                  document.head.appendChild(script);
                }}).then(() => {{
-                 """ + segment(plot) + f"""
+                 """ + kline_chart_segment(plot) + f"""
                }});
              }}
         

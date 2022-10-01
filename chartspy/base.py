@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 import datetime
+import json
 import re
-from typing import Optional
 
 import numpy as np
 import pandas as pd
-import json
 
 FUNCTION_BOUNDARY_MARK = "FUNCTION_BOUNDARY_MARK"
 
@@ -29,7 +28,7 @@ class Html:
     在 jupyter notebook 或者 jupyterlab 中输出html内容需要用此对象包裹
     """
 
-    def __init__(self, data: Optional[str] = None):
+    def __init__(self, data = None):
         self.data = data
 
     def _repr_html_(self):
