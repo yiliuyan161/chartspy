@@ -5,160 +5,42 @@ import uuid
 
 import pandas as pd
 
-from .base import Tools, GLOBAL_ENV, Html
+from .base import Tools, Html
 
 KlineCharts_JS_URL: str = "https://cdn.jsdelivr.net/npm/klinecharts@latest/dist/klinecharts.min.js"
+
+
 # language=jinja2
-SEGMENT = """
-        var chart_{{ plot.plot_id }} = klinecharts.init("{{ plot.plot_id }}",{grid: { show: true, horizontal: { show: true, size: 2, color: '#CFCFCF', style: 'dash'}, vertical: { show: true, size: 2, color: '#CFCFCF',  style: 'dash'} },'candle':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}},'technicalIndicator':{'bar':{'upColor':'#EF5350','downColor':'#26A69A'}}});
-        {% for bt in plot.bottom_indicators %}
-           var btm_{{bt}}_{{ plot.plot_id }} = chart_{{ plot.plot_id }}.createTechnicalIndicator('{{bt}}', false)
-        {% endfor %}
-        {% for mi in plot.main_indicators %}
-          chart_{{ plot.plot_id }}.createTechnicalIndicator('{{mi}}', true,{id:"candle_pane"})
-        {% endfor %}
-        {% if plot.mas|length>0 %}
-            chart_{{ plot.plot_id }}.overrideTechnicalIndicator({name: 'MA',calcParams: {{plot.mas|string}}},"candle_pane")
-        {% endif %}
-        {% if plot.segments|length>0 %}
-            {% for seg in plot.segments %}
-              chart_{{ plot.plot_id }}.createShape({name: 'segment',points:[{timestamp:{{seg['start_time']}},value:{{seg['start_price']}}},{timestamp:{{seg['end_time']}},value:{{seg['end_price']}}}]},"candle_pane")
-            {% endfor %}
-        {% endif %}
-        chart_{{ plot.plot_id }}.applyNewData(data_{{ plot.plot_id }})
-"""
 
-# language=HTML
-JUPYTER_ALL_TEMPLATE = """
-
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-  {{plot.extra_js}}
-  var data_{{ plot.plot_id }} = {{ plot.data}}
-  if (typeof require !== 'undefined'){
-      require.config({
-        paths: {
-          "klinecharts": "{{plot.js_url[:-3]}}"
-        }
-      });
-      require(['klinecharts'], function (klinecharts) {
-        """ + SEGMENT + """
-     });
-     }else{
-       new Promise(function(resolve, reject) {
-         var script = document.createElement("script");
-         script.onload = resolve;
-         script.onerror = reject;
-         script.src = "{{plot.js_url}}";
-         document.head.appendChild(script);
-       }).then(() => {
-         """ + SEGMENT + """
-       });
-     }
-
-</script>
-"""
-
-# language=HTML
-JUPYTER_NOTEBOOK_TEMPLATE = """
-<script>
-  require.config({
-    paths: {
-      "klinecharts": "{{plot.js_url[:-3]}}"
-    }
-  });
-</script>
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-  {{plot.extra_js}}
-  var data_{{ plot.plot_id }} = {{ plot.data}}
-  require(['klinecharts'], function (klinecharts) {
-    """ + SEGMENT + """
-  });
-</script>
-
-"""
-
-# language=HTML
-JUPYTER_LAB_TEMPLATE = """
-<style>
- #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-// load javascript
-
-{{plot.extra_js}}
-new Promise(function(resolve, reject) {
-  var script = document.createElement("script");
-  script.onload = resolve;
-  script.onerror = reject;
-  script.src = "{{plot.js_url}}";
-  document.head.appendChild(script);
-}).then(() => {
-  """ + SEGMENT + """
-});
-</script>
-"""
-
-# language=HTML
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-    <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
-    </style>
-   <script type="text/javascript" src="{{ plot.js_url }}"></script>
-</head>
-<body>
-  <div id="{{ plot.plot_id }}" ></div>
-  <script>
-     {{plot.extra_js}}
-""" + SEGMENT + """
-     
-  </script>
-</body>
-</html>
-"""
-
-# language=HTML
-HTML_FRAGMENT_TEMPLATE = """
-<div>
- <script type="text/javascript" src="{{ plot.js_url }}"></script>
- <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
- </style>
- <div id="{{ plot.plot_id }}" ></div>
-  <script>
-    {{plot.extra_js}}
-""" + SEGMENT + """
-  </script>
-</div>
-"""
+def segment(plot):
+    parts = []
+    parts.append(
+        f"""var chart_{plot.plot_id} = klinecharts.init("{plot.plot_id}",
+        {{
+            grid: {{ 
+                show: true, horizontal: {{ show: true, size: 2, color: '#CFCFCF', style: 'dash'}},
+                vertical: {{ show: true, size: 2, color: '#CFCFCF',  style: 'dash'}},
+                'candle':{{'bar':{{'upColor':'#EF5350','downColor':'#26A69A'}} }},
+                'technicalIndicator':{{
+                    'bar':{{'upColor':'#EF5350','downColor':'#26A69A'}} 
+                 }}
+            }}
+         }}
+         );""")
+    for bt in plot.bottom_indicators:
+        parts.append(f"""var btm_{bt}_{plot.plot_id} = chart_{plot.plot_id}.createTechnicalIndicator('{bt}', false)""")
+    for mi in plot.main_indicators:
+        parts.append(f"""chart_{plot.plot_id}.createTechnicalIndicator('{mi}', true,{{id:"candle_pane"}})""")
+    if len(plot.mas) > 0:
+        parts.append(
+            f"""chart_{plot.plot_id}.overrideTechnicalIndicator({{name: 'MA',calcParams: {str(plot.mas)} }},"candle_pane")""")
+    if len(plot.segments) > 0:
+        for seg in plot.segments:
+            parts.append(f"""
+            chart_{plot.plot_id}.createShape({{name: 'segment',points:[{{timestamp:{seg['start_time']},value:{seg['start_price']}}},{{timestamp:{seg['end_time']},value:{seg['end_price']}}}]}},"candle_pane")
+            """)
+    parts.append(f"""chart_{plot.plot_id}.applyNewData(data_{plot.plot_id})""")
+    return "\n".join(parts)
 
 
 class KlineCharts(object):
@@ -209,7 +91,32 @@ class KlineCharts(object):
         在jupyter notebook 环境输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
+        plot = self
+
+        html = f"""
+        <script>
+          require.config({{
+            paths: {{
+              "klinecharts": "{plot.js_url[:-3]}"
+            }}
+          }});
+        </script>
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+          {plot.extra_js}
+          var data_{plot.plot_id} = {plot.data}
+          require(['klinecharts'], function (klinecharts) {{
+            """ + segment(plot) + f"""
+          }});
+        </script>
+        
+        """
         return Html(html)
 
     def render_jupyterlab(self) -> Html:
@@ -217,8 +124,63 @@ class KlineCharts(object):
         在jupyterlab 环境输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+            <style>
+             #{plot.plot_id} {{
+                width:{plot.width};
+                height:{plot.height};
+             }}
+            </style>
+            <div id="{plot.plot_id}"></div>
+            <script>
+            // load javascript
+            
+            {plot.extra_js}
+            new Promise(function(resolve, reject) {{
+              var script = document.createElement("script");
+              script.onload = resolve;
+              script.onerror = reject;
+              script.src = "{plot.js_url}";
+              document.head.appendChild(script);
+            }}).then(() => {{
+              """ + segment(plot) + f"""
+            }});
+            </script>
+            """
         return Html(html)
+
+    def render_html(self) -> str:
+        """
+        渲染html字符串，可以用于 streamlit
+        :return:
+        """
+        plot = self
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title></title>
+            <style>
+              #{plot.plot_id} {{
+                    width:{plot.width};
+                    height:{plot.height};
+                 }}
+            </style>
+           <script type="text/javascript" src="{plot.js_url}"></script>
+        </head>
+        <body>
+          <div id="{plot.plot_id}" ></div>
+          <script>
+             {plot.extra_js}
+        """ + segment(plot) + f"""
+
+                  </script>
+                </body>
+                </html>
+        """
+        return html
 
     def render_file(self, path: str = "plot.html") -> Html:
         """
@@ -226,26 +188,34 @@ class KlineCharts(object):
         :param path:
         :return: 文件路径
         """
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
+        html = self.render_html()
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
         abs_path = os.path.abspath(path)
         return Html("<p>{path}</p>".format(path=abs_path))
-
-    def render_html(self) -> str:
-        """
-        渲染html字符串，可以用于 streamlit
-        :return:
-        """
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
-        return html
 
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
         :return:
         """
-        html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+        <div>
+         <script type="text/javascript" src="{plot.js_url}"></script>
+         <style>
+              #{plot.plot_id} {{
+                    width:{plot.width};
+                    height:{plot.height};
+              }}
+         </style>
+         <div id="{plot.plot_id}" ></div>
+          <script>
+            {plot.extra_js}
+        """ + segment(plot) + f"""
+          </script>
+        </div>
+        """
         return html
 
     def _repr_html_(self):
@@ -253,5 +223,39 @@ class KlineCharts(object):
         jupyter 环境，直接输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+          {plot.extra_js}
+          var data_{plot.plot_id} = {plot.data}
+          if (typeof require !== 'undefined'){{
+              require.config({{
+                paths: {{
+                  "klinecharts": "{plot.js_url[:-3]}"
+                }}
+              }});
+              require(['klinecharts'], function (klinecharts) {{
+                """ + segment(plot) + f"""
+             }});
+             }}else{{
+               new Promise(function(resolve, reject) {{
+                 var script = document.createElement("script");
+                 script.onload = resolve;
+                 script.onerror = reject;
+                 script.src = "{plot.js_url}";
+                 document.head.appendChild(script);
+               }}).then(() => {{
+                 """ + segment(plot) + f"""
+               }});
+             }}
+        
+        </script>
+        """
         return Html(html).data

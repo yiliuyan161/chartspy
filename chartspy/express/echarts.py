@@ -372,7 +372,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         'borderColor': '#ccc',
         'padding': 10,
         'color': "black",
-            'backgroundColor': "rgba(255,255,255,0.8)",
+        'backgroundColor': "rgba(255,255,255,0.8)",
         'formatter': Js("""
                 function(params){
                     var dt = params[0]['axisValue'];
@@ -1150,6 +1150,7 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
     :return:
     """
     df = data_frame[list(set([name_field] + indicator_field_list))].copy()
+    dims = str(indicator_field_list)
     options = {
         'title': {'text': title},
         'legend': {
@@ -1169,15 +1170,15 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
             'trigger': 'item',
             'color': "black",
             'backgroundColor': "rgba(255,255,255,0.8)",
-            'formatter': Js(Tools.wrap_template(""" function(params){
-                    var dims={{dims}};
-                    var value_dict={};
+            'formatter': Js(f""" function(params){{
+                    var dims={dims};
+                    var value_dict={{}};
                     var labels=[params.seriesName+':<br/>'];
-                    for(var i=0;i<dims.length;i++){
+                    for(var i=0;i<dims.length;i++){{
                         labels.push('<span>'+dims[i]+":"+params['value'][i]+'</span><br/>');
-                    }
+                    }}
                     return labels.join("");
-            }""", dims=str(indicator_field_list))),
+            }}"""),
             'position': Js("""
                 function (pos, params, el, elRect, size){
                     var obj = {top: 20};
@@ -1265,7 +1266,7 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
             'text': title,
             'left': 'center'
         },
-        'tooltip':{
+        'tooltip': {
             'color': "black",
             'backgroundColor': "rgba(255,255,255,0.8)"
         },

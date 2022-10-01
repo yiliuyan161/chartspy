@@ -130,11 +130,11 @@ def column_stack_percent_g2plot(df, x_field: str = None, y_field: str = None, se
     if show_label:
         options['label'] = {
             'position': 'middle',
-            'content': Js(Tools.wrap_template("""
-                    function(item){
-                      return (item['{{y_field}}'] * 100).toFixed(2);
-                    }
-                """, y_field=y_field))
+            'content': Js(f"""
+                    function(item){{
+                      return (item['{y_field}'] * 100).toFixed(2);
+                    }}
+                """)
         }
     return G2PLOT(df, plot_type="Column", options=options, width=width, height=height)
 

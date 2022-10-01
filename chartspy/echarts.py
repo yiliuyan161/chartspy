@@ -2,199 +2,13 @@
 # coding=utf-8
 import copy
 import os
+import string
 import uuid
-
-from .base import Tools, GLOBAL_ENV, Html
+import string
+from .base import Tools, Html
 
 ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"
 ECHARTS_GL_JS_URL = "https://cdn.staticfile.org/echarts-gl/2.0.8/echarts-gl.min.js"
-
-# language=HTML
-JUPYTER_ALL_TEMPLATE = """
-<script>
-
-</script>
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-  {{plot.extra_js}}
-  var options_{{ plot.plot_id }} = {{ plot.js_options }};
-  if (typeof require !== 'undefined'){
-    {% if plot.with_gl %}
-      require.config({
-        paths: {
-          "echarts": "{{plot.js_url[:-3]}}",
-          "echartsgl": "{{plot.js_url_gl[:-3]}}"
-        }
-      });
-      require(['echarts','echartsgl'], function (echarts,echartsgl) {
-        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
-      });
-    {% else %}
-      require.config({
-        paths: {
-          "echarts": "{{plot.js_url[:-3]}}",
-        }
-      });
-      require(['echarts'], function (echarts) {
-        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
-      });
-    {% endif %}
-    
-      
-  }else{
-    new Promise(function(resolve, reject) {
-      var script = document.createElement("script");
-      script.onload = resolve;
-      script.onerror = reject;
-      script.src = "{{plot.js_url}}";
-      document.head.appendChild(script);
-      {% if plot.with_gl %}
-          var scriptGL = document.createElement("script");
-          scriptGL.onload = resolve;
-          scriptGL.onerror = reject;
-          scriptGL.src = "{{plot.js_url_gl}}";
-          document.head.appendChild(scriptGL);
-      {% endif %}
-
-    }).then(() => {
-       var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-       plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
-    });
-  }
-
-</script>
-"""
-
-# language=HTML
-JUPYTER_NOTEBOOK_TEMPLATE = """
-
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-    {% if plot.with_gl %}
-      require.config({
-        paths: {
-          "echarts": "{{plot.js_url[:-3]}}",
-          "echartsgl": "{{plot.js_url_gl[:-3]}}"
-        }
-      });
-      require(['echarts','echartsgl'], function (echarts,echartsgl) {
-        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        {{plot.extra_js}}
-        var options_{{ plot.plot_id }} = {{ plot.js_options }};
-        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
-      });
-    {% else %}
-      require.config({
-        paths: {
-          "echarts": "{{plot.js_url[:-3]}}",
-        }
-      });
-      require(['echarts'], function (echarts) {
-        var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-        {{plot.extra_js}}
-        var options_{{ plot.plot_id }} = {{ plot.js_options }};
-        plot_{{ plot.plot_id }}.setOption(options_{{ plot.plot_id }})
-      });
-    {% endif %}
-</script>
-"""
-
-# language=HTML
-JUPYTER_LAB_TEMPLATE = """
-<style>
- #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
-</style>
-<div id="{{ plot.plot_id }}"></div>
-  <script>
-    // load javascript
-    new Promise(function(resolve, reject) {
-      var script = document.createElement("script");
-      script.onload = resolve;
-      script.onerror = reject;
-      script.src = "{{plot.js_url}}";
-      document.head.appendChild(script);
-      {% if plot.with_gl %}
-      var scriptGL = document.createElement("script");
-      scriptGL.onload = resolve;
-      scriptGL.onerror = reject;
-      scriptGL.src = "{{plot.js_url_gl}}";
-      document.head.appendChild(scriptGL);
-      {% endif %}
-    }).then(() => {
-       var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-       {{plot.extra_js}}
-       plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
-    });
-  </script>
-"""
-
-# language=HTML
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-    <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
-    </style>
-   <script type="text/javascript" src="{{ plot.js_url }}"></script>
-   {% if plot.with_gl %}
-    <script type="text/javascript" src="{{ plot.js_url_gl }}"></script>
-   {% endif %}
-</head>
-<body>
-  <div id="{{ plot.plot_id }}" ></div>
-  <script>
-    var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-    {{plot.extra_js}}
-    plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
-  </script>
-</body>
-</html>
-"""
-
-# language=HTML
-HTML_FRAGMENT_TEMPLATE = """
-<div>
- <script type="text/javascript" src="{{ plot.js_url }}"></script>
-   {% if plot.with_gl %}
-    <script type="text/javascript" src="{{ plot.js_url_gl }}"></script>
-   {% endif %}
- <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
- </style>
- <div id="{{ plot.plot_id }}" ></div>
-  <script>
-    var plot_{{ plot.plot_id }} = echarts.init(document.getElementById('{{ plot.plot_id }}'));
-    {{plot.extra_js}}
-    plot_{{ plot.plot_id }}.setOption({{ plot.js_options }})
-  </script>
-</div>
-"""
 
 
 class Echarts(object):
@@ -378,7 +192,55 @@ class Echarts(object):
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
+        plot = self
+        if plot.with_gl:
+            html = f"""
+            <style>
+              #{plot.plot_id} {{
+                width:{{plot.width}};
+                height:{{plot.height}};
+             }}
+            </style>
+            <div id="{plot.plot_id}"></div>
+            <script>
+                require.config({{
+                    paths: {{
+                      "echarts": "{plot.js_url[:-3]}",
+                      "echartsgl": "{plot.js_url_gl[:-3]}"
+                    }}
+                  }});
+                  require(['echarts','echartsgl'], function (echarts,echartsgl) {{
+                    var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                    {plot.extra_js}
+                    var options_{plot.plot_id} = {plot.js_options};
+                    plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+                  }});
+            </script>
+            """
+        else:
+            html = f"""
+            <style>
+              #{plot.plot_id} {{
+                width:{{plot.width}};
+                height:{{plot.height}};
+             }}
+            </style>
+            <div id="{plot.plot_id}"></div>
+            <script>
+                require.config({{
+                    paths: {{
+                      "echarts": "{plot.js_url[:-3]}",
+                    }}
+                  }});
+                  require(['echarts'], function (echarts) {{
+                    var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                    {plot.extra_js}
+                    var options_{plot.plot_id} = {plot.js_options};
+                    plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+                  }});
+            </script>
+            """
+
         return Html(html)
 
     def render_jupyterlab(self) -> Html:
@@ -387,8 +249,61 @@ class Echarts(object):
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
-        return Html(html)
+        plot = self
+        if plot.with_gl:
+            html = f"""
+                <style>
+                 #{plot.plot_id}{{
+                    width:{plot.width};
+                    height:{plot.height};
+                 }}
+                </style>
+                <div id="{plot.plot_id}"></div>
+                  <script>
+                    // load javascript
+                    new Promise(function(resolve, reject) {{
+                      var script = document.createElement("script");
+                      script.onload = resolve;
+                      script.onerror = reject;
+                      script.src = "{plot.js_url}";
+                      document.head.appendChild(script);
+                      var scriptGL = document.createElement("script");
+                      scriptGL.onload = resolve;
+                      scriptGL.onerror = reject;
+                      scriptGL.src = "{plot.js_url_gl}";
+                      document.head.appendChild(scriptGL);
+                    }}).then(() => {{
+                       var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                       {plot.extra_js}
+                       plot_{plot.plot_id}.setOption({plot.js_options})
+                    }});
+                  </script>
+                """
+        else:
+            html = f"""
+            <style>
+             #{plot.plot_id} {{
+                width:{plot.width};
+                height:{plot.height};
+             }}
+            </style>
+            <div id="{plot.plot_id}"></div>
+              <script>
+                // load javascript
+                new Promise(function(resolve, reject) {{
+                    var script =document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "{plot.js_url}";
+                    document.head.appendChild(script);
+                }}).then(() => {{
+                    var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                    {plot.extra_js}
+                    plot_{plot.plot_id}.setOption({plot.js_options})
+                }});
+              </script>
+            """
+            return Html(html)
 
     def render_file(self, path: str = "plot.html") -> Html:
         """
@@ -397,7 +312,58 @@ class Echarts(object):
         :return: 文件路径
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
+        plot = self
+        if self.with_gl:
+            html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title></title>
+                <style>
+                  #{plot.plot_id} {{
+                        width:{plot.width};
+                        height:{plot.height};
+                     }}
+                </style>
+               <script type="text/javascript" src="{plot.js_url}"></script>
+                <script type="text/javascript" src="{plot.js_url_gl}"></script>
+            </head>
+            <body>
+              <div id="{plot.plot_id}" ></div>
+              <script>
+                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                {plot.extra_js}
+                plot_{plot.plot_id}.setOption({plot.js_options})
+              </script>
+            </body>
+            </html>
+            """
+        else:
+            html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title></title>
+                <style>
+                  #{plot.plot_id} {{
+                        width:{ {plot.width} };
+                        height:{ {plot.height} };
+                     }}
+                </style>
+               <script type="text/javascript" src="{plot.js_url}"></script>
+            </head>
+            <body>
+              <div id="{plot.plot_id}" ></div>
+              <script>
+                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                {plot.extra_js}
+                plot_{plot.plot_id}.setOption({plot.js_options})
+              </script>
+            </body>
+            </html>
+            """
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
         abs_path = os.path.abspath(path)
@@ -409,7 +375,58 @@ class Echarts(object):
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
+        plot = self
+        if self.with_gl:
+            html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title></title>
+                <style>
+                  #{plot.plot_id} {{
+                        width:{plot.width};
+                        height:{plot.height};
+                     }}
+                </style>
+               <script type="text/javascript" src="{plot.js_url}"></script>
+                <script type="text/javascript" src="{plot.js_url_gl}"></script>
+            </head>
+            <body>
+              <div id="{plot.plot_id}" ></div>
+              <script>
+                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                {plot.extra_js}
+                plot_{plot.plot_id}.setOption({plot.js_options})
+              </script>
+            </body>
+            </html>
+            """
+        else:
+            html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title></title>
+                <style>
+                  #{plot.plot_id} {{
+                        width:{ {plot.width} };
+                        height:{ {plot.height} };
+                     }}
+                </style>
+               <script type="text/javascript" src="{plot.js_url}"></script>
+            </head>
+            <body>
+              <div id="{plot.plot_id}" ></div>
+              <script>
+                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                {plot.extra_js}
+                plot_{plot.plot_id}.setOption({plot.js_options})
+              </script>
+            </body>
+            </html>
+            """
         return html
 
     def render_html_fragment(self):
@@ -418,7 +435,45 @@ class Echarts(object):
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
+        plot = self
+        if self.with_gl:
+            html = f"""
+                <div>
+                 <script type="text/javascript" src="{plot.js_url}"></script>
+                 <script type="text/javascript" src="{plot.js_url_gl}"></script>
+                 <style>
+                      #{plot.plot_id} {{
+                            width:{plot.width};
+                            height:{plot.height};
+                         }}
+                 </style>
+                 <div id="{plot.plot_id}" ></div>
+                  <script>
+                    var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                    {plot.extra_js}
+                    plot_{plot.plot_id}.setOption({plot.js_options})
+                  </script>
+                </div>
+                """
+        else:
+            html = f"""
+                <div>
+                 <script type="text/javascript" src="{plot.js_url}"></script>
+                 <style>
+                      #{plot.plot_id} {{
+                            width:{plot.width};
+                            height:{plot.height};
+                         }}
+                 </style>
+                 <div id="{plot.plot_id}" ></div>
+                  <script>
+                    var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                    {plot.extra_js}
+                    plot_{plot.plot_id}.setOption({plot.js_options})
+                  </script>
+                </div>
+                """
+
         return html
 
     def _repr_html_(self):
@@ -427,5 +482,87 @@ class Echarts(object):
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
-        html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
+        plot = self
+        if self.with_gl:
+            html = f"""
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+          {plot.extra_js}
+          var options_{plot.plot_id} = {plot.js_options};
+          if (typeof require !== 'undefined'){{
+            require.config({{
+                paths: {{
+                  "echarts": "{plot.js_url[:-3]}",
+                  "echartsgl": "{plot.js_url_gl[:-3]}"
+                }}
+              }});
+              require(['echarts','echartsgl'], function (echarts,echartsgl) {{
+                var plot_{plot.plot_id} =
+                echarts.init(document.getElementById('{plot.plot_id}'));
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+              }});
+          }}else{{
+            new Promise(function(resolve, reject)
+        {{
+            var script = document.createElement("script");
+            script.onload = resolve;
+            script.onerror = reject;
+            script.src = "{plot.js_url}";
+            document.head.appendChild(script);
+            var
+            scriptGL = document.createElement("script");
+            scriptGL.onload = resolve;
+            scriptGL.onerror = reject;
+            scriptGL.src = "{plot.js_url_gl}";
+            document.head.appendChild(scriptGL);
+        }}).then(() = > {{
+            var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+            plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+        }});
+        }}
+        </script>
+        """
+        else:
+            # language=HTML
+            html = f"""
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+          {plot.extra_js}
+          var options_{plot.plot_id} = {plot.js_options};
+          if (typeof require !== 'undefined'){{
+            require.config({{
+                paths: {{
+                  "echarts": "{plot.js_url[:-3]}",
+                }}
+              }});
+              require(['echarts'], function (echarts) {{
+                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+              }});
+          }}else{{
+            new Promise(function(resolve, reject) {{
+              var script = document.createElement("script");
+              script.onload = resolve;
+              script.onerror = reject;
+              script.src = "{plot.js_url}";
+              document.head.appendChild(script);
+            }}).then(() => {{
+               var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
+               plot_{plot.plot_id}.setOption(options_{plot.plot_id})
+            }});
+          }}
+        </script>
+        """
         return Html(html).data

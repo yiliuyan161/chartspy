@@ -7,11 +7,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import json
-from jinja2 import Environment, BaseLoader
 
-# jinja2模板引擎env
-
-GLOBAL_ENV = Environment(loader=BaseLoader)
 FUNCTION_BOUNDARY_MARK = "FUNCTION_BOUNDARY_MARK"
 
 
@@ -80,15 +76,6 @@ class Tools(object):
             df.index = pd.to_datetime(df.index)
         return df
 
-    @staticmethod
-    def wrap_template(js_options_template: str, **kwargs):
-        """
-        组装模板和数据生成配置字符串，模板可以从echarts例子修改而来，使用jinja2模板引擎
-        :param js_options_template:
-        :param kwargs:
-        :return:
-        """
-        return GLOBAL_ENV.from_string(js_options_template).render(**kwargs)
 
     @staticmethod
     def df2tree(df: pd.DataFrame = None, category_cols=[], value_col="") -> list:
@@ -265,4 +252,4 @@ def json_type_convert(o: object):
         return json_encoder.default(o)
 
 
-__all__ = ["Tools", "json_type_convert", "Html", "Js", "GLOBAL_ENV"]
+__all__ = ["Tools", "json_type_convert", "Html", "Js"]

@@ -5,259 +5,57 @@ import uuid
 
 import pandas as pd
 
-from .base import Tools, GLOBAL_ENV, Html, Js
+from .base import Tools, Html, Js
 
-# language=jinja2
-SEGMENT = """
-var lineFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){ 
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"line"});
-    });
-};
 
-var barFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){ 
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"bar"});
-    });
-};
-
-var tristateFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){ 
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"tristate"});
-    });
-};
-
-var boxFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"box"});
-    });
-};
-var pieFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"pie"});
-    });
-};
-var bulletFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"bullet"});
-    });
-};
-var discreteFormatter = function(cell, formatterParams, onRendered){
-    onRendered(function(){
-        $(cell.getElement()).sparkline(cell.getValue(), {width:"100%", type:"discrete"});
-    });
-};
-var tabledata = {{plot.tabledata}};
-var table = new Tabulator("#{{plot.plot_id}}", {
- 	height:{{plot.height}},
- 	data:tabledata,
- 	layout:"fitColumns",
- 	columns:{{plot.columns}},
-});
-"""
-
-# language=HTML
-JUPYTER_ALL_TEMPLATE = """
-
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
- .jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-  if (typeof require !== 'undefined'){
-        requirejs.config(
-             {paths: { 
-                'tabulator': ['https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min'],
-                'jquery':['https://cdn.staticfile.org/jquery/3.6.0/jquery.min'],
-                'sparkline':['https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min'],
-             },}
-        );
-        require(['tabulator','jquery','sparkline'],function(tabulator,$,sparkline) {
-
-               var element = document.createElement("link");
-                element.setAttribute("rel", "stylesheet");
-                element.setAttribute("type", "text/css");
-                element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
-                document.getElementsByTagName("head")[0].appendChild(element);
-                """ + SEGMENT + """
-            });
-     }else{
-       new Promise(function(resolve, reject) {
-          var script = document.createElement("script");
-          script.onload = resolve;
-          script.onerror = reject;
-          script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
-          document.head.appendChild(script);
-            var jq = document.createElement("script");
-          script.onload = resolve;
-          script.onerror = reject;
-          script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
-          document.head.appendChild(jq);
-            var sparkline = document.createElement("script");
-          script.onload = resolve;
-          script.onerror = reject;
-          script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
-          document.head.appendChild(sparkline);
-            var element = document.createElement("link");
-            element.setAttribute("rel", "stylesheet");
-            element.setAttribute("type", "text/css");
-            element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
-            document.getElementsByTagName("head")[0].appendChild(element);
-        }).then(() => {
-          """ + SEGMENT + """
-        });
-     }
-
-</script>
-"""
-
-# language=HTML
-JUPYTER_NOTEBOOK_TEMPLATE = """
-<script>
-  requirejs.config(
-             {paths: { 
-                'tabulator': ['https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min'],
-                'jquery':['https://cdn.staticfile.org/jquery/3.6.0/jquery.min'],
-                'sparkline':['https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min'],
-             },}
-        );
-</script>
-<style>
-  #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
- .jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
- require(['tabulator','jquery','sparkline'],function(tabulator,$,sparkline) {
-        var element = document.createElement("link");
-                element.setAttribute("rel", "stylesheet");
-                element.setAttribute("type", "text/css");
-                element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
-                document.getElementsByTagName("head")[0].appendChild(element);
-        window.Tabulator=tabulator;
-        """ + SEGMENT + """
-    });
-</script>
-
-"""
-
-# language=HTML
-JUPYTER_LAB_TEMPLATE = """
-<style>
- #{{plot.plot_id}} {
-    width:{{plot.width}};
-    height:{{plot.height}};
- }
- .jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
-</style>
-<div id="{{ plot.plot_id }}"></div>
-<script>
-// load javascript
-
-new Promise(function(resolve, reject) {
-  var script = document.createElement("script");
-  script.onload = resolve;
-  script.onerror = reject;
-  script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
-  document.head.appendChild(script);
-    var jq = document.createElement("script");
-  script.onload = resolve;
-  script.onerror = reject;
-  script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
-  document.head.appendChild(jq);
-    var sparkline = document.createElement("script");
-  script.onload = resolve;
-  script.onerror = reject;
-  script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
-  document.head.appendChild(sparkline);
-    var element = document.createElement("link");
-    element.setAttribute("rel", "stylesheet");
-    element.setAttribute("type", "text/css");
-    element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
-    document.getElementsByTagName("head")[0].appendChild(element);
-}).then(() => {
-  """ + SEGMENT + """
-});
-</script>
-"""
-
-# language=HTML
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-    <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
-        .jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
-    </style>
-    <script type="text/javascript" src="https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js"></script>
- <script type="text/javascript" src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
- <script type="text/javascript" src="https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
-<link rel='stylesheet' href='https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css'>
-</head>
-<body>
-  <div id="{{ plot.plot_id }}" ></div>
-  <script>
-     {{plot.extra_js}}
-""" + SEGMENT + """
-
-  </script>
-</body>
-</html>
-"""
-
-# language=HTML
-HTML_FRAGMENT_TEMPLATE = """
-<div>
- <script type="text/javascript" src="https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js"></script>
- <script type="text/javascript" src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
- <script type="text/javascript" src="https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
-<link rel='stylesheet' href='https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css'>
- <style>
-      #{{plot.plot_id}} {
-            width:{{plot.width}};
-            height:{{plot.height}};
-         }
-         .jqstooltip {
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  box-sizing: content-box;
-}
- </style>
- <div id="{{ plot.plot_id }}" ></div>
-  <script>
-""" + SEGMENT + """
-  </script>
-</div>
-"""
+def segment(plot):
+    return f"""
+        var lineFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{ 
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"line"}});
+            }});
+        }};
+        
+        var barFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{ 
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"bar"}});
+            }});
+        }};
+        
+        var tristateFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{ 
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"tristate"}});
+            }});
+        }};
+        
+        var boxFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"box"}});
+            }});
+        }};
+        var pieFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"pie"}});
+            }});
+        }};
+        var bulletFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"bullet"}});
+            }});
+        }};
+        var discreteFormatter = function(cell, formatterParams, onRendered){{
+            onRendered(function(){{
+                $(cell.getElement()).sparkline(cell.getValue(), {{width:"100%", type:"discrete"}});
+            }});
+        }};
+        var tabledata = {plot.tabledata};
+        var table = new Tabulator("#{plot.plot_id}", {{
+            height:{plot.height},
+            data:tabledata,
+            layout:"fitColumns",
+            columns:{plot.columns},
+        }});
+        """
 
 
 class Tabulator(object):
@@ -291,6 +89,7 @@ class Tabulator(object):
         self.columns = Tools.convert_dict_to_js(cols)
         self.height = height
         self.plot_id = "u" + uuid.uuid4().hex
+        self.width = "100%"
 
     @staticmethod
     def reduce_dataframe(df: pd.DataFrame, reduce_axis='index'):
@@ -306,7 +105,42 @@ class Tabulator(object):
         在jupyter notebook 环境输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_NOTEBOOK_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+        <script>
+          requirejs.config(
+                     {{paths: {{ 
+                        'tabulator': ['https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min'],
+                        'jquery':['https://cdn.staticfile.org/jquery/3.6.0/jquery.min'],
+                        'sparkline':['https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min'],
+                     }},}}
+                );
+        </script>
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+         .jqstooltip {{
+          -webkit-box-sizing: content-box;
+          -moz-box-sizing: content-box;
+          box-sizing: content-box;
+        }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+         require(['tabulator','jquery','sparkline'],function(Tabulator,$,sparkline) {{
+                var element = document.createElement("link");
+                        element.setAttribute("rel", "stylesheet");
+                        element.setAttribute("type", "text/css");
+                        element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
+                        document.getElementsByTagName("head")[0].appendChild(element);
+                window.Tabulator=tabulator;
+                """ + segment(plot) + f"""
+            }});
+        </script>
+
+        """
         return Html(html)
 
     def render_jupyterlab(self) -> Html:
@@ -314,7 +148,49 @@ class Tabulator(object):
         在jupyterlab 环境输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_LAB_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+            <style>
+             #{plot.plot_id} {{
+                width:{plot.width};
+                height:{plot.height};
+             }}
+             .jqstooltip {{
+              -webkit-box-sizing: content-box;
+              -moz-box-sizing: content-box;
+              box-sizing: content-box;
+            }}
+            </style>
+            <div id="{plot.plot_id}"></div>
+            <script>
+            // load javascript
+            
+            new Promise(function(resolve, reject) {{
+              var script = document.createElement("script");
+              script.onload = resolve;
+              script.onerror = reject;
+              script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
+              document.head.appendChild(script);
+                var jq = document.createElement("script");
+              script.onload = resolve;
+              script.onerror = reject;
+              script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
+              document.head.appendChild(jq);
+                var sparkline = document.createElement("script");
+              script.onload = resolve;
+              script.onerror = reject;
+              script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
+              document.head.appendChild(sparkline);
+                var element = document.createElement("link");
+                element.setAttribute("rel", "stylesheet");
+                element.setAttribute("type", "text/css");
+                element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
+                document.getElementsByTagName("head")[0].appendChild(element);
+            }}).then(() => {{
+              """ + segment(plot) + f"""
+            }});
+            </script>
+            """
         return Html(html)
 
     def render_file(self, path: str = "plot.html") -> Html:
@@ -323,7 +199,7 @@ class Tabulator(object):
         :param path:
         :return: 文件路径
         """
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
+        html = self.render_html()
         with open(path, "w+", encoding="utf-8") as html_file:
             html_file.write(html)
         abs_path = os.path.abspath(path)
@@ -334,7 +210,39 @@ class Tabulator(object):
         渲染html字符串，可以用于 streamlit
         :return:
         """
-        html = GLOBAL_ENV.from_string(HTML_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <title></title>
+                <style>
+                  #{plot.plot_id} {{
+                        width:{plot.width};
+                        height:{plot.height};
+                     }}
+                    .jqstooltip {{
+              -webkit-box-sizing: content-box;
+              -moz-box-sizing: content-box;
+              box-sizing: content-box;
+            }}
+                </style>
+                <script type="text/javascript" src="https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js"></script>
+             <script type="text/javascript" src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+             <script type="text/javascript" src="https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+            <link rel='stylesheet' href='https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css'>
+            </head>
+            <body>
+              <div id="{plot.plot_id}" ></div>
+              <script>
+                 {plot.extra_js}
+            """ + segment(plot) + f"""
+            
+              </script>
+            </body>
+            </html>
+            """
         return html
 
     def render_html_fragment(self):
@@ -342,7 +250,30 @@ class Tabulator(object):
         渲染html 片段，方便一个网页输出多个图表
         :return:
         """
-        html = GLOBAL_ENV.from_string(HTML_FRAGMENT_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+            <div>
+             <script type="text/javascript" src="https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js"></script>
+             <script type="text/javascript" src="https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js"></script>
+             <script type="text/javascript" src="https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+            <link rel='stylesheet' href='https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css'>
+             <style>
+                  #{plot.plot_id} {{
+                        width:{plot.width};
+                        height:{plot.height};
+                     }}
+                     .jqstooltip {{
+              -webkit-box-sizing: content-box;
+              -moz-box-sizing: content-box;
+              box-sizing: content-box;
+            }}
+             </style>
+             <div id="{plot.plot_id}" ></div>
+              <script>
+            """ + segment(plot) + f"""
+              </script>
+            </div>
+            """
         return html
 
     def _repr_html_(self):
@@ -350,5 +281,66 @@ class Tabulator(object):
         jupyter 环境，直接输出
         :return:
         """
-        html = GLOBAL_ENV.from_string(JUPYTER_ALL_TEMPLATE).render(plot=self)
+        plot = self
+        html = f"""
+
+        <style>
+          #{plot.plot_id} {{
+            width:{plot.width};
+            height:{plot.height};
+         }}
+         .jqstooltip {{
+          -webkit-box-sizing: content-box;
+          -moz-box-sizing: content-box;
+          box-sizing: content-box;
+        }}
+        </style>
+        <div id="{plot.plot_id}"></div>
+        <script>
+          if (typeof require !== 'undefined'){{
+                requirejs.config(
+                     {{paths: {{ 
+                        'tabulator': ['https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min'],
+                        'jquery':['https://cdn.staticfile.org/jquery/3.6.0/jquery.min'],
+                        'sparkline':['https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min'],
+                     }},}}
+                );
+                require(['tabulator','jquery','sparkline'],function(Tabulator,$,sparkline) {{
+
+                       var element = document.createElement("link");
+                        element.setAttribute("rel", "stylesheet");
+                        element.setAttribute("type", "text/css");
+                        element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
+                        document.getElementsByTagName("head")[0].appendChild(element);
+                        """ + segment(plot) + f"""
+                    }});
+             }}else{{
+               new Promise(function(resolve, reject) {{
+                  var script = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
+                  document.head.appendChild(script);
+                    var jq = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
+                  document.head.appendChild(jq);
+                    var sparkline = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
+                  document.head.appendChild(sparkline);
+                    var element = document.createElement("link");
+                    element.setAttribute("rel", "stylesheet");
+                    element.setAttribute("type", "text/css");
+                    element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
+                    document.getElementsByTagName("head")[0].appendChild(element);
+                }}).then(() => {{
+                  """ + segment(plot) + f"""
+                }});
+             }}
+
+        </script>
+        """
         return Html(html).data
