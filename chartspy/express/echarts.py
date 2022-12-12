@@ -738,7 +738,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
         },
         'grid': [
             {'left': left_padding, 'right': right_padding, 'height': '70%'},
-            {'left': left_padding, 'right': right_padding, 'top': '71%', 'height': '16%'}
+            {'left': left_padding, 'right': right_padding, 'top': '71%', 'height': '18%'}
         ],
         'xAxis': [
             {
@@ -826,8 +826,14 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             {
                 'type': 'inside',
                 'xAxisIndex': [0, 1],
-                'start': 0,
+                'start': max(0, round(100 * (1 - 320 / df.shape[0]))),
                 'end': 100
+            }, {
+                'type': 'slider',
+                'xAxisIndex': [0, 1],
+                'start': max(0, round(100 * (1 - 320 / df.shape[0]))),
+                'end': 100,
+                'height':20
             }
         ],
         'series': [
