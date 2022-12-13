@@ -182,14 +182,6 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'opacity': opacity
         },
         'name': title,
-        'emphasis': {
-            'itemStyle': {
-                'borderColor': "#333",
-                'borderWidth': 1,
-                'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                'shadowBlur': 5
-            }
-        }
     }
     if tooltip_trigger == 'item':
         del options['axisPointer']
@@ -342,26 +334,12 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         series_list = list(df[series_field].unique())
         for s in series_list:
             series = {'name': s, 'type': 'line', 'dimensions': [x_field, y_field],
-                      'data': df[df[series_field] == s][[x_field, y_field]].values.tolist(), 'emphasis': {
-                    'itemStyle': {
-                        'borderColor': "#333",
-                        'borderWidth': 1,
-                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                        'shadowBlur': 15
-                    }
-                }}
+                      'data': df[df[series_field] == s][[x_field, y_field]].values.tolist()}
             options['legend']['data'].append(s)
             options['series'].append(series)
     else:
         series = {'name': title, 'type': 'line', 'dimensions': [x_field, y_field],
-                  'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
-                'itemStyle': {
-                    'borderColor': "#333",
-                    'borderWidth': 1,
-                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                    'shadowBlur': 15
-                }
-            }}
+                  'data': df[[x_field, y_field]].values.tolist()}
         options['legend']['data'].append(title)
         options['series'].append(series)
     if tooltip_trigger == 'item':
@@ -479,14 +457,7 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
             options['series'].append(series)
     else:
         series = {'name': title, 'type': 'bar', 'stack': stack, 'dimensions': [x_field, y_field], 'sampling': 'lttb',
-                  'data': df[[x_field, y_field]].values.tolist(), 'emphasis': {
-                'itemStyle': {
-                    'borderColor': "#333",
-                    'borderWidth': 1,
-                    'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                    'shadowBlur': 15
-                }
-            }}
+                  'data': df[[x_field, y_field]].values.tolist()}
         options['legend']['data'].append(title)
         options['series'].append(series)
     if tooltip_trigger == 'item':
@@ -841,29 +812,13 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'name': title,
                 'type': 'candlestick',
                 'data': df[[open_field, close_field, low_field, high_field]].values.tolist(),
-                'emphasis': {
-                    'itemStyle': {
-                        'borderColor': "#333",
-                        'borderWidth': 1,
-                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                        'shadowBlur': 15
-                    }
-                }
             },
             {
                 'name': 'Volume',
                 'type': 'bar',
                 'xAxisIndex': 1,
                 'yAxisIndex': 1,
-                'data': bar_items,
-                'emphasis': {
-                    'itemStyle': {
-                        'borderColor': "#333",
-                        'borderWidth': 1,
-                        'shadowColor': 'rgba(0, 0, 0, 0.5)',
-                        'shadowBlur': 15
-                    }
-                }
+                'data': bar_items
             }
         ]
     }
@@ -970,12 +925,6 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'label': {
                 'show': label_show,
                 'fontSize': label_font_size
-            },
-            'emphasis': {
-                'itemStyle': {
-                    'shadowBlur': 15,
-                    'shadowColor': 'rgba(0, 0, 0, 0.5)'
-                }
             }
         }]
     }
@@ -1867,12 +1816,6 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
         'itemStyle': {
             'opacity': 0.5
         },
-        'emphasis': {
-            'itemStyle': {
-                'color': '#900'
-            },
-            'label': {'show': False}
-        }
     }
     if color_field is not None:
         options['visualMap'] = []
