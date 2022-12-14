@@ -804,7 +804,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'xAxisIndex': [0, 1],
                 'start': max(0, round(100 * (1 - 320 / df.shape[0]))),
                 'end': 100,
-                'height':20
+                'height': 20
             }
         ],
         'series': [
@@ -866,10 +866,11 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     :return:
     """
     label_field = color_field if label_field is None else label_field
-    df = data_frame[[x_field, y_field, label_field, color_field]].copy()
+    df = data_frame[[x_field, y_field]].copy()
     df[x_field] = df[x_field].astype(str)
     df[y_field] = df[y_field].astype(str)
-    df.columns = [x_field, y_field, label_field + '_label', color_field + '_color']
+    df[label_field + '_label'] = data_frame[label_field]
+    df[color_field + '_color'] = data_frame[color_field]
     options = {
         'title': {'text': title},
         'tooltip': {
