@@ -93,12 +93,6 @@ ECHARTS_BASE_GRID_OPTIONS = {
             'xAxisIndex': 0,
             'start': 0,
             'end': 100
-        },
-        {
-            'type': 'inside',
-            'yAxisIndex': 0,
-            'start': 0,
-            'end': 100
         }
     ],
     'series': []
