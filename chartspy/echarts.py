@@ -137,6 +137,8 @@ class Echarts(object):
         """
         this_options = copy.deepcopy(self.options)
         if add_yaxis:
+            if type(this_options['yAxis']).__name__=='dict':
+                this_options['yAxis'] = [this_options['yAxis']]
             this_options['yAxis'].append({'scale': True, 'type': 'value', 'gridIndex': add_yaxis_grid_index})
         if this_options["legend"]["data"] is None:
             this_options["legend"]["data"] = []
