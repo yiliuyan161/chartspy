@@ -665,6 +665,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                                 label.push("<span>close:&nbsp;"+param['data'][2].toFixed(2)+"</span><br/>");
                                 label.push("<span>high:&nbsp;"+param['data'][4].toFixed(2)+"</span><br/>");
                                 label.push("<span>low:&nbsp;"+param['data'][3].toFixed(2)+"</span><br/>");   
+                                label.push("<span>change:&nbsp;"+((param['data'][2]/param['data'][1]-1)*100).toFixed(2)+"</span><br/>");
+                                label.push("<span>range:&nbsp;"+((param['data'][4]/param['data'][3]-1)*100).toFixed(2)+"</span><br/>");   
                         }else if(typeof(param['value'])=='number'){
                             if (param['value']%1==0){
                                 label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
