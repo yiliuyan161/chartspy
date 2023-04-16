@@ -301,6 +301,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
 
 def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, series_field: str = None,
                  tooltip_trigger="axis",
+                 y_scale=True,
                  title: str = "",
                  width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -324,6 +325,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
     options['title'] = {"text": title}
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
+    options['yAxis']['scale'] = y_scale
     if series_field is not None:
         series_list = list(df[series_field].unique())
         for s in series_list:
@@ -411,6 +413,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
 def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, series_field: str = None,
                 stack: str = "all",
                 tooltip_trigger="axis",
+                y_scale=True,
                 title: str = "",
                 width: str = "100%", height: str = "500px") -> Echarts:
     """
@@ -435,6 +438,7 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
     options['title'] = {"text": title}
     if "date" in str(df[x_field].dtype) or "object" in str(df[x_field].dtype):
         options['xAxis']['type'] = 'category'
+    options['yAxis']['scale'] = y_scale
     if series_field is not None:
         series_list = list(df[series_field].unique())
         for s in series_list:
