@@ -616,9 +616,14 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
     df[open_field] = df[open_field].fillna(df[close_field])
     df[high_field] = df[high_field].fillna(df[close_field])
     df[low_field] = df[low_field].fillna(df[close_field])
+    df['uplimit'] = df[close_field] > df[close_field].shift(1) * 1.098
+    df['dnlimit'] = df[close_field] < df[close_field].shift(1) * 0.902
+    bars = [{'value': [row[open_field], row[close_field], row[low_field], row[high_field]],
+             'itemStyle': ({"borderWidth": 4} if (row['uplimit'] or row['dnlimit']) else {})} for row in
+            df.to_dict(orient="records")]
     df[volume_field] = df[volume_field].fillna(0)
     volumes = (df[volume_field]).round(2).tolist()
-    vol_filter = (df[volume_field]).quantile([0.05, 0.95]).values
+    vol_filter = (df[volume_field]).quantile([0.10, 0.90]).values
     bar_items = [({"value": vol} if vol >= vol_filter[0] and vol <= vol_filter[1] else (
         {"value": vol, "itemStyle": {"color": "red"}} if vol > vol_filter[1] else {"value": vol,
                                                                                    "itemStyle": {"color": "green"}}))
@@ -665,12 +670,12 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                             }
                         }else if(param['seriesType']=="candlestick"){
                                 label.push("<br/>");
-                                label.push("<span>open:&nbsp;"+param['data'][1].toFixed(2)+"</span><br/>");
-                                label.push("<span>close:&nbsp;"+param['data'][2].toFixed(2)+"</span><br/>");
-                                label.push("<span>high:&nbsp;"+param['data'][4].toFixed(2)+"</span><br/>");
-                                label.push("<span>low:&nbsp;"+param['data'][3].toFixed(2)+"</span><br/>");   
-                                label.push("<span>change:&nbsp;"+((param['data'][2]/param['data'][1]-1)*100).toFixed(2)+"</span><br/>");
-                                label.push("<span>range:&nbsp;"+((param['data'][4]/param['data'][3]-1)*100).toFixed(2)+"</span><br/>");   
+                                label.push("<span>open:&nbsp;"+param['value'][1].toFixed(2)+"</span><br/>");
+                                label.push("<span>close:&nbsp;"+param['value'][2].toFixed(2)+"</span><br/>");
+                                label.push("<span>high:&nbsp;"+param['value'][4].toFixed(2)+"</span><br/>");
+                                label.push("<span>low:&nbsp;"+param['value'][3].toFixed(2)+"</span><br/>");   
+                                label.push("<span>change:&nbsp;"+((param['value'][2]/param['value'][1]-1)*100).toFixed(2)+"</span><br/>");
+                                label.push("<span>range:&nbsp;"+((param['value'][4]/param['value'][3]-1)*100).toFixed(2)+"</span><br/>");   
                         }else if(typeof(param['value'])=='number'){
                             if (param['value']%1==0){
                                 label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
@@ -811,7 +816,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             {
                 'name': title,
                 'type': 'candlestick',
-                'data': df[[open_field, close_field, low_field, high_field]].values.tolist(),
+                'data': bars,
             },
             {
                 'name': 'Volume',
