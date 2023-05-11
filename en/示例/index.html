@@ -1,0 +1,860 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://chartspy.icopy.site/en/%E7%A4%BA%E4%BE%8B/">
+      
+      
+        <link rel="prev" href="../%E4%BB%A3%E7%A0%81%E8%AF%B4%E6%98%8E/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.11">
+    
+    
+      
+        <title>API example - chartspy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.85bb2934.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a6bdf11c.min.css">
+      
+      
+
+    
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="white">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-examples" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="chartspy" class="md-header__button md-logo" aria-label="chartspy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            chartspy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API example
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+      <div class="md-header__option">
+        <div class="md-select">
+          
+          <button class="md-header__button md-icon" aria-label="选择当前语言">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+              
+                <li class="md-select__item">
+                  <a href="https://chartspy.icopy.site/en/" hreflang="en" class="md-select__link">
+                    English
+                  </a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/yiliuyan161/chartspy" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    yiliuyan161/chartspy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="chartspy" class="md-nav__button md-logo" aria-label="chartspy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    chartspy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/yiliuyan161/chartspy" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    yiliuyan161/chartspy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        使用说明
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%AE%89%E8%A3%85/" class="md-nav__link">
+        安装&升级
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E4%BB%A3%E7%A0%81%E8%AF%B4%E6%98%8E/" class="md-nav__link">
+        代码说明
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%A4%BA%E4%BE%8B/" class="md-nav__link">
+        API使用示例
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pyecharts%E8%BF%81%E7%A7%BB%E6%8C%87%E5%8D%97/" class="md-nav__link">
+        pyecharts迁移
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          English
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          English
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        how to use
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E5%AE%89%E8%A3%85/" class="md-nav__link">
+        install&upgrade
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E4%BB%A3%E7%A0%81%E8%AF%B4%E6%98%8E/" class="md-nav__link">
+        code structure
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          API example
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        API example
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#klinechart-chart" class="md-nav__link">
+    KLineChart chart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chartspyexpress" class="md-nav__link">
+    chartspy.express
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#echarts-object-usage" class="md-nav__link">
+    Echarts object usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools-static-methods" class="md-nav__link">
+    Tools static methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Tools static methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#javascript-config-to-python-dict" class="md-nav__link">
+    javaScript config to python dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataframeseriesndarray-convert-to-list" class="md-nav__link">
+    DataFrame/Series/ndarray convert to list
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#klinechart-chart" class="md-nav__link">
+    KLineChart chart
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chartspyexpress" class="md-nav__link">
+    chartspy.express
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#echarts-object-usage" class="md-nav__link">
+    Echarts object usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools-static-methods" class="md-nav__link">
+    Tools static methods
+  </a>
+  
+    <nav class="md-nav" aria-label="Tools static methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#javascript-config-to-python-dict" class="md-nav__link">
+    javaScript config to python dict
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataframeseriesndarray-convert-to-list" class="md-nav__link">
+    DataFrame/Series/ndarray convert to list
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="api-examples">API examples<a class="headerlink" href="#api-examples" title="Permanent link">&para;</a></h1>
+<h2 id="klinechart-chart">KLineChart chart<a class="headerlink" href="#klinechart-chart" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">chartspy</span> <span class="kn">import</span> <span class="n">KlineCharts</span>
+<span class="kn">import</span> <span class="nn">tushare</span> <span class="k">as</span> <span class="nn">ts</span>
+<span class="n">df</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">pro_bar</span><span class="p">(</span><span class="n">ts_code</span><span class="o">=</span><span class="s2">&quot;000001.SZ&quot;</span><span class="p">,</span><span class="n">adj</span><span class="o">=</span><span class="s1">&#39;qfq&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;trade_date&#39;</span><span class="p">:</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span><span class="s1">&#39;vol&#39;</span><span class="p">:</span><span class="s1">&#39;volume&#39;</span><span class="p">},</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">KlineCharts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">main_indicators</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;MA&#39;</span><span class="p">,</span> <span class="s1">&#39;SAR&#39;</span><span class="p">],</span> <span class="n">mas</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">250</span><span class="p">])</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="scatter" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/klinechart.png?raw=true" /></p>
+</div>
+<h2 id="chartspyexpress">chartspy.express<a class="headerlink" href="#chartspyexpress" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">stocksdk</span> <span class="kn">import</span> <span class="n">api</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">chartspy.express</span> <span class="k">as</span> <span class="nn">ex</span>
+<span class="kn">from</span> <span class="nn">chartspy</span> <span class="kn">import</span> <span class="n">Tools</span><span class="p">,</span> <span class="n">Echarts</span><span class="p">,</span> <span class="n">G2PLOT</span><span class="p">,</span> <span class="n">Js</span>
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">last_info_all</span><span class="p">()</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;同花顺1级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺2级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺3级&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;流通市值&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">df_score</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span> <span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="s1">&#39;财务能力&#39;</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span> <span class="s1">&#39;稳定能力&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+    <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span> <span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="s1">&#39;财务能力&#39;</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span> <span class="s1">&#39;稳定能力&#39;</span><span class="p">])</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">scatter3d_echarts</span><span class="p">(</span><span class="n">df_score</span><span class="p">,</span> <span class="n">x_series</span><span class="o">=</span><span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="n">z_series</span><span class="o">=</span><span class="s1">&#39;财务能力&#39;</span><span class="p">,</span> <span class="n">size_series</span><span class="o">=</span><span class="s1">&#39;score&#39;</span><span class="p">,</span>
+                     <span class="n">color_series</span><span class="o">=</span><span class="s1">&#39;稳定能力&#39;</span><span class="p">,</span>
+                     <span class="n">info</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                     <span class="n">title</span><span class="o">=</span><span class="s1">&#39;scatter3d&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="scatter" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter3d.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">bar3d_echarts</span><span class="p">(</span><span class="n">df_score</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">100</span><span class="p">],</span> <span class="n">x_series</span><span class="o">=</span><span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="n">z_series</span><span class="o">=</span><span class="s1">&#39;财务能力&#39;</span><span class="p">,</span> <span class="n">color_series</span><span class="o">=</span><span class="s1">&#39;稳定能力&#39;</span><span class="p">,</span>
+                 <span class="n">info</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                 <span class="n">title</span><span class="o">=</span><span class="s1">&#39;bar3d&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="scatter" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/bar3d.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">sunburst_echarts</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">category_series_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;同花顺1级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺2级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺3级&#39;</span><span class="p">],</span> <span class="n">value_series</span><span class="o">=</span><span class="s1">&#39;流通市值&#39;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/sunburst.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">treemap_g2plot</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">category_field_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;同花顺1级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺2级&#39;</span><span class="p">,</span> <span class="s1">&#39;同花顺3级&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="n">value_field</span><span class="o">=</span><span class="s1">&#39;流通市值&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/treemap.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_price</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_price</span><span class="p">(</span><span class="s1">&#39;000001.XSHE&#39;</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2019</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">chart_kline</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">candlestick_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">log_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">chart_kline</span><span class="o">.</span><span class="n">overlap_series</span><span class="p">([</span><span class="n">ex</span><span class="o">.</span><span class="n">scatter_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="n">size_series</span><span class="o">=</span><span class="s1">&#39;volume&#39;</span><span class="p">,</span> <span class="n">color_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">)])</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/kline.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">scatter_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="n">size_series</span><span class="o">=</span><span class="s1">&#39;volume&#39;</span><span class="p">,</span> <span class="n">color_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;scatter&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/scatter.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">line_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">overlap_series</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">ex</span><span class="o">.</span><span class="n">line_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_field</span><span class="o">=</span><span class="s1">&#39;open&#39;</span><span class="p">),</span>
+        <span class="n">ex</span><span class="o">.</span><span class="n">line_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_field</span><span class="o">=</span><span class="s1">&#39;high&#39;</span><span class="p">),</span>
+        <span class="n">ex</span><span class="o">.</span><span class="n">line_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_field</span><span class="o">=</span><span class="s1">&#39;low&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/line.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">area_g2plot</span><span class="p">(</span><span class="n">df_price</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span><span class="n">x_field</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span><span class="n">y_field</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/area.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">bar_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="p">,</span> <span class="n">y_series</span><span class="o">=</span><span class="s1">&#39;close&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/bar.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">bullet_g2plot</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;子弹图&#39;</span><span class="p">,</span><span class="n">range_field</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">,</span><span class="mi">80</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span><span class="n">measure_field</span><span class="o">=</span><span class="p">[</span><span class="mi">90</span><span class="p">],</span><span class="n">target_field</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="s1">&#39;60px&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/bullet.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">liquid_g2plot</span><span class="p">(</span><span class="n">percent</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/liquid.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">calendar_heatmap_echarts</span><span class="p">(</span><span class="n">df_price</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">200</span><span class="p">:],</span> <span class="n">date_series</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">value_series</span><span class="o">=</span><span class="s1">&#39;volume&#39;</span><span class="p">,</span>
+                            <span class="n">title</span><span class="o">=</span><span class="s1">&#39;calendar&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/calendar_heatmap.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_finance</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="s2">&quot;财务打分&quot;</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="s1">&#39;000002.XSHE&#39;</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">parallel_echarts</span><span class="p">(</span><span class="n">df_finance</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">:],</span> <span class="n">name_series</span><span class="o">=</span><span class="s1">&#39;statDate&#39;</span><span class="p">,</span> <span class="n">indicator_series_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ROA&#39;</span><span class="p">,</span>
+                                                                                          <span class="s1">&#39;ROE&#39;</span><span class="p">,</span> <span class="s1">&#39;销售毛利率&#39;</span><span class="p">,</span> <span class="s1">&#39;扣非净利率&#39;</span><span class="p">,</span>
+                                                                                          <span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span>
+                                                                                          <span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="s1">&#39;运营能力&#39;</span><span class="p">,</span> <span class="s1">&#39;财务能力&#39;</span><span class="p">,</span>
+                                                                                          <span class="s1">&#39;稳定能力&#39;</span><span class="p">,</span>
+                                                                                          <span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;财务信息&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/parallel.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">radar_echarts</span><span class="p">(</span><span class="n">df_finance</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">:],</span> <span class="n">name_series</span><span class="o">=</span><span class="s1">&#39;statDate&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">indicator_field_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;盈利能力&#39;</span><span class="p">,</span> <span class="s1">&#39;成长能力&#39;</span><span class="p">,</span> <span class="s1">&#39;运营能力&#39;</span><span class="p">,</span> <span class="s1">&#39;财务能力&#39;</span><span class="p">,</span> <span class="s1">&#39;稳定能力&#39;</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;radar&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;400px&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/radar.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_top10</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="s2">&quot;十大流通股东&quot;</span><span class="p">,</span><span class="n">code</span><span class="o">=</span><span class="s1">&#39;000002.XSHE&#39;</span><span class="p">)</span>
+<span class="n">df_top10</span><span class="p">[</span><span class="s1">&#39;持股比例&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">df_top10</span><span class="p">[</span><span class="s1">&#39;持股比例&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">df_other</span><span class="o">=</span><span class="mi">100</span><span class="o">-</span><span class="n">df_top10</span><span class="p">[[</span><span class="s1">&#39;报告期&#39;</span><span class="p">,</span><span class="s1">&#39;持股比例&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;报告期&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">df_other</span><span class="p">[</span><span class="s1">&#39;股东名称&#39;</span><span class="p">]</span><span class="o">=</span><span class="s2">&quot;其他&quot;</span>
+<span class="n">df_all</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_top10</span><span class="p">[[</span><span class="s1">&#39;报告期&#39;</span><span class="p">,</span><span class="s1">&#39;持股比例&#39;</span><span class="p">,</span><span class="s1">&#39;股东名称&#39;</span><span class="p">]],</span><span class="n">df_other</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()])</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">bar_stack_percent_g2plot</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span><span class="n">x_field</span><span class="o">=</span><span class="s1">&#39;报告期&#39;</span><span class="p">,</span><span class="n">y_field</span><span class="o">=</span><span class="s2">&quot;持股比例&quot;</span><span class="p">,</span><span class="n">series_field</span><span class="o">=</span><span class="s1">&#39;股东名称&#39;</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/bar_stack_percent.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_waterfall</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;日用品&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">120</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;伙食费&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">900</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;交通费&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">200</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;水电费&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">300</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;房租&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">1200</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;商场消费&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="mi">1000</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;红包收入&#39;</span><span class="p">,</span> <span class="s1">&#39;money&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2000</span> <span class="p">},</span>
+<span class="p">])</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">waterfall_g2plot</span><span class="p">(</span><span class="n">df_waterfall</span><span class="p">,</span><span class="n">x_field</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span><span class="n">y_field</span><span class="o">=</span><span class="s1">&#39;money&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/waterfall.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_concept</span><span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_concept</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">wordcloud_g2plot</span><span class="p">(</span><span class="n">df_concept</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span><span class="n">word_field</span><span class="o">=</span><span class="s1">&#39;category&#39;</span><span class="p">,</span><span class="n">weight_field</span><span class="o">=</span><span class="s1">&#39;code&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/wordcloud.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">ex</span><span class="o">.</span><span class="n">pie_echarts</span><span class="p">(</span><span class="n">df_concept</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">50</span><span class="p">:],</span> <span class="n">name_series</span><span class="o">=</span><span class="s1">&#39;category&#39;</span><span class="p">,</span> <span class="n">rose_type</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">value_series</span><span class="o">=</span><span class="s1">&#39;code&#39;</span><span class="p">,</span>
+               <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;100%&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/pie.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_relation</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+<span class="p">[{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;天津&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">30</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;上海&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">80</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;河北&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">46</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;辽宁&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">49</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;黑龙江&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">69</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;吉林&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">19</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;天津&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;河北&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">62</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;天津&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;辽宁&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">82</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;天津&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;上海&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">16</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;上海&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;黑龙江&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">16</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;河北&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;黑龙江&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">76</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;河北&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;内蒙古&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">24</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="s1">&#39;内蒙古&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">:</span> <span class="s1">&#39;北京&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">32</span> <span class="p">}]</span>
+<span class="p">)</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">chord_g2plot</span><span class="p">(</span><span class="n">df_relation</span><span class="p">,</span><span class="n">source_field</span><span class="o">=</span><span class="s1">&#39;source&#39;</span><span class="p">,</span><span class="n">target_field</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span><span class="n">weight_field</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/chord.png?raw=true" /></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">df_blance</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">filter_table</span><span class="p">(</span><span class="s1">&#39;资产负债表&#39;</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="s1">&#39;000002.XSHE&#39;</span><span class="p">)</span>
+<span class="n">df_cell</span> <span class="o">=</span> <span class="n">df_blance</span><span class="p">[[</span><span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;报告期&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">df_blance</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">6</span><span class="p">:])]</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;报告期&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+    <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span>
+<span class="n">df_cell</span> <span class="o">=</span> <span class="n">df_cell</span><span class="p">[</span>
+    <span class="p">(</span><span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;报告期&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;合计&quot;</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="o">~</span><span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;总计&quot;</span><span class="p">))]</span>
+<span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_cell</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000000000</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">theme_river_echarts</span><span class="p">(</span><span class="n">df_cell</span><span class="p">,</span> <span class="n">date_series</span><span class="o">=</span><span class="s1">&#39;报告期&#39;</span><span class="p">,</span> <span class="n">value_series</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">theme_series</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p><img alt="line" src="https://github.com/yiliuyan161/echartspy/blob/master/docs/images/themeriver.png?raw=true" /></p>
+</div>
+<h2 id="echarts-object-usage">Echarts object usage<a class="headerlink" href="#echarts-object-usage" title="Permanent link">&para;</a></h2>
+<p>accept python dict configuration，output charts</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">chartspy</span> <span class="kn">import</span> <span class="n">Echarts</span><span class="p">,</span> <span class="n">Tools</span>
+
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;xAxis&#39;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s1">&#39;yAxis&#39;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s1">&#39;series&#39;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s1">&#39;symbolSize&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">8.04</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">8.07</span><span class="p">,</span> <span class="mf">6.95</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">13.0</span><span class="p">,</span> <span class="mf">7.58</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">9.05</span><span class="p">,</span> <span class="mf">8.81</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">11.0</span><span class="p">,</span> <span class="mf">8.33</span><span class="p">]</span>
+        <span class="p">],</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;scatter&#39;</span>
+    <span class="p">}]</span>
+<span class="p">}</span>
+<span class="n">Echarts</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;散点图测试&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">render_notebook</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="tools-static-methods">Tools static methods<a class="headerlink" href="#tools-static-methods" title="Permanent link">&para;</a></h2>
+<h3 id="javascript-config-to-python-dict">javaScript config to python dict<a class="headerlink" href="#javascript-config-to-python-dict" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">chartspy</span> <span class="kn">import</span> <span class="n">Echarts</span><span class="p">,</span> <span class="n">Tools</span>
+
+<span class="n">js_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">{</span>
+<span class="s2">    title: {</span>
+<span class="s2">        text: &#39;Male and female height and weight distribution&#39;,</span>
+<span class="s2">        subtext: &#39;Data from: Heinz 2003&#39;</span>
+<span class="s2">    },</span>
+<span class="s2">    grid: {</span>
+<span class="s2">        left: &#39;3%&#39;,</span>
+<span class="s2">        right: &#39;7%&#39;,</span>
+<span class="s2">        bottom: &#39;7%&#39;,</span>
+<span class="s2">        containLabel: true</span>
+<span class="s2">    },</span>
+<span class="s2">    tooltip: {</span>
+<span class="s2">        // trigger: &#39;axis&#39;,</span>
+<span class="s2">        showDelay: 0,</span>
+<span class="s2">    ......    </span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">Tools</span><span class="o">.</span><span class="n">convert_js_to_dict</span><span class="p">(</span><span class="n">js_str</span><span class="p">,</span> <span class="n">print_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">Echarts</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="s1">&#39;600px&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">render_notebook</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="dataframeseriesndarray-convert-to-list">DataFrame/Series/ndarray convert to list<a class="headerlink" href="#dataframeseriesndarray-convert-to-list" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">chartspy</span> <span class="kn">import</span> <span class="n">Tools</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s1">&#39;水果&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;苹果&#39;</span><span class="p">,</span> <span class="s1">&#39;梨&#39;</span><span class="p">,</span> <span class="s1">&#39;草莓&#39;</span><span class="p">,</span> <span class="s1">&#39;香蕉&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;数量&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="s1">&#39;价格&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+        <span class="s1">&#39;类别&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;硬&#39;</span><span class="p">,</span> <span class="s1">&#39;硬&#39;</span><span class="p">,</span> <span class="s1">&#39;软&#39;</span><span class="p">,</span> <span class="s1">&#39;软&#39;</span><span class="p">]</span>
+    <span class="p">})</span>
+<span class="n">list_data</span> <span class="o">=</span> <span class="n">Tools</span><span class="o">.</span><span class="n">convert_to_list</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div>
+<p>output:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[[</span><span class="s1">&#39;苹果&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;硬&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;梨&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;硬&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;草莓&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;软&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;香蕉&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;软&#39;</span><span class="p">]]</span>
+</code></pre></div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            回到页面顶部
+          </button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.fac441b0.min.js"></script>
+      
+    
+  </body>
+</html>
