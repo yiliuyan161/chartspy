@@ -1432,6 +1432,54 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     return Echarts(options)
 
 
+def mark_background_echarts(data_frame: pd.DataFrame, x1: str, x2: str, label: str, title: str = 'area',
+                      label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
+                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
+                      ):
+    """
+    在现有图表上叠加背景，不能单独显示
+    :param data_frame:
+    :param x1: 左上方顶点x坐标对应列
+    :param x2: 右下方顶点x坐标对应列
+    :param label: 矩形标签文字对应列
+    :param title: 用于在legend显示，控制叠加矩形显示隐藏
+    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_distance:
+    :param label_font_size:
+    :param label_font_color:
+    :param fill_opacity:
+    :param fill_color:
+
+    :return:
+    """
+    options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
+    rows = data_frame[[x1, x2, label]].to_dict(orient='records')
+    data = [[{'name': row[label], 'xAxis': row[x1]},
+             {'xAxis': row[x2]}] for row in rows]
+    base_mark_area_options = {
+        'itemStyle': {
+            'opacity': fill_opacity
+        },
+        'tooltip': {
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)"
+        },
+        'label': {
+            'show': True,
+            'position': label_position,
+            'distance': label_distance,
+            'fontSize': label_font_size,
+            'color': label_font_color
+        },
+        'data': data
+    }
+    options['series'][0]['name'] = title
+    options['series'][0]['markArea'] = base_mark_area_options
+    options['legend']['data'] = [title]
+    return Echarts(options)
+
+
+
 def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title="segment",
                          show_label: bool = False,
                          label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
