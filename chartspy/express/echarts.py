@@ -2131,7 +2131,7 @@ __all__ = ['scatter_echarts', 'line_echarts', 'bar_echarts', 'pie_echarts', 'can
            'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts', 'theme_river_echarts',
            'sunburst_echarts', 'mark_area_echarts', 'mark_segment_echarts', 'mark_label_echarts',
            'mark_vertical_line_echarts', 'mark_horizontal_line_echarts', 'scatter3d_echarts', 'bar3d_echarts',
-           'drawdown_echarts', 'minute_echarts']
+           'drawdown_echarts', 'minute_echarts','mark_background_echarts']
 
 if __name__ == "__main__":
     print([func for func in list(locals().keys()) if func[0:2] != '__'])
