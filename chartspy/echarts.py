@@ -197,8 +197,8 @@ class Echarts(object):
             html = f"""
             <style>
               #{plot.plot_id} {{
-                width:{{plot.width}};
-                height:{{plot.height}};
+                width:{plot.width};
+                height:{plot.height};
              }}
             </style>
             <div id="{plot.plot_id}"></div>
@@ -347,8 +347,8 @@ class Echarts(object):
               <title></title>
                 <style>
                   #{plot.plot_id} {{
-                        width:{ {plot.width} };
-                        height:{ {plot.height} };
+                        width:{plot.width} ;
+                        height:{plot.height} ;
                      }}
                 </style>
                <script type="text/javascript" src="{plot.js_url}"></script>

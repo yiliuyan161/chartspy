@@ -76,8 +76,8 @@ class G2PLOT(object):
         </script>
         <style>
           #{plot.plot_id} {{
-            width:{{plot.width}};
-            height:{{plot.height}};
+            width:{plot.width};
+            height:{plot.height};
          }}
         </style>
         <div id="{plot.plot_id}"></div>

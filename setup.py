@@ -23,7 +23,7 @@ def get_install_requires():
 
 setup(
     name="chartspy",
-    version="2.1.3",
+    version="2.1.5",
     url="https://chartspy.icopy.site/",
     description="echarts g2plot klinechart highcharts tabulator python wrapper",
     keywords='echarts g2plot klinechart highcharts tabulator python ',
@@ -45,7 +45,9 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12'
     ],
 )
  
