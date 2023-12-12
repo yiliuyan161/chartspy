@@ -612,7 +612,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
     df = data_frame.copy()
     if time_field not in data_frame.columns:  # 使用index作为时间
         df[time_field] = df.index
-    df[close_field] = df[close_field].fillna(method="ffill")
+    df[close_field] = df[close_field].ffill()
     df[open_field] = df[open_field].fillna(df[close_field])
     df[high_field] = df[high_field].fillna(df[close_field])
     df[low_field] = df[low_field].fillna(df[close_field])
@@ -1929,8 +1929,7 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
     :return:
     """
     df = data_frame[[time_field, value_field, code_field]].copy().sort_values(time_field, ascending=True).reset_index()
-    df_pivot = df.pivot_table(index=time_field, columns=code_field, values=value_field).fillna(method='bfill').fillna(
-        method='ffill')
+    df_pivot = df.pivot_table(index=time_field, columns=code_field, values=value_field).bfill().ffill()
     df_return = (((df_pivot / df_pivot.iloc[0]) - 1) * 100).round(2)
     df_cummax = df_pivot.cummax()
     df_drawdown = (((df_pivot - df_cummax) / df_cummax) * 100).round(2)
