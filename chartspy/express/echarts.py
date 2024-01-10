@@ -9,6 +9,7 @@ from ..base import Js, Tools
 
 # 二维坐标系统基础配置适用  scatter,bar,line
 ECHARTS_BASE_GRID_OPTIONS = {
+    'animation': False,
     'legend': {
         'data': []
     },
@@ -70,7 +71,8 @@ ECHARTS_BASE_GRID_OPTIONS = {
                     var obj = {top: 10};
                     obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
                     return obj;
-                }
+                },
+        'extraCssText': 'box-shadow: 0 0 0 rgba(0, 0, 0, 0);'
             """)
     },
     'axisPointer': {
@@ -618,7 +620,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
     df[low_field] = df[low_field].fillna(df[close_field])
     df['uplimit'] = df[close_field] > df[close_field].shift(1) * 1.098
     df['dnlimit'] = df[close_field] < df[close_field].shift(1) * 0.902
-    bars = [{'value': [row[open_field], row[close_field], row[low_field], row[high_field]],
+    df['pct_change']=df[close_field].pct_change()
+    bars = [{'value': [row[open_field], row[close_field], row[low_field], row[high_field],row['pct_change']],
              'itemStyle': ({"borderWidth": 4} if (row['uplimit'] or row['dnlimit']) else {})} for row in
             df.to_dict(orient="records")]
     df[volume_field] = df[volume_field].fillna(0)
@@ -631,20 +634,21 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
 
     options = {
         'animation': False,
-        'title': {'text': title},
-        'legend': {'top': 10, 'left': 'center', 'data': [title]},
+        'title': {'text': title,'padding':[5,0]},
+        'legend': {'top': 0,'padding':[5,0], 'left': 'right', 'data': [title]},
         'tooltip': {
-            'trigger': 'axis', 'axisPointer': {'type': 'cross'},
-            'borderWidth': 1,
-            'borderColor': '#ccc',
+            'trigger': 'axis', 'axisPointer': {'type': 'line','snap':True},
+            'borderWidth': 0,
+            'borderColor': 'transparent',
             'color': "black",
-            'backgroundColor': "rgba(255,255,255,0.8)",
-            'padding': 10,
+            'backgroundColor': "rgba(0,0,0,0)",
+            'alwaysShowContent': False,
+            'padding': 0,
             'formatter': Js("""
                 function(params){
                     var dt = params[0]['axisValue'];
                     var labels = [];
-                    labels.push('<b><span>时间:&nbsp;</span></b>' + dt + '<br/>');
+                    labels.push('<span>时间:&nbsp;</span>' + dt + '&nbsp;');
                     params.sort(function(a, b) {
                       if (a.seriesName < b.seriesName ) {return -1;}
                       else if (a.seriesName > b.seriesName ) {return 1;}
@@ -652,42 +656,51 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                     });
                     for (let i = 0; i < params.length; i++) {
                         const param = params[i];
-                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
-                        var dimensionNames=param["dimensionNames"];
-                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
-                            label.push("<br/>");
-                            for (let j = 1; j <dimensionNames.length; j++) {
-                                    var value= param['data'][j];
-                                    if (typeof(value)=='number'){
-                                        if (value%1==0 || value>100000){
-                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
-                                        }else{
-                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
-                                        }
-                                    }else{
-                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
+                        const label = [];
+                        const dimensionNames = param["dimensionNames"];
+                        if (typeof (param['value']) == 'object' && dimensionNames.length == param['data'].length) {
+                            for (let j = 1; j < dimensionNames.length; j++) {
+                                const value = param['data'][j];
+                                if (typeof (value) == 'number') {
+                                    if (value % 1 == 0 || value > 100000) {
+                                        label.push("<span>" + dimensionNames[j] + ':&nbsp;' + (value / 10000).toFixed(0) + "万</span>&nbsp;");
+                                    } else {
+                                        label.push("<span>" + dimensionNames[j] + ':&nbsp;' + (value / 10000).toFixed(2) + "万</span>&nbsp;");
                                     }
+                                } else {
+                                    label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>" + dimensionNames[j] + ':&nbsp;' + value + "</div>&nbsp;");
+                                }
                             }
-                        }else if(param['seriesType']=="candlestick"){
-                                label.push("<br/>");
-                                label.push("<span>open:&nbsp;"+param['value'][1].toFixed(2)+"</span><br/>");
-                                label.push("<span>close:&nbsp;"+param['value'][2].toFixed(2)+"</span><br/>");
-                                label.push("<span>high:&nbsp;"+param['value'][4].toFixed(2)+"</span><br/>");
-                                label.push("<span>low:&nbsp;"+param['value'][3].toFixed(2)+"</span><br/>");   
-                                label.push("<span>change:&nbsp;"+((param['value'][2]/param['value'][1]-1)*100).toFixed(2)+"</span><br/>");
-                                label.push("<span>range:&nbsp;"+((param['value'][4]/param['value'][3]-1)*100).toFixed(2)+"</span><br/>");   
-                        }else if(typeof(param['value'])=='number'){
-                            if (param['value']%1==0){
-                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
-                            }else{
-                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
+                        } else if (param['seriesType'] == "candlestick") {
+                            label.push("<span>开:&nbsp;" + param['value'][1].toFixed(2) + "</span>&nbsp;");
+                            label.push("<span>高:&nbsp;" + param['value'][4].toFixed(2) + "</span>&nbsp;");
+                            label.push("<span>低:&nbsp;" + param['value'][3].toFixed(2) + "</span>&nbsp;");
+                            label.push("<span>收:&nbsp;" + param['value'][2].toFixed(2) + "</span>&nbsp;");
+                            const increase = (param['value'][5] * 100);
+                            const colors=['#254000','#3f6600','#5b8c00','#7cb305','#a0d911','#f5222d','#cf1322','#a8071a','#820014',"#5c0011"];
+                            var color_index = Math.round((Math.min(Math.max(-10,increase),10)+10)/2-1);
+                            label.push("<span>涨幅:&nbsp;<span style='color:" + colors[color_index%20] + "'<b>" + increase.toFixed(2) + "</b></span></span>&nbsp;");
+                            label.push("<span>振幅:&nbsp;" + ((param['value'][4] / param['value'][3] - 1) * 100).toFixed(2) + "</span>&nbsp;");
+                        } else if (typeof (param['value']) == 'number') {
+                            if (param['value'] > 10000) {
+                                if (param['value'] % 1 == 0) {
+                                    label.push("<span>" + param["seriesName"] + ":" + (param['value'] / 10000).toFixed(0) + "万</span>&nbsp;");
+                                } else {
+                                    label.push("<span>" + param["seriesName"] + ":" + (param['value'] / 10000).toFixed(2) + "万</span>&nbsp;");
+                                }
+                            } else {
+                                if (param['value'] % 1 == 0) {
+                                    label.push("<span>" + param["seriesName"] + ":" + param['value'].toFixed(0) + "</span>&nbsp;");
+                                } else {
+                                    label.push("<span>" + param["seriesName"] + ":" + param['value'].toFixed(2) + "</span>&nbsp;");
+                                }
                             }
-                        }else if(param['value']){
-                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
-                        }else{
-                            label.push("<br/>");
+                        } else if (param['value']) {
+                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>" + param['value'] + "</div>&nbsp;");
+                        } else {
+                            label.push("&nbsp;");
                         }
-                        var cardStr= label.join('');
+                        const cardStr = label.join('');
                         labels.push(cardStr);
                     }
                     return labels.join('');
@@ -695,26 +708,25 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             'textStyle': {'color': '#000'},
             'position': Js("""
                 function (pos, params, el, elRect, size){
-                    var obj = {top: 10};
-                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
-                    return obj;
+                   return {top: 30, left: 0};
                 }
-            """)
+            """),
+            'extraCssText': 'box-shadow: 0 0 0 rgba(0, 0, 0, 0);'
         },
         'axisPointer': {
             'link': {'xAxisIndex': 'all'},
             'label': {'backgroundColor': '#777'}
         },
         'toolbox': {
-            'show': True,
+            'show': False,
             'feature': {
                 'restore': {},
                 'saveAsImage': {}
             }
         },
         'grid': [
-            {'left': left_padding, 'right': right_padding, 'height': '70%'},
-            {'left': left_padding, 'right': right_padding, 'top': '71%', 'height': '18%'}
+            {'left': left_padding, 'right': right_padding, 'height': '75%'},
+            {'left': left_padding, 'right': right_padding, 'top': '76%', 'height': '13%'}
         ],
         'xAxis': [
             {
@@ -835,7 +847,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             'type': 'line',
             'data': df[name].tolist(),
             'smooth': True,
-            'showSymbol': False,
+            'symbol': 'none',
             'lineStyle': {'opacity': 0.5}
         }
         options['series'].append(series_ma)
@@ -877,6 +889,7 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     df[label_field + '_label'] = data_frame[label_field]
     df[color_field + '_color'] = data_frame[color_field]
     options = {
+        'animation': False,
         'title': {'text': title},
         'tooltip': {
             'position': 'top',
@@ -958,6 +971,7 @@ def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_fi
     :return:
     """
     options = {
+        'animation': False,
         'title': {
             'text': title
         },
@@ -1034,6 +1048,7 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, v
     date_end = pd.to_datetime(df[date_field].max()).strftime("%Y-%m-%d")
     df[date_field] = pd.to_datetime(df[date_field]).dt.strftime("%Y-%m-%d")
     options = {
+        'animation': False,
         'title': {
             'text': title
         },
