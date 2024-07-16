@@ -20,19 +20,19 @@ def kline_chart_segment(plot):
                 show: true, horizontal: {{ show: true, size: 2, color: '#CFCFCF', style: 'dash'}},
                 vertical: {{ show: true, size: 2, color: '#CFCFCF',  style: 'dash'}},
                 'candle':{{'bar':{{'upColor':'#EF5350','downColor':'#26A69A'}} }},
-                'technicalIndicator':{{
+                'indicator':{{
                     'bar':{{'upColor':'#EF5350','downColor':'#26A69A'}} 
                  }}
             }}
          }}
          );""")
     for bt in plot.bottom_indicators:
-        parts.append(f"""var btm_{bt}_{plot.plot_id} = chart_{plot.plot_id}.createTechnicalIndicator('{bt}', false)""")
+        parts.append(f"""var btm_{bt}_{plot.plot_id} = chart_{plot.plot_id}.createIndicator('{bt}', false)""")
     for mi in plot.main_indicators:
-        parts.append(f"""chart_{plot.plot_id}.createTechnicalIndicator('{mi}', true,{{id:"candle_pane"}})""")
+        parts.append(f"""chart_{plot.plot_id}.createIndicator('{mi}', true,{{id:"candle_pane"}})""")
     if len(plot.mas) > 0:
         parts.append(
-            f"""chart_{plot.plot_id}.overrideTechnicalIndicator({{name: 'MA',calcParams: {str(plot.mas)} }},"candle_pane")""")
+            f"""chart_{plot.plot_id}.overrideIndicator({{name: 'MA',calcParams: {str(plot.mas)} }},"candle_pane")""")
     if len(plot.segments) > 0:
         for seg in plot.segments:
             parts.append(f"""
