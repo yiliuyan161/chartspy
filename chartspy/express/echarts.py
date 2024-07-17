@@ -125,7 +125,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
                     y_field_scale: bool = False,
                     opacity=0.5, tooltip_trigger="axis", title: str = "",
                     width: str = "100%",
-                    height: str = "500px") -> Echarts:
+                    height: str = "500px",**kwargs) -> Echarts:
     """
     scatter chart
 
@@ -298,6 +298,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'saveAsImage': {}
         }
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
@@ -305,7 +306,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
                  tooltip_trigger="axis",
                  y_scale=True,
                  title: str = "",
-                 width: str = "100%", height: str = "500px") -> Echarts:
+                 width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     绘制线图
     :param data_frame: 必填 DataFrame
@@ -408,7 +409,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
             'saveAsImage': {}
         }
     }
-
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
@@ -417,7 +418,7 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
                 tooltip_trigger="axis",
                 y_scale=True,
                 title: str = "",
-                width: str = "100%", height: str = "500px") -> Echarts:
+                width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
 
     :param data_frame: 必填 DataFrame
@@ -514,12 +515,13 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
             'saveAsImage': {}
         }
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: str = None, rose_type: str = None,
                 title: str = "",
-                width: str = "100%", height: str = "500px") -> Echarts:
+                width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     饼图
     :param data_frame: 必填 DataFrame
@@ -583,8 +585,126 @@ def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: s
             }
         ]
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
+def scatter_echarts(data_frame: pd.DataFrame, x_field: str, y_field: str, color_field: str = None, size_field: str = None,
+                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
+                                            "#fdae61", "#f46d43", "#d73027", "#a50026"], title: str = "",
+                    width: str = "100%", height: str = "500px", **kwargs) -> Echarts:
+    """
+    散点图
+    :param data_frame: pd.DataFrame
+    :param x_field: x轴映射的列
+    :param y_field: y轴映射的列
+    :param color_field: color映射列
+    :param size_field: size映射列
+    :param color_sequence: color色卡序列
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    options = {
+        'title': {'text': title},
+        'tooltip': {
+            'position': 'top',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
+            'formatter': "{c}"
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
+        'xAxis': {
+            'type': 'value',
+            'data': data_frame[x_field].tolist(),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'yAxis': {
+            'type': 'value',
+            'data': data_frame[y_field].tolist(),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'series': [{
+            'name': title,
+            'type': 'scatter',
+            'data': data_frame[[x_field, y_field, color_field, size_field]].values.tolist(),
+            'label': {
+                'show': True,
+                'position': 'top',
+                'formatter': '{b}'
+            },
+            'itemStyle': {
+                'color': color_sequence
+            }
+        }]
+    }
+    options.update(kwargs)
+    return Echarts(options=options, width=width, height=height)
+
+def line_echarts(data_frame: pd.DataFrame, x_field: str, y_field: str, title: str = "", width: str = "100%",
+                 height: str = "500px", **kwargs) -> Echarts:
+    """
+    折线图
+    :param data_frame: pd.DataFrame
+    :param x_field: x轴映射的列
+    :param y_field: y轴映射的列
+    :param title: 可选标题
+    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
+    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
+    :return:
+    """
+    options = {
+        'title': {'text': title},
+        'tooltip': {
+            'position': 'top',
+            'color': "black",
+            'backgroundColor': "rgba(255,255,255,0.8)",
+            'formatter': "{c}"
+        },
+        'toolbox': {
+            'show': True,
+            'feature': {
+                'restore': {},
+                'saveAsImage': {}
+            }
+        },
+        'xAxis': {
+            'type': 'category',
+            'data': data_frame[x_field].tolist(),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'yAxis': {
+            'type': 'value',
+            'data': data_frame[y_field].tolist(),
+            'splitArea': {
+                'show': True
+            }
+        },
+        'series': [{
+            'name': title,
+            'type': 'line',
+            'data': data_frame[y_field].tolist(),
+            'label': {
+                'show': True,
+                'position': 'top',
+                'formatter': '{b}'
+            }
+        }]
+    }
+    options.update(kwargs)
+    return Echarts(options=options, width=width, height=height)
 
 def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open_field: str = "open",
                         high_field: str = 'high',
@@ -592,7 +712,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                         close_field: str = 'close',
                         volume_field: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
                         width: str = "100%", height: str = "600px", left_padding: str = '5%',
-                        right_padding: str = '3%') -> Echarts:
+                        right_padding: str = '3%',**kwargs) -> Echarts:
     """
     绘制K线
     :param data_frame:
@@ -852,6 +972,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
         }
         options['series'].append(series_ma)
         options['legend']['data'].append(name)
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
@@ -863,7 +984,7 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"],
                     label_show=True, label_font_size=8,
                     title: str = "",
-                    width: str = "100%", height: str = "500px") -> Echarts:
+                    width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     二维热度图
 
@@ -952,13 +1073,15 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
         options['xAxis'][1]['type'] = 'category'
     if "date" in str(df[y_field].dtype) or "object" in str(df[y_field].dtype):
         options['yAxis']['type'] = 'category'
+
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_field_list: list = None,
                   fill: bool = True,
                   title: str = "",
-                  width: str = "100%", height: str = "500px") -> Echarts:
+                  width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
 
     :param data_frame:
@@ -1025,12 +1148,13 @@ def radar_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_fi
         }
         options['series'][0]['data'].append(data)
         options['legend']['data'].append(record[name_field])
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, value_field: str = None,
                              title: str = "",
-                             width: str = "100%", height: str = "300px") -> Echarts:
+                             width: str = "100%", height: str = "300px",**kwargs) -> Echarts:
     """
     日历热度图，显示日期热度
     :param data_frame:
@@ -1109,12 +1233,13 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, v
             'data': df[[date_field, value_field]].values.tolist()
         }
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator_field_list: list = [],
                      title: str = "",
-                     width: str = "100%", height: str = "500px") -> Echarts:
+                     width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     平行坐标图,要求name列每行唯一 比如：显示每个报告期各财务指标
     :param data_frame:
@@ -1201,13 +1326,14 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
 
         options['series'].append(series)
         options['legend']['data'].append(value_dict[name_field])
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_field: str = None,
                    value_field: str = None, source_depth_field: str = None, target_depth_field: str = None,
                    title: str = "",
-                   width: str = "100%", height: str = "500px") -> Echarts:
+                   width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
 
 
@@ -1278,13 +1404,14 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
             }
         }]
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def theme_river_echarts(data_frame: pd.DataFrame, date_field: str = None, value_field: str = None,
                         theme_field: str = None,
                         title: str = "",
-                        width: str = "100%", height: str = "500px") -> Echarts:
+                        width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
 
     :param data_frame:
@@ -1343,13 +1470,14 @@ def theme_river_echarts(data_frame: pd.DataFrame, date_field: str = None, value_
             }
         ]
     }
+    options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
 
 def sunburst_echarts(data_frame: pd.DataFrame, category_field_list: list = [], value_field: str = None,
                      title: str = "",
                      font_size: int = 8, node_click=False,
-                     width: str = "100%", height: str = "500px") -> Echarts:
+                     width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     data = Tools.df2tree(data_frame, category_field_list, value_field)
     options = {
         'title': {
@@ -1395,12 +1523,13 @@ def sunburst_echarts(data_frame: pd.DataFrame, category_field_list: list = [], v
             }
         }
     }
+    options.update(kwargs)
     return Echarts(options, height=height, width=width)
 
 
 def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: str, label: str, title: str = 'area',
                       label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
+                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3,**kwargs
                       ):
     """
     在现有图表上叠加矩形，不能单独显示
@@ -1444,12 +1573,13 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     options['series'][0]['name'] = title
     options['series'][0]['markArea'] = base_mark_area_options
     options['legend']['data'] = [title]
+    options.update(kwargs)
     return Echarts(options)
 
 
 def mark_background_echarts(data_frame: pd.DataFrame, x1: str, x2: str, label: str, title: str = 'area',
                       label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3
+                      label_font_color: str = 'inherit', fill_color: str = "inherit", fill_opacity: float = 0.3,**kwargs
                       ):
     """
     在现有图表上叠加背景，不能单独显示
@@ -1491,6 +1621,7 @@ def mark_background_echarts(data_frame: pd.DataFrame, x1: str, x2: str, label: s
     options['series'][0]['name'] = title
     options['series'][0]['markArea'] = base_mark_area_options
     options['legend']['data'] = [title]
+    options.update(kwargs)
     return Echarts(options)
 
 
@@ -1499,7 +1630,7 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
                          show_label: bool = False,
                          label_position: str = "middle", label_font_size: int = 10, label_distance: int = 10,
                          label_font_color: str = 'inherit', symbol_start: str = 'circle', symbol_end: str = 'circle',
-                         line_width: int = 2, line_type: str = "solid"):
+                         line_width: int = 2, line_type: str = "solid",**kwargs):
     """
     在现有图表上叠加线段，不能单独显示
 
@@ -1550,12 +1681,13 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     options['series'][0]['name'] = title
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
+    options.update(kwargs)
     return Echarts(options)
 
 
 def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, title="point",
                        label_position: str = "top", label_font_size: int = 10, label_distance: int = 10,
-                       label_font_color: str = 'inherit', label_background_color: str = "transparent"):
+                       label_font_color: str = 'inherit', label_background_color: str = "transparent",**kwargs):
     """
     在现有图表上叠加标签，不能单独显示
     :param data_frame:
@@ -1591,12 +1723,13 @@ def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
     options['series'][0]['markPoint'] = base_mark_point_options
     options['series'][0]['name'] = title
     options['legend']['data'] = [title]
+    options.update(kwargs)
     return Echarts(options)
 
 
 def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
                                label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
-                               label_font_color: str = 'inherit'):
+                               label_font_color: str = 'inherit',**kwargs):
     """
     在现有图表上叠加竖线，不能单独显示
     :param data_frame:
@@ -1627,12 +1760,13 @@ def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, tit
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
     options['series'][0]['name'] = title
+    options.update(kwargs)
     return Echarts(options)
 
 
 def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, title="vertical_line",
                                  label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
-                                 label_font_color: str = 'inherit'):
+                                 label_font_color: str = 'inherit',**kwargs):
     """
     在现有图表上叠加横线，不能单独显示
     :param data_frame:
@@ -1663,6 +1797,7 @@ def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, t
     options['series'][0]['markLine'] = base_mark_line_options
     options['legend']['data'] = [title]
     options['series'][0]['name'] = title
+    options.update(kwargs)
     return Echarts(options)
 
 
@@ -1684,7 +1819,7 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
                       z_field_scale: bool = False,
                       title: str = "",
                       width: str = "100%",
-                      height: str = "500px"):
+                      height: str = "500px",**kwargs):
     """
     3d 气泡图
 
@@ -1818,6 +1953,7 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
             'saveAsImage': {}
         }
     }
+    options.update(kwargs)
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
@@ -1828,7 +1964,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
                                           "#fdae61", "#f46d43", "#d73027", "#a50026"], info: str = None,
                   title: str = "",
                   width: str = "100%",
-                  height: str = "500px"):
+                  height: str = "500px",**kwargs):
     """
     3d bar
     :param data_frame:
@@ -1926,12 +2062,13 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
             'saveAsImage': {}
         }
     }
+    options.update(kwargs)
     return Echarts(options, with_gl=True, height=height, width=width)
 
 
 def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str, code_field: str, title="",
                      width="100%",
-                     height='500px') -> Echarts:
+                     height='500px',**kwargs) -> Echarts:
     """
     回撤图
     :param data_frame: pd.DataFrame
@@ -2104,6 +2241,7 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
             }
         }
         color_index = (color_index + 1) % len(colors)
+    options.update(kwargs)
     return Echarts(options, height=height, width=width)
 
 
