@@ -111,6 +111,24 @@ ECHARTS_BASE_OVERLAY_OPTIONS = {
 }
 
 
+def set_options(options: dict) -> None:
+    """
+    更新配置
+    在默认配置的基础上进行调整
+    对express全局生效
+    """
+    def recursive_update(source, update):
+        for key, value in update.items():
+            if key in source:
+                if isinstance(source[key], dict) and isinstance(value, dict):
+                    recursive_update(source[key], value)
+                else:
+                    source[key] = value
+            else:
+                source[key] = value
+    recursive_update(ECHARTS_BASE_GRID_OPTIONS, options)
+
+
 def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = None, size_field: str = None,
                     color_field: str = None, symbol: str = None,
                     size_range=[2, 30],
@@ -2145,7 +2163,7 @@ __all__ = ['scatter_echarts', 'line_echarts', 'bar_echarts', 'pie_echarts', 'can
            'heatmap_echarts', 'calendar_heatmap_echarts', 'parallel_echarts', 'sankey_echarts', 'theme_river_echarts',
            'sunburst_echarts', 'mark_area_echarts', 'mark_segment_echarts', 'mark_label_echarts',
            'mark_vertical_line_echarts', 'mark_horizontal_line_echarts', 'scatter3d_echarts', 'bar3d_echarts',
-           'drawdown_echarts', 'minute_echarts','mark_background_echarts']
+           'drawdown_echarts', 'minute_echarts','mark_background_echarts', 'set_options']
 
 if __name__ == "__main__":
     print([func for func in list(locals().keys()) if func[0:2] != '__'])
