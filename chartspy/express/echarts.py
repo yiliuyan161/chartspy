@@ -13,67 +13,83 @@ ECHARTS_BASE_GRID_OPTIONS = {
     'legend': {
         'data': []
     },
+    'grid': {'left': 0, 'right': '3%'},
     'tooltip': {
-        'trigger': 'axis', 'axisPointer': {'type': 'cross'},
-        'borderWidth': 1,
+        'trigger': 'axis', 'axisPointer': {'type': 'cross','snap':True},
+        'borderWidth': 0,
+        'borderColor': 'transparent',
         'color': "black",
-        'backgroundColor': "rgba(255,255,255,0.8)",
-        'borderColor': '#ccc',
-        'padding': 10,
+        'backgroundColor': "rgba(0,0,0,0)",
+        'alwaysShowContent': False,
+        'padding': 0,
         'formatter': Js("""
-                function(params){
-                    window.params=params;
-                    var x_value = params[0]['axisValue'];
-                    var labels = [];
-                    labels.push('<b><span>x轴:&nbsp;</span></b>' + x_value + '<br/>');
-                    params.sort(function(a, b) {
-                      if (a.seriesName < b.seriesName ) {return -1;}
-                      else if (a.seriesName > b.seriesName ) {return 1;}
-                      else{ return 0;}
-                    });
-                    for (let i = 0; i < params.length; i++) {
-                        const param = params[i];
-                        var label=['<b><span>'+param['seriesName']+'('+param['seriesType']+'):&nbsp;</span></b>'];
-                        var dimensionNames=param['dimensionNames'];
-                        if (typeof(param['value'])=='object' && dimensionNames.length>=param['data'].length){
-                            label.push("<br/>");
-                            for (let j = 1; j <param['data'].length; j++) {
-                                var value= param['value'][j];
-                                if (typeof(value)=='number'){
-                                    if (value%1==0 || value>100000){
-                                        label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+'</span><br/>');
-                                    }else{
-                                        label.push('<span>'+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+'</span><br/>');
-                                    }
-                                }else{
-                                    label.push("<div style='max-width:15em;word-break: break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
+            function(params){
+                var dt = params[0]['axisValue'];
+                var labels = [];
+                labels.push('<span>时间:&nbsp;</span>' + dt + '&nbsp;');
+                params.sort(function(a, b) {
+                    if (a.seriesName < b.seriesName ) {return -1;}
+                    else if (a.seriesName > b.seriesName ) {return 1;}
+                    else{ return 0;}
+                });
+                for (let i = 0; i < params.length; i++) {
+                    const param = params[i];
+                    const label = [];
+                    const dimensionNames = param["dimensionNames"];
+                    if (typeof (param['value']) == 'object' && dimensionNames.length == param['data'].length) {
+                        for (let j = 1; j < dimensionNames.length; j++) {
+                            const value = param['data'][j];
+                            if (typeof (value) == 'number') {
+                                if (value % 1 == 0 || value > 100000) {
+                                    label.push("<span>" + dimensionNames[j] + ':&nbsp;' + value + "</span>&nbsp;");
+                                } else {
+                                    label.push("<span>" + dimensionNames[j] + ':&nbsp;' + value  + "</span>&nbsp;");
                                 }
+                            } else {
+                                label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>" + dimensionNames[j] + ':&nbsp;' + value + "</div>&nbsp;");
                             }
-                        }else if(typeof(param['value'])=='number'){
-                            if (param['value']%1==0){
-                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
-                            }else{
-                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
-                            }
-                        }else if(param['value']){
-                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
-                        }else{
-                            label.push("<br/>");
                         }
-                        var cardStr= label.join('');
-                        labels.push(cardStr);
+                    } else if (param['seriesType'] == "candlestick") {
+                        label.push("<span>开:&nbsp;" + param['value'][1].toFixed(2) + "</span>&nbsp;");
+                        label.push("<span>高:&nbsp;" + param['value'][4].toFixed(2) + "</span>&nbsp;");
+                        label.push("<span>低:&nbsp;" + param['value'][3].toFixed(2) + "</span>&nbsp;");
+                        label.push("<span>收:&nbsp;" + param['value'][2].toFixed(2) + "</span>&nbsp;");
+                        const increase = (param['value'][5] * 100);
+                        const colors=['#254000','#3f6600','#5b8c00','#7cb305','#a0d911','#f5222d','#cf1322','#a8071a','#820014',"#5c0011"];
+                        var color_index = Math.round((Math.min(Math.max(-10,increase),10)+10)/2-1);
+                        label.push("<span>涨幅:&nbsp;<span style='color:" + colors[color_index%20] + "'<b>" + increase.toFixed(2) + "</b></span></span>&nbsp;");
+                        label.push("<span>振幅:&nbsp;" + ((param['value'][4] / param['value'][3] - 1) * 100).toFixed(2) + "</span>&nbsp;");
+                    } else if (typeof (param['value']) == 'number') {
+                        if (param['value'] > 10000) {
+                            if (param['value'] % 1 == 0) {
+                                label.push("<span>" + param["seriesName"] + ":" + (param['value'] / 10000).toFixed(0) + "万</span>&nbsp;");
+                            } else {
+                                label.push("<span>" + param["seriesName"] + ":" + (param['value'] / 10000).toFixed(2) + "万</span>&nbsp;");
+                            }
+                        } else {
+                            if (param['value'] % 1 == 0) {
+                                label.push("<span>" + param["seriesName"] + ":" + param['value'].toFixed(0) + "</span>&nbsp;");
+                            } else {
+                                label.push("<span>" + param["seriesName"] + ":" + param['value'].toFixed(2) + "</span>&nbsp;");
+                            }
+                        }
+                    } else if (param['value']) {
+                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>" + param['value'] + "</div>&nbsp;");
+                    } else {
+                        label.push("&nbsp;");
                     }
-                    return labels.join('');
-                }"""),
+                    const cardStr = label.join('');
+                    labels.push(cardStr);
+                }
+                return labels.join('');
+            }"""),
         'textStyle': {'color': '#000'},
         'position': Js("""
-                function (pos, params, el, elRect, size){
-                    var obj = {top: 10};
-                    obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
-                    return obj;
-                },
+            function (pos, params, el, elRect, size){
+                return {top: 30, left: 5};
+            }
+        """),
         'extraCssText': 'box-shadow: 0 0 0 rgba(0, 0, 0, 0);'
-            """)
     },
     'axisPointer': {
         'link': {'xAxisIndex': 'all'},
@@ -85,6 +101,7 @@ ECHARTS_BASE_GRID_OPTIONS = {
     'yAxis': {
         'type': 'value',
         'scale': True,
+        'position':'right',
         'splitLine': {
             'show': True
         }
@@ -258,7 +275,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             visual_map_size['min'] = min_size_value
             visual_map_size['max'] = max_size_value
         options['visualMap'].append(visual_map_size)
-
+        options['grid']['bottom']=70
     if color_field is not None:
         series['dimensions'].append(color_field)
         color_list = df[color_field].tolist()
@@ -283,7 +300,7 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             visual_map_color['min'] = df[color_field].min()
             visual_map_color['max'] = df[color_field].max()
         options['visualMap'].append(visual_map_color)
-
+        options['grid']['bottom']=70
     if info is not None:
         series['dimensions'].append(info)
         info_list = df[info].tolist()
@@ -343,65 +360,6 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
         options['series'].append(series)
     if tooltip_trigger == 'item':
         del options['axisPointer']
-    options['tooltip'] = {
-        'trigger': 'axis',
-        'borderWidth': 1,
-        'borderColor': '#ccc',
-        'padding': 10,
-        'color': "black",
-        'backgroundColor': "rgba(255,255,255,0.8)",
-        'formatter': Js("""
-                function(params){
-                    var dt = params[0]['axisValue'];
-                    var labels = [];
-                    labels.push('<b><span>时间:&nbsp;</span></b>' + dt + '<br/>');
-                    params.sort(function(a, b) {
-                      if (a.seriesName < b.seriesName ) {return -1;}
-                      else if (a.seriesName > b.seriesName ) {return 1;}
-                      else{ return 0;}
-                    });
-                    for (let i = 0; i < params.length; i++) {
-                        const param = params[i];
-                        var label=["<b><span>"+param['seriesName']+"("+param['seriesType']+"):&nbsp;</span></b>"];
-                        var dimensionNames=param["dimensionNames"];
-                        if (typeof(param['value'])=='object' && dimensionNames.length==param['data'].length){
-                            label.push("<br/>");
-                            for (let j = 1; j <dimensionNames.length; j++) {
-                                    var value= param['data'][j];
-                                    if (typeof(value)=='number'){
-                                        if (value%1==0 || value>100000){
-                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(0)+"</span><br/>");
-                                        }else{
-                                            label.push("<span>"+dimensionNames[j]+':&nbsp;'+value.toFixed(2)+"</span><br/>");
-                                        }
-                                    }else{
-                                        label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+dimensionNames[j]+':&nbsp;'+value+"</div>");
-                                    }
-                            }
-                        }else if(param['seriesType']=="candlestick"){
-                                label.push("<br/>");
-                                label.push("<span>open:&nbsp;"+param['data'][1].toFixed(2)+"</span><br/>");
-                                label.push("<span>close:&nbsp;"+param['data'][2].toFixed(2)+"</span><br/>");
-                                label.push("<span>high:&nbsp;"+param['data'][4].toFixed(2)+"</span><br/>");
-                                label.push("<span>low:&nbsp;"+param['data'][3].toFixed(2)+"</span><br/>");   
-                        }else if(typeof(param['value'])=='number'){
-                            if (param['value']%1==0){
-                                label.push("<span>"+param['value'].toFixed(0)+"</span><br/>");
-                            }else{
-                                label.push("<span>"+param['value'].toFixed(2)+"</span><br/>");
-                            }
-                        }else if(param['value']){
-                            label.push("<div style='max-width:15em;word-break:break-all;white-space: normal;'>"+value+"</div>");
-                        }else{
-                            label.push("<br/>");
-                        }
-                        var cardStr= label.join('');
-                        labels.push(cardStr);
-                    }
-                    return labels.join('');
-                }"""),
-        'textStyle': {'color': '#000'}
-    }
     options['toolbox'] = {
         'show': True,
         'feature': {
@@ -588,130 +546,12 @@ def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: s
     options.update(kwargs)
     return Echarts(options=options, width=width, height=height)
 
-def scatter_echarts(data_frame: pd.DataFrame, x_field: str, y_field: str, color_field: str = None, size_field: str = None,
-                    color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
-                                            "#fdae61", "#f46d43", "#d73027", "#a50026"], title: str = "",
-                    width: str = "100%", height: str = "500px", **kwargs) -> Echarts:
-    """
-    散点图
-    :param data_frame: pd.DataFrame
-    :param x_field: x轴映射的列
-    :param y_field: y轴映射的列
-    :param color_field: color映射列
-    :param size_field: size映射列
-    :param color_sequence: color色卡序列
-    :param title: 可选标题
-    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
-    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :return:
-    """
-    options = {
-        'title': {'text': title},
-        'tooltip': {
-            'position': 'top',
-            'color': "black",
-            'backgroundColor': "rgba(255,255,255,0.8)",
-            'formatter': "{c}"
-        },
-        'toolbox': {
-            'show': True,
-            'feature': {
-                'restore': {},
-                'saveAsImage': {}
-            }
-        },
-        'xAxis': {
-            'type': 'value',
-            'data': data_frame[x_field].tolist(),
-            'splitArea': {
-                'show': True
-            }
-        },
-        'yAxis': {
-            'type': 'value',
-            'data': data_frame[y_field].tolist(),
-            'splitArea': {
-                'show': True
-            }
-        },
-        'series': [{
-            'name': title,
-            'type': 'scatter',
-            'data': data_frame[[x_field, y_field, color_field, size_field]].values.tolist(),
-            'label': {
-                'show': True,
-                'position': 'top',
-                'formatter': '{b}'
-            },
-            'itemStyle': {
-                'color': color_sequence
-            }
-        }]
-    }
-    options.update(kwargs)
-    return Echarts(options=options, width=width, height=height)
-
-def line_echarts(data_frame: pd.DataFrame, x_field: str, y_field: str, title: str = "", width: str = "100%",
-                 height: str = "500px", **kwargs) -> Echarts:
-    """
-    折线图
-    :param data_frame: pd.DataFrame
-    :param x_field: x轴映射的列
-    :param y_field: y轴映射的列
-    :param title: 可选标题
-    :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
-    :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :return:
-    """
-    options = {
-        'title': {'text': title},
-        'tooltip': {
-            'position': 'top',
-            'color': "black",
-            'backgroundColor': "rgba(255,255,255,0.8)",
-            'formatter': "{c}"
-        },
-        'toolbox': {
-            'show': True,
-            'feature': {
-                'restore': {},
-                'saveAsImage': {}
-            }
-        },
-        'xAxis': {
-            'type': 'category',
-            'data': data_frame[x_field].tolist(),
-            'splitArea': {
-                'show': True
-            }
-        },
-        'yAxis': {
-            'type': 'value',
-            'data': data_frame[y_field].tolist(),
-            'splitArea': {
-                'show': True
-            }
-        },
-        'series': [{
-            'name': title,
-            'type': 'line',
-            'data': data_frame[y_field].tolist(),
-            'label': {
-                'show': True,
-                'position': 'top',
-                'formatter': '{b}'
-            }
-        }]
-    }
-    options.update(kwargs)
-    return Echarts(options=options, width=width, height=height)
-
 def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open_field: str = "open",
                         high_field: str = 'high',
                         low_field: str = 'low',
                         close_field: str = 'close',
                         volume_field: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
-                        width: str = "100%", height: str = "600px", left_padding: str = '5%',
+                        width: str = "100%", height: str = "600px", left_padding: str = '0%',
                         right_padding: str = '3%',**kwargs) -> Echarts:
     """
     绘制K线
@@ -755,9 +595,9 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
     options = {
         'animation': False,
         'title': {'text': title,'padding':[5,0]},
-        'legend': {'top': 0,'padding':[5,0], 'left': 'right', 'data': [title]},
+        'legend': {'top': 0,'padding':[5,10], 'left': 'right', 'data': [title]},
         'tooltip': {
-            'trigger': 'axis', 'axisPointer': {'type': 'line','snap':True},
+            'trigger': 'axis', 'axisPointer': {'type': 'cross','snap':True},
             'borderWidth': 0,
             'borderColor': 'transparent',
             'color': "black",
@@ -828,14 +668,24 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             'textStyle': {'color': '#000'},
             'position': Js("""
                 function (pos, params, el, elRect, size){
-                   return {top: 30, left: 0};
+                   return {top: 30, left: 5};
                 }
             """),
             'extraCssText': 'box-shadow: 0 0 0 rgba(0, 0, 0, 0);'
         },
         'axisPointer': {
-            'link': {'xAxisIndex': 'all'},
-            'label': {'backgroundColor': '#777'}
+            'link': {'xAxisIndex': [1]},
+            'label': {
+                'backgroundColor': '#777',
+                'formatter': Js("""
+                    function(params) {
+                    if (typeof params.value === 'number') {
+                        return params.value.toFixed(2);
+                    }
+                    return params.value;
+                }
+                """)
+            }
         },
         'toolbox': {
             'show': False,
@@ -845,8 +695,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             }
         },
         'grid': [
-            {'left': left_padding, 'right': right_padding, 'height': '75%'},
-            {'left': left_padding, 'right': right_padding, 'top': '76%', 'height': '13%'}
+            {'left': left_padding, 'right': right_padding, 'height': '79%'},
+            {'left': left_padding, 'right': right_padding, 'top': '80%', 'height': '17%'}
         ],
         'xAxis': [
             {
@@ -887,7 +737,14 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'scale': True,
                 'type': 'log' if log_y else 'value',
                 'logBase': 1.1,
-                'splitNumber': 10,
+                'splitNumber': 20,
+                'position':'right',
+                'minorSplitLine': {
+                    'show': True
+                },
+                'minorTick': {
+                    'show': True
+                },
                 'axisLabel': {'show': True,
                               'formatter': Js("""
                                function(value,index){
@@ -902,29 +759,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'scale': True,
                 'gridIndex': 1,
                 'splitNumber': 2,
-                'axisLabel': {'show': True,
-                              'formatter': Js("""
-                                function(value,index){
-                                    var si = [
-                                        { value: 1, symbol: "" },
-                                        { value: 1E3, symbol: "K" },
-                                        { value: 1E6, symbol: "M" },
-                                        { value: 1E9, symbol: "G" },
-                                        { value: 1E12, symbol: "T" },
-                                        { value: 1E15, symbol: "P" },
-                                        { value: 1E18, symbol: "E" }
-                                    ];
-                                    var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-                                    var i;
-                                    for (i = si.length - 1; i > 0; i--) {
-                                        if (value >= si[i].value) {
-                                            break;
-                                        }
-                                    }
-                                    return (value / si[i].value).toFixed(2).replace(rx, "$1") + si[i].symbol;
-                                }
-                              """)
-                              },
+                'position':'right',
+                'axisLabel': {'show': False},
                 'axisLine': {'show': False},
                 'axisTick': {'show': False},
                 'splitLine': {'show': False}
@@ -934,14 +770,14 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
             {
                 'type': 'inside',
                 'xAxisIndex': [0, 1],
-                'start': max(0, round(100 * (1 - 320 / df.shape[0]))),
+                'start': max(0, round(100 * (1 - 450 / df.shape[0]))),
                 'end': 100
             }, {
                 'type': 'slider',
                 'xAxisIndex': [0, 1],
-                'start': max(0, round(100 * (1 - 320 / df.shape[0]))),
+                'start': max(0, round(100 * (1 - 450 / df.shape[0]))),
                 'end': 100,
-                'height': 20
+                'height': 25
             }
         ],
         'series': [
@@ -982,7 +818,7 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
                     y_axis_data: list = None,
                     color_sequence: list = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090",
                                             "#fdae61", "#f46d43", "#d73027", "#a50026"],
-                    label_show=True, label_font_size=8,
+                    label_show=False, label_font_size=8,
                     title: str = "",
                     width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
@@ -1018,6 +854,7 @@ def heatmap_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
             'backgroundColor': "rgba(255,255,255,0.8)",
             'formatter': "{c}"
         },
+        'grid': {'left': "2%", 'right': '3%'},
         'toolbox': {
             'show': True,
             'feature': {
