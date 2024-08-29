@@ -7,7 +7,7 @@ import pandas as pd
 
 from .base import Tools, Html
 
-G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.16/g2plot.min.js"
+G2PLOT_JS_URL: str = "https://cdn.staticfile.org/g2plot/2.4.25/g2plot.min.js"
 
 
 # language=HTML

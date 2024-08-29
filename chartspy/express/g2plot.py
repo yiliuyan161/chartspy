@@ -386,11 +386,11 @@ def sankey_g2plot(df, source_field=None, target_field=None, weight_field=None, w
 
 def heatmap_g2plot(df, x_field=None, y_field=None, color_field=None, width='100%', height='500px'):
     options = {'xField': x_field, 'yField': y_field, 'colorField': color_field}
-    options["meta"]: {
-        x_field: {
+    options["meta"]= {
+        "x_field": {
             "type": "cat"
         },
-        y_field: {
+        "y_field": {
             "type": "cat"
         },
     }
