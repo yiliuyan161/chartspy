@@ -1565,7 +1565,7 @@ def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
 
 
 def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, title="vertical_line",
-                               label_position: str = 'middle', label_font_size: int = 10, label_distance: int = 10,
+                               label_position: str = 'insideStartTop', label_font_size: int = 10, label_distance: int = 10,
                                label_font_color: str = 'inherit',**kwargs):
     """
     在现有图表上叠加竖线，不能单独显示
