@@ -1588,9 +1588,17 @@ def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, tit
             'distance': label_distance,
             'fontSize': label_font_size,
             'color': label_font_color,
-            'show': True,
-            'formatter': "{b}"
+            'borderWidth':1,
+            'borderColor':'#000',
+            'backgroundColor':"white",
+            'padding':5,
+            'width':150,
+            'overflow':'breakAll',
+            'show': False,
+            'formatter': "{b}",
+            'rotate': 0  # 设置为0度以横向显示
         },
+        'emphasis':{'label':{'show':True}},
         'symbol': [None, None],
         'data': data
     }
