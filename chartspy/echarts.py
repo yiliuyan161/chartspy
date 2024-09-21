@@ -165,6 +165,18 @@ class Echarts(object):
                 this_options["visualMap"].extend(chart_option["visualMap"])
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
+    def update_options(self, options: dict) -> "Echarts":
+        def _update_dict(a: dict, b: dict) -> dict:
+            for k, v in b.items():
+                if k in a.keys() and isinstance(a[k], dict) and isinstance(v, dict):
+                    a[k] = _update_dict(a[k], v)
+                else:
+                    a[k] = v
+            return a
+
+        self.options = _update_dict(self.options, options)
+        return self
+
     def print_options(self, drop_data=False):
         """
         格式化打印options 方便二次修改
