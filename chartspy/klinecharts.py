@@ -53,11 +53,12 @@ class KlineCharts(object):
                  height: str = "500px"):
         """
         k线图
+
         :param df: [open,high,low,close,volume,turnover,timestamp]
         :param mas: [5, 10, 30, 60, 120, 250]
         :param main_indicators: 主图显示的指标列表 MA,EMA,SMA,BOLL,SAR,BBI
-        :param bottom_indicators:副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
-        :param df_segments:[start_time,start_price,end_time,end_price]
+        :param bottom_indicators: 副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
+        :param df_segments: [start_time,start_price,end_time,end_price]
         :param extra_js:
         :param width:
         :param height:
@@ -88,6 +89,7 @@ class KlineCharts(object):
     def render_notebook(self) -> Html:
         """
         在jupyter notebook 环境输出
+
         :return:
         """
         plot = self
@@ -121,6 +123,7 @@ class KlineCharts(object):
     def render_jupyterlab(self) -> Html:
         """
         在jupyterlab 环境输出
+
         :return:
         """
         plot = self
@@ -152,6 +155,7 @@ class KlineCharts(object):
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
+
         :return:
         """
         plot = self
@@ -184,6 +188,7 @@ class KlineCharts(object):
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
+
         :return:
         """
         plot = self
@@ -208,6 +213,7 @@ class KlineCharts(object):
     def _repr_html_(self):
         """
         jupyter 环境，直接输出
+
         :return:
         """
         plot = self

@@ -127,10 +127,11 @@ class Echarts(object):
 
         return Echarts(options=options)
 
-    def overlap_series(self, other_chart_options: list = [], add_yaxis=False, add_yaxis_grid_index=0):
+    def overlap_series(self, other_chart_options: list = [], add_yaxis=False, add_yaxis_grid_index=0) -> "Echarts":
         """
         叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
-        :param other_chart_options:要叠加的Echarts对象列表，或者options列表
+
+        :param other_chart_options: 要叠加的Echarts对象列表，或者options列表
         :param add_yaxis: 是否增加一个Y轴
         :param add_yaxis_grid_index: 0
         :return:
@@ -165,9 +166,28 @@ class Echarts(object):
                 this_options["visualMap"].extend(chart_option["visualMap"])
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
+    def update_options(self, options: dict) -> "Echarts":
+        """
+        更新options
+
+        :param options: 要更新的options，相同key进行递归覆盖
+        :return: 更新options后的Echarts
+        """
+        def _update_dict(a: dict, b: dict) -> dict:
+            for k, v in b.items():
+                if k in a.keys() and isinstance(a[k], dict) and isinstance(v, dict):
+                    a[k] = _update_dict(a[k], v)
+                else:
+                    a[k] = v
+            return a
+
+        self.options = _update_dict(self.options, options)
+        return self
+
     def print_options(self, drop_data=False):
         """
         格式化打印options 方便二次修改
+
         :param drop_data: 是否过滤掉data，减小打印长度，方便粘贴
         :return:
         """
@@ -180,7 +200,8 @@ class Echarts(object):
 
     def dump_options(self):
         """
-         导出 js option字符串表示
+        导出 js option字符串表示
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -189,6 +210,7 @@ class Echarts(object):
     def render_notebook(self) -> Html:
         """
         在jupyter notebook 环境输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -246,6 +268,7 @@ class Echarts(object):
     def render_jupyterlab(self) -> Html:
         """
         在jupyterlab 环境输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -308,6 +331,7 @@ class Echarts(object):
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -368,6 +392,7 @@ class Echarts(object):
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -415,6 +440,7 @@ class Echarts(object):
     def _repr_html_(self):
         """
         jupyter 环境，直接输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
