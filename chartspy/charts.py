@@ -248,7 +248,7 @@ def json_type_convert(o: object):
         return json_encoder.default(o)
 
 
-ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"
+ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js"
 ECHARTS_GL_JS_URL = "https://cdn.staticfile.org/echarts-gl/2.0.8/echarts-gl.min.js"
 
 
@@ -370,16 +370,19 @@ class Echarts(object):
 
         return Echarts(options=options)
 
-    def overlap_series(self, other_chart_options: list = [], add_yaxis=False, add_yaxis_grid_index=0):
+    def overlap_series(self, other_chart_options: list = [], add_yaxis=False, add_yaxis_grid_index=0) -> "Echarts":
         """
         叠加其他配置中的Series数据到现有配置，现有配置有多个坐标轴的，建议Series声明对应的axisIndex
-        :param other_chart_options:要叠加的Echarts对象列表，或者options列表
+
+        :param other_chart_options: 要叠加的Echarts对象列表，或者options列表
         :param add_yaxis: 是否增加一个Y轴
         :param add_yaxis_grid_index: 0
         :return:
         """
         this_options = copy.deepcopy(self.options)
         if add_yaxis:
+            if type(this_options['yAxis']).__name__=='dict':
+                this_options['yAxis'] = [this_options['yAxis']]
             this_options['yAxis'].append({'scale': True, 'type': 'value', 'gridIndex': add_yaxis_grid_index})
         if this_options["legend"]["data"] is None:
             this_options["legend"]["data"] = []
@@ -406,9 +409,28 @@ class Echarts(object):
                 this_options["visualMap"].extend(chart_option["visualMap"])
         return Echarts(options=this_options, extra_js=self.extra_js, width=self.width, height=self.height)
 
+    def update_options(self, options: dict) -> "Echarts":
+        """
+        更新options
+
+        :param options: 要更新的options，相同key进行递归覆盖
+        :return: 更新options后的Echarts
+        """
+        def _update_dict(a: dict, b: dict) -> dict:
+            for k, v in b.items():
+                if k in a.keys() and isinstance(a[k], dict) and isinstance(v, dict):
+                    a[k] = _update_dict(a[k], v)
+                else:
+                    a[k] = v
+            return a
+
+        self.options = _update_dict(self.options, options)
+        return self
+
     def print_options(self, drop_data=False):
         """
         格式化打印options 方便二次修改
+
         :param drop_data: 是否过滤掉data，减小打印长度，方便粘贴
         :return:
         """
@@ -421,7 +443,8 @@ class Echarts(object):
 
     def dump_options(self):
         """
-         导出 js option字符串表示
+        导出 js option字符串表示
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -430,6 +453,7 @@ class Echarts(object):
     def render_notebook(self) -> Html:
         """
         在jupyter notebook 环境输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -438,8 +462,8 @@ class Echarts(object):
             html = f"""
             <style>
               #{plot.plot_id} {{
-                width:{{plot.width}};
-                height:{{plot.height}};
+                width:{plot.width};
+                height:{plot.height};
              }}
             </style>
             <div id="{plot.plot_id}"></div>
@@ -487,6 +511,7 @@ class Echarts(object):
     def render_jupyterlab(self) -> Html:
         """
         在jupyterlab 环境输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -549,6 +574,7 @@ class Echarts(object):
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -588,8 +614,8 @@ class Echarts(object):
               <title></title>
                 <style>
                   #{plot.plot_id} {{
-                        width:{ {plot.width} };
-                        height:{ {plot.height} };
+                        width:{plot.width} ;
+                        height:{plot.height} ;
                      }}
                 </style>
                <script type="text/javascript" src="{plot.js_url}"></script>
@@ -609,6 +635,7 @@ class Echarts(object):
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -656,6 +683,7 @@ class Echarts(object):
     def _repr_html_(self):
         """
         jupyter 环境，直接输出
+
         :return:
         """
         self.js_options = Tools.convert_dict_to_js(self.options)
@@ -1279,11 +1307,12 @@ class KlineCharts(object):
                  height: str = "500px"):
         """
         k线图
+
         :param df: [open,high,low,close,volume,turnover,timestamp]
         :param mas: [5, 10, 30, 60, 120, 250]
         :param main_indicators: 主图显示的指标列表 MA,EMA,SMA,BOLL,SAR,BBI
-        :param bottom_indicators:副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
-        :param df_segments:[start_time,start_price,end_time,end_price]
+        :param bottom_indicators: 副图显示指标列表 VOL,MACD,KDJ,RSI,BIAS,BBAR,CCI,DMI,CR,PSY,DMA,TRIX,OBV,VR,WR,MTM,EMV,SAR,SMA,ROC,PVT,BBI,AO
+        :param df_segments: [start_time,start_price,end_time,end_price]
         :param extra_js:
         :param width:
         :param height:
@@ -1314,6 +1343,7 @@ class KlineCharts(object):
     def render_notebook(self) -> Html:
         """
         在jupyter notebook 环境输出
+
         :return:
         """
         plot = self
@@ -1347,6 +1377,7 @@ class KlineCharts(object):
     def render_jupyterlab(self) -> Html:
         """
         在jupyterlab 环境输出
+
         :return:
         """
         plot = self
@@ -1378,6 +1409,7 @@ class KlineCharts(object):
     def render_html(self) -> str:
         """
         渲染html字符串，可以用于 streamlit
+
         :return:
         """
         plot = self
@@ -1410,6 +1442,7 @@ class KlineCharts(object):
     def render_html_fragment(self):
         """
         渲染html 片段，方便一个网页输出多个图表
+
         :return:
         """
         plot = self
@@ -1434,6 +1467,7 @@ class KlineCharts(object):
     def _repr_html_(self):
         """
         jupyter 环境，直接输出
+
         :return:
         """
         plot = self

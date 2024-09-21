@@ -146,7 +146,6 @@ def scatter_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str 
     """
     scatter chart
 
-
     :param data_frame: 必填 DataFrame
     :param x_field: 必填 x轴映射的列
     :param y_field: 必填 y轴映射的列
@@ -326,6 +325,7 @@ def line_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = N
                  width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     绘制线图
+
     :param data_frame: 必填 DataFrame
     :param x_field: 必填 x轴映射的列
     :param y_field: 必填 y轴映射的列
@@ -383,12 +383,12 @@ def bar_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = No
     :param x_field: 必填 x轴映射的列
     :param y_field: 必填 y轴映射的列
     :param series_field: 选填 series 对应列
-    :param stack:堆叠分组
+    :param stack: 堆叠分组
     :param tooltip_trigger: axis item
     :param title: 可选标题
     :param width: 输出div的宽度 支持像素和百分比 比如800px/100%
     :param height: 输出div的高度 支持像素和百分比 比如800px/100%
-    :return:Echarts
+    :return: Echarts
     """
     options = copy.deepcopy(ECHARTS_BASE_GRID_OPTIONS)
     df = data_frame.copy()
@@ -482,6 +482,7 @@ def pie_echarts(data_frame: pd.DataFrame, name_field: str = None, value_field: s
                 width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     饼图
+
     :param data_frame: 必填 DataFrame
     :param name_field: name列名
     :param value_field: value列名
@@ -555,6 +556,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                         right_padding: str = '3%',**kwargs) -> Echarts:
     """
     绘制K线
+
     :param data_frame:
     :param time_field: 时间列名, 如果指定的列不存在，使用index作为time
     :param open_field: open列名
@@ -994,6 +996,7 @@ def calendar_heatmap_echarts(data_frame: pd.DataFrame, date_field: str = None, v
                              width: str = "100%", height: str = "300px",**kwargs) -> Echarts:
     """
     日历热度图，显示日期热度
+
     :param data_frame:
     :param date_field: 日期列
     :param value_field: 值列
@@ -1079,6 +1082,7 @@ def parallel_echarts(data_frame: pd.DataFrame, name_field: str = None, indicator
                      width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
     平行坐标图,要求name列每行唯一 比如：显示每个报告期各财务指标
+
     :param data_frame:
     :param name_field: name列
     :param indicator_field_list: 数据维度列list
@@ -1172,7 +1176,6 @@ def sankey_echarts(data_frame: pd.DataFrame, source_field: str = None, target_fi
                    title: str = "",
                    width: str = "100%", height: str = "500px",**kwargs) -> Echarts:
     """
-
 
     :param data_frame:
     :param source_field: source列
@@ -1370,6 +1373,7 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
                       ):
     """
     在现有图表上叠加矩形，不能单独显示
+
     :param data_frame:
     :param x1: 左上方顶点x坐标对应列
     :param y1: 左上方顶点y坐标对应列
@@ -1377,7 +1381,7 @@ def mark_area_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2: s
     :param y2: 右下方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_position: top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance:
     :param label_font_size:
     :param label_font_color:
@@ -1420,12 +1424,13 @@ def mark_background_echarts(data_frame: pd.DataFrame, x1: str, x2: str, label: s
                       ):
     """
     在现有图表上叠加背景，不能单独显示
+
     :param data_frame:
     :param x1: 左上方顶点x坐标对应列
     :param x2: 右下方顶点x坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_position: top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance:
     :param label_font_size:
     :param label_font_color:
@@ -1479,7 +1484,7 @@ def mark_segment_echarts(data_frame: pd.DataFrame, x1: str, y1: str, x2: str, y2
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
     :param show_label: 是否显示label
-    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_position: top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance: 10
     :param label_font_color:inherit
     :param label_font_size:12
@@ -1527,16 +1532,17 @@ def mark_label_echarts(data_frame: pd.DataFrame, x: str, y: str, label: str, tit
                        label_font_color: str = 'inherit', label_background_color: str = "transparent",**kwargs):
     """
     在现有图表上叠加标签，不能单独显示
+
     :param data_frame:
     :param x: 左上方顶点x坐标对应列
     :param y: 左上方顶点y坐标对应列
     :param label: 矩形标签文字对应列
     :param title: 用于在legend显示，控制叠加矩形显示隐藏
-    :param label_position:top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
+    :param label_position: top / left / right / bottom / inside / insideLeft / insideRight / insideTop / insideBottom / insideTopLeft / insideBottomLeft / insideTopRight / insideBottomRight
     :param label_distance: 10
-    :param label_font_color:inherit
-    :param label_font_size:12
-    :param label_background_color:transparent
+    :param label_font_color: inherit
+    :param label_font_size: 12
+    :param label_background_color: transparent
     :return:
     """
     options = copy.deepcopy(ECHARTS_BASE_OVERLAY_OPTIONS)
@@ -1569,6 +1575,7 @@ def mark_vertical_line_echarts(data_frame: pd.DataFrame, x: str, label: str, tit
                                label_font_color: str = 'inherit',**kwargs):
     """
     在现有图表上叠加竖线，不能单独显示
+
     :param data_frame:
     :param x:
     :param label:
@@ -1614,6 +1621,7 @@ def mark_horizontal_line_echarts(data_frame: pd.DataFrame, y: str, label: str, t
                                  label_font_color: str = 'inherit',**kwargs):
     """
     在现有图表上叠加横线，不能单独显示
+
     :param data_frame:
     :param y:
     :param label:
@@ -1667,7 +1675,6 @@ def scatter3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: st
                       height: str = "500px",**kwargs):
     """
     3d 气泡图
-
 
     :param data_frame:
     :param x_field:
@@ -1812,6 +1819,7 @@ def bar3d_echarts(data_frame: pd.DataFrame, x_field: str = None, y_field: str = 
                   height: str = "500px",**kwargs):
     """
     3d bar
+
     :param data_frame:
     :param x_field:
     :param y_field:
@@ -1916,6 +1924,7 @@ def drawdown_echarts(data_frame: pd.DataFrame, time_field: str, value_field: str
                      height='500px',**kwargs) -> Echarts:
     """
     回撤图
+
     :param data_frame: pd.DataFrame
     :param time_field: 时间列名
     :param value_field: 价格列名
