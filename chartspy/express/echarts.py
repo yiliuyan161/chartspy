@@ -552,7 +552,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                         close_field: str = 'close',
                         volume_field: str = 'volume', mas: list = [5, 10, 30], log_y: bool = True, title: str = "",
                         width: str = "100%", height: str = "600px", left_padding: str = '0%',
-                        right_padding: str = '3%',**kwargs) -> Echarts:
+                        right_padding: str = '3%',text_color:str='#000',**kwargs) -> Echarts:
     """
     绘制K线
     :param data_frame:
@@ -594,8 +594,8 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
 
     options = {
         'animation': False,
-        'title': {'text': title,'padding':[5,0]},
-        'legend': {'top': 0,'padding':[5,10], 'left': 'right', 'data': [title]},
+        'title': {'text': title,'padding':[5,0],'textStyle':{'color':text_color}},
+        'legend': {'top': 0,'padding':[5,10], 'left': 'right', 'data': [title],'textStyle':{'color':text_color}},
         'tooltip': {
             'trigger': 'axis', 'axisPointer': {'type': 'cross','snap':True},
             'borderWidth': 0,
@@ -665,7 +665,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                     }
                     return labels.join('');
                 }"""),
-            'textStyle': {'color': '#000'},
+            'textStyle': {'color': text_color},
             'position': Js("""
                 function (pos, params, el, elRect, size){
                    return {top: 30, left: 5};
@@ -707,7 +707,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'axisLine': {'show': False},
                 'axisLabel': {'show': False},
                 'axisTick': {'show': False},
-                'splitLine': {'show': True},
+                'splitLine': {'show': False},
                 'splitNumber': 20,
                 'min': 'dataMin',
                 'max': 'dataMax',
@@ -721,11 +721,10 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'data': df[time_field].tolist(),
                 'scale': True,
                 'boundaryGap': False,
-                'axisLine': {'onZero': False, 'show': True},
-                'axisLine': {'show': True},
+                'axisLine': {'onZero': False, 'show': False},
                 'axisLabel': {'show': True},
                 'axisTick': {'show': True},
-                'splitLine': {'show': True},
+                'splitLine': {'show': False},
                 'axisLabel': {'show': True},
                 'splitNumber': 20,
                 'min': 'dataMin',
@@ -740,7 +739,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                 'splitNumber': 20,
                 'position':'right',
                 'minorSplitLine': {
-                    'show': True
+                    'show': False
                 },
                 'minorTick': {
                     'show': True
@@ -753,7 +752,7 @@ def candlestick_echarts(data_frame: pd.DataFrame, time_field: str = 'time', open
                              """)},
                 'axisLine': {'show': False},
                 'axisTick': {'show': True},
-                'splitLine': {'show': True}
+                'splitLine': {'show': False}
             },
             {
                 'scale': True,
@@ -1440,7 +1439,8 @@ def mark_background_echarts(data_frame: pd.DataFrame, x1: str, x2: str, label: s
              {'xAxis': row[x2]}] for row in rows]
     base_mark_area_options = {
         'itemStyle': {
-            'opacity': fill_opacity
+            'opacity': fill_opacity,
+            'color': fill_color
         },
         'tooltip': {
             'color': "black",
