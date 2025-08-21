@@ -431,37 +431,58 @@ class Echarts(object):
         <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options};
-          if (typeof require !== 'undefined'){{
-            require.config({{
-                paths: {{
-                  "echarts": "{plot.js_url[:-3]}",
-                  "echartsgl": "{plot.js_url_gl[:-3]}"
-                }}
-              }});
-              require(['echarts','echartsgl'], function (echarts,echartsgl) {{
-                var plot_{plot.plot_id} =
-                echarts.init(document.getElementById('{plot.plot_id}'));
-                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-              }});
-          }}else{{
-            new Promise(function(resolve, reject)
-        {{
-            var script = document.createElement("script");
-            script.onload = resolve;
-            script.onerror = reject;
-            script.src = "{plot.js_url}";
-            document.head.appendChild(script);
-            var
-            scriptGL = document.createElement("script");
-            scriptGL.onload = resolve;
-            scriptGL.onerror = reject;
-            scriptGL.src = "{plot.js_url_gl}";
-            document.head.appendChild(scriptGL);
-        }}).then(() = > {{
-            var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-            plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-        }});
-        }}
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+              require.config({{
+                  paths: {{
+                    "echarts": "{plot.js_url[:-3]}",
+                    "echartsgl": "{plot.js_url_gl[:-3]}"
+                  }}
+                }});
+                require(['echarts','echartsgl'], function (echarts,echartsgl) {{
+                  var plot_{plot.plot_id} = echarts.init(container);
+                  plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+            }}else{{
+              // 检查ECharts是否已加载
+              if (typeof echarts !== 'undefined') {{
+                var plot_{plot.plot_id} = echarts.init(container);
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                    var script = document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "{plot.js_url}";
+                    document.head.appendChild(script);
+                    var scriptGL = document.createElement("script");
+                    scriptGL.onload = resolve;
+                    scriptGL.onerror = reject;
+                    scriptGL.src = "{plot.js_url_gl}";
+                    document.head.appendChild(scriptGL);
+                }}).then(() => {{
+                    var plot_{plot.plot_id} = echarts.init(container);
+                    plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
+          }}
         </script>
         """
         else:
@@ -477,27 +498,51 @@ class Echarts(object):
         <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options};
-          if (typeof require !== 'undefined'){{
-            require.config({{
-                paths: {{
-                  "echarts": "{plot.js_url[:-3]}",
-                }}
-              }});
-              require(['echarts'], function (echarts) {{
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-              }});
-          }}else{{
-            new Promise(function(resolve, reject) {{
-              var script = document.createElement("script");
-              script.onload = resolve;
-              script.onerror = reject;
-              script.src = "{plot.js_url}";
-              document.head.appendChild(script);
-            }}).then(() => {{
-               var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-               plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-            }});
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+              require.config({{
+                  paths: {{
+                    "echarts": "{plot.js_url[:-3]}",
+                  }}
+                }});
+                require(['echarts'], function (echarts) {{
+                  var plot_{plot.plot_id} = echarts.init(container);
+                  plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+            }}else{{
+              // 检查ECharts是否已加载
+              if (typeof echarts !== 'undefined') {{
+                var plot_{plot.plot_id} = echarts.init(container);
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                  var script = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "{plot.js_url}";
+                  document.head.appendChild(script);
+                }}).then(() => {{
+                   var plot_{plot.plot_id} = echarts.init(container);
+                   plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
           }}
         </script>
         """

@@ -672,37 +672,58 @@ class Echarts(object):
         <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options};
-          if (typeof require !== 'undefined'){{
-            require.config({{
-                paths: {{
-                  "echarts": "{plot.js_url[:-3]}",
-                  "echartsgl": "{plot.js_url_gl[:-3]}"
-                }}
-              }});
-              require(['echarts','echartsgl'], function (echarts,echartsgl) {{
-                var plot_{plot.plot_id} =
-                echarts.init(document.getElementById('{plot.plot_id}'));
-                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-              }});
-          }}else{{
-            new Promise(function(resolve, reject)
-        {{
-            var script = document.createElement("script");
-            script.onload = resolve;
-            script.onerror = reject;
-            script.src = "{plot.js_url}";
-            document.head.appendChild(script);
-            var
-            scriptGL = document.createElement("script");
-            scriptGL.onload = resolve;
-            scriptGL.onerror = reject;
-            scriptGL.src = "{plot.js_url_gl}";
-            document.head.appendChild(scriptGL);
-        }}).then(() = > {{
-            var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-            plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-        }});
-        }}
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+              require.config({{
+                  paths: {{
+                    "echarts": "{plot.js_url[:-3]}",
+                    "echartsgl": "{plot.js_url_gl[:-3]}"
+                  }}
+                }});
+                require(['echarts','echartsgl'], function (echarts,echartsgl) {{
+                  var plot_{plot.plot_id} = echarts.init(container);
+                  plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+            }}else{{
+              // 检查ECharts是否已加载
+              if (typeof echarts !== 'undefined') {{
+                var plot_{plot.plot_id} = echarts.init(container);
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                    var script = document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "{plot.js_url}";
+                    document.head.appendChild(script);
+                    var scriptGL = document.createElement("script");
+                    scriptGL.onload = resolve;
+                    scriptGL.onerror = reject;
+                    scriptGL.src = "{plot.js_url_gl}";
+                    document.head.appendChild(scriptGL);
+                }}).then(() => {{
+                    var plot_{plot.plot_id} = echarts.init(container);
+                    plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
+          }}
         </script>
         """
         else:
@@ -718,27 +739,51 @@ class Echarts(object):
         <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options};
-          if (typeof require !== 'undefined'){{
-            require.config({{
-                paths: {{
-                  "echarts": "{plot.js_url[:-3]}",
-                }}
-              }});
-              require(['echarts'], function (echarts) {{
-                var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-                plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-              }});
-          }}else{{
-            new Promise(function(resolve, reject) {{
-              var script = document.createElement("script");
-              script.onload = resolve;
-              script.onerror = reject;
-              script.src = "{plot.js_url}";
-              document.head.appendChild(script);
-            }}).then(() => {{
-               var plot_{plot.plot_id} = echarts.init(document.getElementById('{plot.plot_id}'));
-               plot_{plot.plot_id}.setOption(options_{plot.plot_id})
-            }});
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+              require.config({{
+                  paths: {{
+                    "echarts": "{plot.js_url[:-3]}",
+                  }}
+                }});
+                require(['echarts'], function (echarts) {{
+                  var plot_{plot.plot_id} = echarts.init(container);
+                  plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+            }}else{{
+              // 检查ECharts是否已加载
+              if (typeof echarts !== 'undefined') {{
+                var plot_{plot.plot_id} = echarts.init(container);
+                plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                  var script = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "{plot.js_url}";
+                  document.head.appendChild(script);
+                }}).then(() => {{
+                   var plot_{plot.plot_id} = echarts.init(container);
+                   plot_{plot.plot_id}.setOption(options_{plot.plot_id});
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
           }}
         </script>
         """
@@ -937,27 +982,51 @@ class G2PLOT(object):
         <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options}
-          if (typeof require !== 'undefined'){{
-              require.config({{
-                paths: {{
-                  "G2Plot": "{plot.js_url[:-3]}"
-                }}
-              }});
-              require(['G2Plot'], function (G2Plot) {{
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+                require.config({{
+                  paths: {{
+                    "G2Plot": "{plot.js_url[:-3]}"
+                  }}
+                }});
+                require(['G2Plot'], function (G2Plot) {{
+                  var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", options_{plot.plot_id}); 
+                  plot_{plot.plot_id}.render();
+                }});
+            }}else{{
+              // 检查G2Plot是否已加载
+              if (typeof G2Plot !== 'undefined') {{
                 var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", options_{plot.plot_id}); 
                 plot_{plot.plot_id}.render();
-              }});
-          }}else{{
-            new Promise(function(resolve, reject) {{
-              var script = document.createElement("script");
-              script.onload = resolve;
-              script.onerror = reject;
-              script.src = "{plot.js_url}";
-              document.head.appendChild(script);
-            }}).then(() => {{
-               var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", options_{plot.plot_id}); 
-               plot_{plot.plot_id}.render();
-            }});
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                  var script = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "{plot.js_url}";
+                  document.head.appendChild(script);
+                }}).then(() => {{
+                   var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", options_{plot.plot_id}); 
+                   plot_{plot.plot_id}.render();
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
           }}
         </script>
         """
@@ -1166,9 +1235,6 @@ class HighCharts(object):
         self.js_options = Tools.convert_dict_to_js(self.options)
         plot = self
         html = f"""
-        <script>
-
-        </script>
         <style>
           #{plot.plot_id} {{
             width:{plot.width};
@@ -1176,56 +1242,77 @@ class HighCharts(object):
          }}
         </style>
         <div id="{plot.plot_id}"></div>
-        <script >
+        <script>
           {plot.extra_js}
           var options_{plot.plot_id} = {plot.js_options};
-        </script>
-        <script>
-          if (typeof require !== 'undefined'){{
-              require.config({{
-                    packages: [{{
-                        name: 'highcharts',
-                        main: 'highcharts'
-                    }}],
-                    paths: {{
-                        'highcharts': 'https://code.highcharts.com'
-                    }}
-               }});
-              require(['highcharts','highcharts/modules/streamgraph','highcharts/modules/arc-diagram','highcharts/modules/sankey','highcharts/modules/dependency-wheel'], function (Highcharts) {{
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+                require.config({{
+                      packages: [{{
+                          name: 'highcharts',
+                          main: 'highcharts'
+                      }}],
+                      paths: {{
+                          'highcharts': 'https://code.highcharts.com'
+                      }}
+                 }});
+                require(['highcharts','highcharts/modules/streamgraph','highcharts/modules/arc-diagram','highcharts/modules/sankey','highcharts/modules/dependency-wheel'], function (Highcharts) {{
+                  Highcharts.chart('{plot.plot_id}',options_{plot.plot_id})
+                }});
+            }}else{{
+              // 检查Highcharts是否已加载
+              if (typeof Highcharts !== 'undefined') {{
                 Highcharts.chart('{plot.plot_id}',options_{plot.plot_id})
-              }});
-          }}else{{
-            new Promise(function(resolve, reject) {{
-                 var script = document.createElement("script");
-              script.onload = resolve;
-              script.onerror = reject;
-              script.src = "https://code.highcharts.com/highcharts.js";
-              document.head.appendChild(script);
-              var scriptSG = document.createElement("script");
-                  scriptSG.onload = resolve;
-                  scriptSG.onerror = reject;
-                  scriptSG.src = "https://code.highcharts.com/modules/streamgraph.js";
-                  document.head.appendChild(scriptSG);
-              var wheel = document.createElement("script");
-                  scriptSG.onload = resolve;
-                  scriptSG.onerror = reject;
-                  scriptSG.src = "https://code.highcharts.com/modules/dependency-wheel.js";
-                  document.head.appendChild(wheel);
-              var sankey = document.createElement("script");
-                  scriptSG.onload = resolve;
-                  scriptSG.onerror = reject;
-                  scriptSG.src = "https://code.highcharts.com/modules/sankey.js";
-                  document.head.appendChild(sankey);
-              var arc_diagram = document.createElement("script");
-                  scriptSG.onload = resolve;
-                  scriptSG.onerror = reject;
-                  scriptSG.src = "https://code.highcharts.com/modules/arc-diagram.js";
-                  document.head.appendChild(arc_diagram);
+              }} else {{
+                new Promise(function(resolve, reject) {{
+                     var script = document.createElement("script");
+                  script.onload = resolve;
+                  script.onerror = reject;
+                  script.src = "https://code.highcharts.com/highcharts.js";
+                  document.head.appendChild(script);
+                  var scriptSG = document.createElement("script");
+                      scriptSG.onload = resolve;
+                      scriptSG.onerror = reject;
+                      scriptSG.src = "https://code.highcharts.com/modules/streamgraph.js";
+                      document.head.appendChild(scriptSG);
+                  var wheel = document.createElement("script");
+                      scriptSG.onload = resolve;
+                      scriptSG.onerror = reject;
+                      scriptSG.src = "https://code.highcharts.com/modules/dependency-wheel.js";
+                      document.head.appendChild(wheel);
+                  var sankey = document.createElement("script");
+                      scriptSG.onload = resolve;
+                      scriptSG.onerror = reject;
+                      scriptSG.src = "https://code.highcharts.com/modules/sankey.js";
+                      document.head.appendChild(sankey);
+                  var arc_diagram = document.createElement("script");
+                      scriptSG.onload = resolve;
+                      scriptSG.onerror = reject;
+                      scriptSG.src = "https://code.highcharts.com/modules/arc-diagram.js";
+                      document.head.appendChild(arc_diagram);
 
-            }}).then(() => {{
-                {plot.extra_js}
-               Highcharts.chart('{plot.plot_id}',options_{plot.plot_id})
-            }});
+                }}).then(() => {{
+                    {plot.extra_js}
+                   Highcharts.chart('{plot.plot_id}',options_{plot.plot_id})
+                }});
+              }}
+            }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
           }}
         </script>
         """
@@ -1448,27 +1535,49 @@ class KlineCharts(object):
         <script>
           {plot.extra_js}
           var data_{plot.plot_id} = {plot.data}
-          if (typeof require !== 'undefined'){{
-              require.config({{
-                paths: {{
-                  "klinecharts": "{plot.js_url[:-3]}"
-                }}
-              }});
-              require(['klinecharts'], function (klinecharts) {{
-                """ + kline_chart_segment(plot) + f"""
-             }});
-             }}else{{
-               new Promise(function(resolve, reject) {{
-                 var script = document.createElement("script");
-                 script.onload = resolve;
-                 script.onerror = reject;
-                 script.src = "{plot.js_url}";
-                 document.head.appendChild(script);
-               }}).then(() => {{
-                 """ + kline_chart_segment(plot) + f"""
+          
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
+                require.config({{
+                  paths: {{
+                    "klinecharts": "{plot.js_url[:-3]}"
+                  }}
+                }});
+                require(['klinecharts'], function (klinecharts) {{
+                  """ + kline_chart_segment(plot) + f"""
                }});
-             }}
-
+               }}else{{
+                 // 检查KlineCharts是否已加载
+                 if (typeof klinecharts !== 'undefined') {{
+                   """ + kline_chart_segment(plot) + f"""
+                 }} else {{
+                   new Promise(function(resolve, reject) {{
+                     var script = document.createElement("script");
+                     script.onload = resolve;
+                     script.onerror = reject;
+                     script.src = "{plot.js_url}";
+                     document.head.appendChild(script);
+                   }}).then(() => {{
+                     """ + kline_chart_segment(plot) + f"""
+                   }});
+                 }}
+               }}
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
+          }}
         </script>
         """
         return Html(html).data
@@ -1737,7 +1846,6 @@ class Tabulator(object):
         """
         plot = self
         html = f"""
-
         <style>
           #{plot.plot_id} {{
             width:{plot.width};
@@ -1751,7 +1859,16 @@ class Tabulator(object):
         </style>
         <div id="{plot.plot_id}"></div>
         <script>
-          if (typeof require !== 'undefined'){{
+          // 改进的渲染逻辑，兼容VSCode和Jupyter
+          function initChart_{plot.plot_id}() {{
+            var container = document.getElementById('{plot.plot_id}');
+            if (!container) {{
+                // 如果DOM元素还没准备好，延迟执行
+                setTimeout(initChart_{plot.plot_id}, 100);
+                return;
+            }}
+            
+            if (typeof require !== 'undefined'){{
                 requirejs.config(
                      {{paths: {{ 
                         'tabulator': ['https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min'],
@@ -1760,7 +1877,6 @@ class Tabulator(object):
                      }},}}
                 );
                 require(['tabulator','jquery','sparkline'],function(Tabulator,$,sparkline) {{
-
                        var element = document.createElement("link");
                         element.setAttribute("rel", "stylesheet");
                         element.setAttribute("type", "text/css");
@@ -1769,32 +1885,49 @@ class Tabulator(object):
                         """ + tabulator_segment(plot) + f"""
                     }});
              }}else{{
-               new Promise(function(resolve, reject) {{
-                  var script = document.createElement("script");
-                  script.onload = resolve;
-                  script.onerror = reject;
-                  script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
-                  document.head.appendChild(script);
-                    var jq = document.createElement("script");
-                  script.onload = resolve;
-                  script.onerror = reject;
-                  script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
-                  document.head.appendChild(jq);
-                    var sparkline = document.createElement("script");
-                  script.onload = resolve;
-                  script.onerror = reject;
-                  script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
-                  document.head.appendChild(sparkline);
-                    var element = document.createElement("link");
+               // 检查Tabulator是否已加载
+               if (typeof Tabulator !== 'undefined' && typeof $ !== 'undefined') {{
+                 var element = document.createElement("link");
+                 element.setAttribute("rel", "stylesheet");
+                 element.setAttribute("type", "text/css");
+                 element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
+                 document.getElementsByTagName("head")[0].appendChild(element);
+                 """ + tabulator_segment(plot) + f"""
+               }} else {{
+                 new Promise(function(resolve, reject) {{
+                    var script = document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "https://cdn.staticfile.org/tabulator/5.2.3/js/tabulator.min.js";
+                    document.head.appendChild(script);
+                      var jq = document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "https://cdn.staticfile.org/jquery/3.6.0/jquery.min.js";
+                    document.head.appendChild(jq);
+                      var sparkline = document.createElement("script");
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    script.src = "https://cdn.staticfile.org/jquery-sparklines/2.1.2/jquery.sparkline.min.js";
+                    document.head.appendChild(sparkline);
+                      var element = document.createElement("link");
                     element.setAttribute("rel", "stylesheet");
                     element.setAttribute("type", "text/css");
                     element.setAttribute("href", "https://cdn.staticfile.org/tabulator/5.2.3/css/tabulator.min.css");
                     document.getElementsByTagName("head")[0].appendChild(element);
-                }}).then(() => {{
-                  """ + tabulator_segment(plot) + f"""
-                }});
+                  }}).then(() => {{
+                    """ + tabulator_segment(plot) + f"""
+                  }});
+               }}
              }}
-
+          }}
+          
+          // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+          }} else {{
+            initChart_{plot.plot_id}();
+          }}
         </script>
         """
         return Html(html).data
