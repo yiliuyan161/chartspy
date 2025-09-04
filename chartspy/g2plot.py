@@ -87,6 +87,20 @@ class G2PLOT(object):
             var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
             plot_{plot.plot_id}.render();
           }});
+        // 确保DOM加载完成后再初始化
+          if (document.readyState === 'loading') {{
+            document.addEventListener('DOMContentLoaded', function() {{
+              require(['G2Plot'], function (G2Plot) {{
+                var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
+                plot_{plot.plot_id}.render();
+              }});
+            }});
+          }} else {{
+            require(['G2Plot'], function (G2Plot) {{
+              var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
+              plot_{plot.plot_id}.render();
+            }});
+          }}
         </script>
         """
 
@@ -111,16 +125,25 @@ class G2PLOT(object):
             // load javascript
             
             {plot.extra_js}
-            new Promise(function(resolve, reject) {{
-              var script = document.createElement("script");
-              script.onload = resolve;
-              script.onerror = reject;
-              script.src = "{plot.js_url}";
-              document.head.appendChild(script);
-            }}).then(() => {{
-              var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
-              plot_{plot.plot_id}.render();
-            }});
+            function initChart_{plot.plot_id}() {{
+              new Promise(function(resolve, reject) {{
+                var script = document.createElement("script");
+                script.onload = resolve;
+                script.onerror = reject;
+                script.src = "{plot.js_url}";
+                document.head.appendChild(script);
+              }}).then(() => {{
+                var plot_{plot.plot_id} = new G2Plot.{plot.plot_type}("{plot.plot_id}", {plot.js_options}) 
+                plot_{plot.plot_id}.render();
+              }});
+            }}
+            
+            // 确保DOM加载完成后再初始化
+            if (document.readyState === 'loading') {{
+              document.addEventListener('DOMContentLoaded', initChart_{plot.plot_id});
+            }} else {{
+              initChart_{plot.plot_id}();
+            }}
             </script>
             """
         return Html(html)

@@ -248,7 +248,7 @@ def json_type_convert(o: object):
         return json_encoder.default(o)
 
 
-ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.3.2/echarts.min.js"
+ECHARTS_JS_URL = "https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js"
 ECHARTS_GL_JS_URL = "https://cdn.staticfile.org/echarts-gl/2.0.8/echarts-gl.min.js"
 
 
