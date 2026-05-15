@@ -59,7 +59,7 @@ def tabulator_segment(plot):
 
 class Tabulator(object):
     """
-    g2plot
+    tabulator
     """
 
     def __init__(self, df: pd.DataFrame, sparkline_dict=None, width_dict=None, formatter_dict=None,

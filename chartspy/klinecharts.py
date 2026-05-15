@@ -44,7 +44,7 @@ def kline_chart_segment(plot):
 
 class KlineCharts(object):
     """
-    g2plot
+    klinecharts
     """
 
     def __init__(self, df: pd.DataFrame, mas=[5, 10, 30, 60, 120, 250], main_indicators=["MA"],

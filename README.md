@@ -3,13 +3,17 @@
 [English documents](https://chartspy.icopy.site/en/)
 [中文文档](https://chartspy.icopy.site)
 
-帮助用户在python环境使用echarts g2plot KlineChart 绘图
+帮助用户在python环境使用echarts g2plot KlineChart HighCharts Tabulator 绘图和展示数据
 
 不同于pyecharts，不对echarts 概念和属性进行python映射和二次抽象，保证库不依赖于特定echarts版本
 
 * 实现了 python配置<=>JavaScript配置的**双向互转**
 
 * 同时借鉴**plotly.express** 封装了简单图表类型可视化函数
+
+* 支持多种图表库：Echarts、G2Plot、KlineCharts、HighCharts、Tabulator
+
+* 支持多种输出环境：Jupyter Notebook、JupyterLab、HTML、Streamlit
 
 * 提供 **单文件版** ,复制 charts.py 到jupyter环境就可以了
 
