@@ -1,6 +1,6 @@
 # chartspy
 
-Help users to use echarts,g2plot,KLineChart drawing in python environment
+Help users to use echarts, g2plot, KLineChart, HighCharts, Tabulator for drawing charts and displaying data in python environment
 
 Unlike pyecharts, it does not perform python mapping and secondary abstraction of echarts concepts and attributes,
 ensuring that the library does not depend on a specific echarts version
@@ -8,6 +8,10 @@ ensuring that the library does not depend on a specific echarts version
 * implemented **two-way conversion** of python configuration<=>JavaScript configuration
 
 * offer simple visualization functions like plotly.express
+
+* supports multiple chart libraries: Echarts, G2Plot, KlineCharts, HighCharts, Tabulator
+
+* supports multiple output environments: Jupyter Notebook, JupyterLab, HTML, Streamlit
 
 ## instructions for use
 
@@ -59,7 +63,7 @@ options = {
         'type': 'scatter'
     }]
 }
-Echarts(options, height='600px', title='散点图测试').render_notebook()
+Echarts(options, height='600px').render_notebook()
 ```
 
 ```python
